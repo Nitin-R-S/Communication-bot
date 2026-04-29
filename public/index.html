@@ -1,0 +1,2771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDart Communication Hub - Revolutionary Communication Enhancement</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary: #06b6d4;
+            --accent: #f472b6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --lighter: #ffffff;
+            --gray: #64748b;
+            --gradient-1: linear-gradient(135deg, #6366f1, #8b5cf6);
+            --gradient-2: linear-gradient(135deg, #06b6d4, #3b82f6);
+            --gradient-3: linear-gradient(135deg, #f472b6, #ec4899);
+            --gradient-4: linear-gradient(135deg, #10b981, #14b8a6);
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--darker);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(244, 114, 182, 0.1) 0%, transparent 40%);
+            animation: bgMove 20s ease-in-out infinite;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        }
+
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--light);
+        }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 6rem 2rem 2rem;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge span {
+            color: var(--secondary);
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .gradient {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--glass);
+            color: var(--light);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Dashboard Grid */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon.gradient-1 { background: var(--gradient-1); }
+        .card-icon.gradient-2 { background: var(--gradient-2); }
+        .card-icon.gradient-3 { background: var(--gradient-3); }
+        .card-icon.gradient-4 { background: var(--gradient-4); }
+
+        .card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .card-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Feature Panels */
+        .feature-panels {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(2, 6, 23, 0.95);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .feature-panels.active {
+            display: block;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .panel-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .close-panel {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-panel:hover {
+            background: var(--danger);
+        }
+
+        .panel-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Voice Coach Panel */
+        .voice-coach-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .coach-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .coach-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--primary-light);
+        }
+
+        .metric-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            overflow: hidden;
+        }
+
+        .metric-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .metric-fill.high { background: var(--success); }
+        .metric-fill.medium { background: var(--warning); }
+        .metric-fill.low { background: var(--danger); }
+
+        .real-time-feedback {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .feedback-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+
+        .feedback-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .feedback-icon.positive { background: var(--success); }
+        .feedback-icon.warning { background: var(--warning); }
+        .feedback-icon.negative { background: var(--danger); }
+
+        /* Call Replay Room */
+        .replay-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+        }
+
+        .call-player {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .waveform {
+            height: 80px;
+            background: linear-gradient(90deg, 
+                rgba(99, 102, 241, 0.3) 0%, 
+                rgba(99, 102, 241, 0.8) 50%, 
+                rgba(99, 102, 241, 0.3) 100%);
+            border-radius: 8px;
+            margin: 1rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waveform::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                rgba(255,255,255,0.1) 2px,
+                rgba(255,255,255,0.1) 4px
+            );
+            animation: wave 1s linear infinite;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(20px); }
+        }
+
+        .call-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--light);
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .control-btn:hover {
+            background: var(--primary);
+        }
+
+        .control-btn.play {
+            width: 64px;
+            height: 64px;
+            background: var(--gradient-1);
+        }
+
+        .call-transcript {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transcript-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .transcript-item.speaker {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .transcript-item.user {
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .speaker-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .call-metrics {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .metric-card h5 {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        /* Message Simulator */
+        .simulator-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+        }
+
+        .chat-window {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .chat-message.incoming {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.outgoing {
+            background: var(--gradient-1);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 0.875rem 1rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--light);
+            font-size: 1rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .simulator-sidebar {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .scenario-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .scenario-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--gradient-2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .response-feedback {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* DNA Sequencer */
+        .dna-visualization {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .dna-section {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .dna-section h4 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .dna-helix {
+            width: 60px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .dna-strand {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: dnaFloat 2s ease-in-out infinite;
+        }
+
+        @keyframes dnaFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .dna-profile {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .profile-type {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-item {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+        }
+
+        /* Body Language Mirror */
+        .mirror-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .video-preview {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-preview::before {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.5; }
+        }
+
+        .body-analysis {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .analysis-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .analysis-item:last-child {
+            border-bottom: none;
+        }
+
+        .analysis-score {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .score-bar {
+            width: 100px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 3px;
+        }
+
+        /* Email Tone Dialer */
+        .tone-dialer {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+        }
+
+        .email-editor {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .email-input {
+            width: 100%;
+            min-height: 300px;
+            background: transparent;
+            border: none;
+            color: var(--light);
+            font-size: 1rem;
+            line-height: 1.7;
+            resize: none;
+        }
+
+        .email-input:focus {
+            outline: none;
+        }
+
+        .tone-analysis {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .tone-gauge {
+            width: 150px;
+            height: 75px;
+            margin: 1rem auto;
+            position: relative;
+            background: conic-gradient(from 180deg, 
+                var(--danger) 0deg, 
+                var(--warning) 90deg, 
+                var(--success) 180deg);
+            border-radius: 150px 150px 0 0;
+        }
+
+        .tone-needle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            height: 60px;
+            background: white;
+            transform-origin: bottom center;
+            border-radius: 2px;
+            transition: transform 0.5s ease;
+        }
+
+        /* Presentation Q&A */
+        .presentation-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+        }
+
+        .slide-preview {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .slide-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .slide-content {
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .qa-prep {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .question-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-text {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .difficulty-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .difficulty-badge.high { background: var(--danger); }
+        .difficulty-badge.medium { background: var(--warning); }
+        .difficulty-badge.low { background: var(--success); }
+
+        /* Suggestion Engine */
+        .suggestions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .suggestion-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .suggestion-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .suggestion-content h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .suggestion-content p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .impact-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .impact-badge.high { background: var(--danger); }
+        .impact-badge.medium { background: var(--warning); }
+
+        /* Role Dashboard */
+        .role-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .role-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .role-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .role-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .role-modules {
+            list-style: none;
+        }
+
+        .role-modules li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .role-modules li::before {
+            content: '✓';
+            color: var(--success);
+        }
+
+        /* Additional Features */
+        .innovative-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .innovative-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .innovative-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .innovative-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .innovative-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Real-time Translation */
+        .translation-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .translation-input {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .language-selector {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .language-selector select {
+            flex: 1;
+            padding: 0.75rem;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--light);
+        }
+
+        /* Meeting Intelligence */
+        .meeting-dashboard {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .meeting-stat {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .meeting-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .meeting-stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* AI Coach */
+        .coach-chat {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .coach-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .coach-message {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .coach-message.bot {
+            background: var(--gradient-1);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .coach-message.user {
+            background: rgba(6, 182, 212, 0.2);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .replay-container,
+            .simulator-container,
+            .tone-dialer,
+            .presentation-container,
+            .translation-container,
+            .mirror-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .dna-visualization {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .meeting-dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="grid-pattern"></div>
+    </div>
+
+    <header>
+        <div class="logo">
+            <div class="logo-icon">V</div>
+            <span class="logo-text">VDart CommHub</span>
+        </div>
+        <nav class="nav-links">
+            <a href="#" class="active" onclick="showDashboard()">Dashboard</a>
+            <a href="#" onclick="showFeature('voice-coach')">Voice Coach</a>
+            <a href="#" onclick="showFeature('call-replay')">Call Replay</a>
+            <a href="#" onclick="showFeature('simulator')">Simulator</a>
+            <a href="#" onclick="showFeature('dna')">DNA</a>
+            <a href="#" onclick="showFeature('body-language')">Body Language</a>
+            <a href="#" onclick="showFeature('email-tone')">Email</a>
+            <a href="#" onclick="showFeature('presentation')">Presentations</a>
+            <a href="#" onclick="showFeature('suggestions')">Suggestions</a>
+            <a href="#" onclick="showFeature('ai-assistant')">🤖 AI Assistant</a>
+            <a href="#" onclick="showFeature('innovative')">+More</a>
+        </nav>
+        <div class="user-profile">
+            <div class="user-avatar">JD</div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <div class="hero-badge">
+                ✨ <span>AI-Powered</span> Communication Revolution
+            </div>
+            <h1>
+                Transform Your<br>
+                <span class="gradient">Communication Skills</span>
+            </h1>
+            <p>
+                Experience the future of professional communication with VDart CommHub. 
+                From real-time voice coaching to AI-powered presentation preparation - 
+                everything you need to become an exceptional communicator.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn btn-primary" onclick="showFeature('voice-coach')">
+                    🚀 Start Training
+                </button>
+                <button class="btn btn-secondary" onclick="showFeature('dna')">
+                    📊 Analyze DNA
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard" id="mainDashboard">
+            <!-- Voice Coach Card -->
+            <div class="card" onclick="showFeature('voice-coach')">
+                <div class="card-icon gradient-1">🎤</div>
+                <h3>Live Voice Coach</h3>
+                <p>Real-time voice analysis with instant feedback on clarity, pace, tone, and confidence.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">92%</div>
+                        <div class="stat-label">Avg Score</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">1.2k</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">4.8</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accent Clarity Card -->
+            <div class="card" onclick="showFeature('accent')">
+                <div class="card-icon gradient-2">🌍</div>
+                <h3>Accent Clarity Trainer</h3>
+                <p>Master different accents with pronunciation, intonation, and rhythm training.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">15+</div>
+                        <div class="stat-label">Accents</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">85%</div>
+                        <div class="stat-label">Clarity</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">500+</div>
+                        <div class="stat-label">Exercises</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Call Replay Card -->
+            <div class="card" onclick="showFeature('call-replay')">
+                <div class="card-icon gradient-3">📞</div>
+                <h3>Call Replay Room</h3>
+                <p>Analyze your calls with AI-powered insights on talk time, interruptions, and sentiment.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">3.2k</div>
+                        <div class="stat-label">Recordings</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Access</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Simulator Card -->
+            <div class="card" onclick="showFeature('simulator')">
+                <div class="card-icon gradient-4">💬</div>
+                <h3>Message Convo Simulator</h3>
+                <p>Practice difficult conversations with AI-powered scenarios and real-time feedback.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Scenarios</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">87%</div>
+                        <div class="stat-label">Improvement</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">2.5k</div>
+                        <div class="stat-label">Users</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication DNA Card -->
+            <div class="card" onclick="showFeature('dna')">
+                <div class="card-icon gradient-1">🧬</div>
+                <h3>Communication DNA Sequencer</h3>
+                <p>Discover your unique communication profile and get personalized improvement plans.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Dimensions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">100%</div>
+                        <div class="stat-label">Unique</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">5min</div>
+                        <div class="stat-label">Analysis</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Language Card -->
+            <div class="card" onclick="showFeature('body-language')">
+                <div class="card-icon gradient-2">🪞</div>
+                <h3>Body Language Mirror</h3>
+                <p>AI-powered body language analysis with real-time feedback on posture and gestures.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">94%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">Real</div>
+                        <div class="stat-label">Time</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Presentation Q&A Card -->
+            <div class="card" onclick="showFeature('presentation')">
+                <div class="card-icon gradient-3">📊</div>
+                <h3>Presentation Q&A Prep</h3>
+                <p>Prepare for any question with AI-generated likely questions and model answers.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">200+</div>
+                        <div class="stat-label">Questions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">Coverage</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">4.9</div>
+                        <div class="stat-label">Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Tone Card -->
+            <div class="card" onclick="showFeature('email-tone')">
+                <div class="card-icon gradient-4">📧</div>
+                <h3>Email Tone Dialer</h3>
+                <p>Analyze and optimize your email tone for maximum impact and appropriate delivery.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">10k+</div>
+                        <div class="stat-label">Analyzed</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">32%</div>
+                        <div class="stat-label">Response ↑</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Dimensions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggestion Engine Card -->
+            <div class="card" onclick="showFeature('suggestions')">
+                <div class="card-icon gradient-1">💡</div>
+                <h3>AI Suggestion Engine</h3>
+                <p>Smart, context-aware suggestions that learn from your communication patterns.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">1M+</div>
+                        <div class="stat-label">Suggestions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">78%</div>
+                        <div class="stat-label">Adoption</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">24/7</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role-Based Card -->
+            <div class="card" onclick="showFeature('roles')">
+                <div class="card-icon gradient-2">👔</div>
+                <h3>Role-Based Dashboard</h3>
+                <p>Personalized tools and metrics based on your role - Sales, Support, Manager, or Dev.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Roles</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Tools</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">Custom</div>
+                        <div class="stat-label">Metrics</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Coach Panel -->
+    <div class="feature-panels" id="voice-coach-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🎤 Live Voice Coach</h2>
+                <p style="color: var(--gray);">Real-time voice analysis and coaching</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="voice-coach-grid">
+                <div class="coach-card">
+                    <h4>📊 Real-Time Metrics</h4>
+                    <div class="metric-item">
+                        <span>Clarity Score</span>
+                        <div class="metric-bar"><div class="metric-fill high" style="width: 92%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Pace (WPM)</span>
+                        <div class="metric-bar"><div class="metric-fill high" style="width: 85%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Tone Consistency</span>
+                        <div class="metric-bar"><div class="metric-fill medium" style="width: 78%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Confidence Level</span>
+                        <div class="metric-bar"><div class="metric-fill high" style="width: 88%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Filler Words</span>
+                        <div class="metric-bar"><div class="metric-fill low" style="width: 15%"></div></div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>🎯 Coaching Scenarios</h4>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('sales')">
+                            <strong>Sales Pitch</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Practice your elevator pitch</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('support')">
+                            <strong>Customer Support</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Handle customer inquiries</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('meeting')">
+                            <strong>Meeting Introduction</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Introduce yourself professionally</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('presentation')">
+                            <strong>Presentation Delivery</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Present with confidence</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>📈 Session History</h4>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Today's Session</span>
+                                <span style="color: var(--success);">92%</span>
+                            </div>
+                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">15 min ago</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Yesterday's Session</span>
+                                <span style="color: var(--success);">88%</span>
+                            </div>
+                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">2:30 PM</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Weekly Average</span>
+                                <span style="color: var(--success);">87%</span>
+                            </div>
+                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">+5% improvement</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>💬 Live Feedback</h4>
+                    <div class="real-time-feedback">
+                        <div class="feedback-item">
+                            <div class="feedback-icon positive">✓</div>
+                            <div>
+                                <strong>Great pace!</strong>
+                                <p style="color: var(--gray); font-size: 0.85rem;">Maintain this speed - 150 WPM is optimal</p>
+                            </div>
+                        </div>
+                        <div class="feedback-item">
+                            <div class="feedback-icon warning">!</div>
+                            <div>
+                                <strong>Watch filler words</strong>
+                                <p style="color: var(--gray); font-size: 0.85rem;">You used "um" 3 times in the last minute</p>
+                            </div>
+                        </div>
+                        <div class="feedback-item">
+                            <div class="feedback-icon positive">✓</div>
+                            <div>
+                                <strong>Excellent tone</strong>
+                                <p style="color: var(--gray); font-size: 0.85rem;">Confident and professional throughout</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Call Replay Panel -->
+    <div class="feature-panels" id="call-replay-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">📞 Call Replay Room</h2>
+                <p style="color: var(--gray);">Analyze and learn from your calls</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="replay-container">
+                <div class="call-player">
+                    <h4 style="margin-bottom: 1rem;">Call Recording - Sales Demo</h4>
+                    <div class="waveform"></div>
+                    <div class="call-controls">
+                        <button class="control-btn">⏮</button>
+                        <button class="control-btn play">▶</button>
+                        <button class="control-btn">⏭</button>
+                        <button class="control-btn">🔊</button>
+                        <button class="control-btn">1x</button>
+                    </div>
+                    <div class="call-transcript" style="margin-top: 1.5rem;">
+                        <h5 style="margin-bottom: 1rem;">Transcript</h5>
+                        <div class="transcript-item speaker">
+                            <div>
+                                <div class="speaker-label">Agent</div>
+                                <p>Good morning, thank you for calling VDart. How may I assist you today?</p>
+                            </div>
+                        </div>
+                        <div class="transcript-item user">
+                            <div>
+                                <div class="speaker-label">Customer</div>
+                                <p>Hi, I'm interested in learning more about your communication solutions.</p>
+                            </div>
+                        </div>
+                        <div class="transcript-item speaker">
+                            <div>
+                                <div class="speaker-label">Agent</div>
+                                <p>Absolutely! I'd be happy to help. What specific area are you interested in?</p>
+                            </div>
+                        </div>
+                        <div class="transcript-item user">
+                            <div>
+                                <div class="speaker-label">Customer</div>
+                                <p>Well, we're looking to upgrade our current system.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="call-metrics">
+                    <h4 style="margin-bottom: 1rem;">📊 Call Analytics</h4>
+                    <div class="metric-card">
+                        <h5>Talk Time Ratio</h5>
+                        <div class="metric-value" style="color: var(--primary);">60/40</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">You spoke 60% of the call</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Interruptions</h5>
+                        <div class="metric-value" style="color: var(--warning);">2</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Below average (5)</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Questions Asked</h5>
+                        <div class="metric-value" style="color: var(--success);">8</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Excellent discovery</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Active Listening</h5>
+                        <div class="metric-value" style="color: var(--success);">92%</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">+12% vs last call</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Emotional Tone</h5>
+                        <div class="metric-value" style="color: var(--secondary);">Confident</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Consistent throughout</p>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" style="width: 100%;">📝 Add Note</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Simulator Panel -->
+    <div class="feature-panels" id="simulator-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">💬 Message Conversation Simulator</h2>
+                <p style="color: var(--gray);">Practice difficult conversations with AI</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="simulator-container">
+                <div class="chat-window">
+                    <div class="chat-messages" id="simMessages">
+                        <div class="chat-message incoming">
+                            <p>I'm very disappointed with the service I received. This is the third time this has happened!</p>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="simInput" placeholder="Type your response..." onkeypress="handleSimInput(event)">
+                        <button class="btn btn-primary" onclick="sendSimResponse()">Send</button>
+                    </div>
+                </div>
+                <div class="simulator-sidebar">
+                    <div class="scenario-info">
+                        <div class="scenario-badge">Active Scenario</div>
+                        <h3>Customer Complaint</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Difficulty: Hard</p>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">🎯 Available Scenarios</h4>
+                        <div style="display: grid; gap: 0.75rem;">
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);" onclick="loadScenario('customer-complaint')">
+                                <strong>Customer Complaint</strong>
+                            </div>
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('negotiation')">
+                                <strong>Price Negotiation</strong>
+                            </div>
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('team-conflict')">
+                                <strong>Team Conflict</strong>
+                            </div>
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('difficult-customer')">
+                                <strong>Difficult Customer</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="response-feedback" id="simFeedback" style="display: none;">
+                        <h4>📝 Response Feedback</h4>
+                        <p id="feedbackText" style="margin-top: 0.5rem;"></p>
+                        <div style="margin-top: 1rem;">
+                            <span style="font-size: 1.5rem; font-weight: 700;" id="feedbackScore">85</span>
+                            <span style="color: var(--gray);">/100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Communication DNA Panel -->
+    <div class="feature-panels" id="dna-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🧬 Communication DNA Sequencer</h2>
+                <p style="color: var(--gray);">Discover your unique communication profile</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="dna-visualization">
+                <div class="dna-section">
+                    <h4>Verbal</h4>
+                    <div class="dna-helix">
+                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.2s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.4s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.6s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.8s;"></div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">88%</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Vocabulary & Clarity</p>
+                    </div>
+                </div>
+                <div class="dna-section">
+                    <h4>Non-Verbal</h4>
+                    <div class="dna-helix">
+                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.1s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.3s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.5s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.7s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.9s;"></div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">82%</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Body Language</p>
+                    </div>
+                </div>
+                <div class="dna-section">
+                    <h4>Paraverbal</h4>
+                    <div class="dna-helix">
+                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.15s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.35s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.55s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.75s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.95s;"></div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">85%</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Tone & Pace</p>
+                    </div>
+                </div>
+                <div class="dna-section">
+                    <h4>Emotional</h4>
+                    <div class="dna-helix">
+                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.05s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.25s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.45s;"></div>
+                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.65s;"></div>
+                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.85s;"></div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">90%</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Empathy & EQ</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dna-profile">
+                <h4 style="margin-bottom: 1rem;">Your Communication Profile</h4>
+                <div class="profile-type">Intuitive Communicator</div>
+                <p style="color: var(--gray);">You excel at reading between the lines and adapting your message to your audience. Your natural empathy makes you excellent at building rapport.</p>
+                <div class="profile-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Primary Style</div>
+                        <div class="detail-value">Intuitive</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Secondary Style</div>
+                        <div class="detail-value">Direct</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Best Channel</div>
+                        <div class="detail-value">Video Call</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Peak Time</div>
+                        <div class="detail-value">Morning</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Stress Response</div>
+                        <div class="detail-value">More Analytical</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Motivation</div>
+                        <div class="detail-value">Achievement</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Body Language Panel -->
+    <div class="feature-panels" id="body-language-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🪞 Body Language Mirror</h2>
+                <p style="color: var(--gray);">AI-powered body language analysis</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="mirror-container">
+                <div>
+                    <div class="video-preview">
+                        <div style="text-align: center;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📹</div>
+                            <p>Camera Preview</p>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Click to start analysis</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-primary" style="flex: 1;">🎬 Start Recording</button>
+                        <button class="btn btn-secondary" style="flex: 1;">📤 Upload Video</button>
+                    </div>
+                </div>
+                <div class="body-analysis">
+                    <h4 style="margin-bottom: 1rem;">Analysis Results</h4>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Posture</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Upright and confident</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>92%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 92%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Gestures</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Natural and expressive</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>85%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 85%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Eye Contact</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Appropriate and engaging</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>88%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 88%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Facial Expressions</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Warm and approachable</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>90%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 90%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Smile</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Genuine and consistent</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>87%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 87%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Nodding</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Shows active listening</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>82%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 82%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Tone Panel -->
+    <div class="feature-panels" id="email-tone-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">📧 Email Tone Dialer</h2>
+                <p style="color: var(--gray);">Optimize your email tone for maximum impact</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="tone-dialer">
+                <div class="email-editor">
+                    <h4 style="margin-bottom: 1rem;">Compose Your Email</h4>
+                    <textarea class="email-input" id="emailInput" placeholder="Start typing your email here..." oninput="analyzeEmailTone()"></textarea>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-primary" style="flex: 1;">✨ Analyze Tone</button>
+                        <button class="btn btn-secondary">📋 Copy</button>
+                    </div>
+                </div>
+                <div class="tone-analysis">
+                    <h4 style="margin-bottom: 1rem;">Tone Analysis</h4>
+                    <div class="tone-gauge">
+                        <div class="tone-needle" style="transform: rotate(-30deg);"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <div style="font-size: 1.5rem; font-weight: 700;">Professional</div>
+                        <p style="color: var(--gray);">Score: 85/100</p>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Formality</span>
+                            <span style="color: var(--success);">High</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Friendly</span>
+                            <span style="color: var(--success);">Warm</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Urgency</span>
+                            <span style="color: var(--warning);">Normal</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Confidence</span>
+                            <span style="color: var(--success);">Confident</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                            <span>Empathy</span>
+                            <span style="color: var(--success);">Empathetic</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                        <h5 style="color: var(--success);">✓ Suggestions</h5>
+                        <ul style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            <li>Great use of professional language</li>
+                            <li>Consider adding a clear call-to-action</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presentation Q&A Panel -->
+    <div class="feature-panels" id="presentation-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">📊 Presentation Q&A Prep</h2>
+                <p style="color: var(--gray);">Prepare for any question with AI</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="presentation-container">
+                <div>
+                    <div class="slide-preview">
+                        <div class="slide-title">Communication Excellence</div>
+                        <div class="slide-content">
+                            <p>Transform how you connect with others</p>
+                            <p style="color: var(--gray); margin-top: 0.5rem;">Key Takeaways:</p>
+                            <ul style="text-align: left; margin-top: 1rem;">
+                                <li>Real-time voice analysis</li>
+                                <li>AI-powered feedback</li>
+                                <li>Personalized improvement plans</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" style="width: 100%;">🎤 Practice Mode</button>
+                    </div>
+                </div>
+                <div class="qa-prep">
+                    <h4 style="margin-bottom: 1rem;">Q&A Preparation</h4>
+                    <div class="question-card">
+                        <div class="question-text">How long will implementation take?</div>
+                        <span class="difficulty-badge medium">Medium</span>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">What is the ROI?</div>
+                        <span class="difficulty-badge high">High</span>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">How does this compare to alternatives?</div>
+                        <span class="difficulty-badge medium">Medium</span>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">What are the risks?</div>
+                        <span class="difficulty-badge high">High</span>
+                    </div>
+                    <div class="question-card">
+                        <div class="question-text">Can you provide references?</div>
+                        <span class="difficulty-badge low">Low</span>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">🎯 Generate More Questions</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Suggestion Engine Panel -->
+    <div class="feature-panels" id="suggestions-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">💡 AI Suggestion Engine</h2>
+                <p style="color: var(--gray);">Smart, context-aware communication suggestions</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="suggestions-grid">
+                <div class="suggestion-card">
+                    <div class="suggestion-icon" style="background: var(--gradient-1);">🎯</div>
+                    <div class="suggestion-content">
+                        <h4>Tone Optimization</h4>
+                        <p>Consider softening your language for better reception with senior stakeholders.</p>
+                        <span class="impact-badge high">High Impact</span>
+                    </div>
+                </div>
+                <div class="suggestion-card">
+                    <div class="suggestion-icon" style="background: var(--gradient-2);">⏰</div>
+                    <div class="suggestion-content">
+                        <h4>Timing Insight</h4>
+                        <p>Best time to send follow-up: Tuesday 10am-12pm (23% higher response rate)</p>
+                        <span class="impact-badge medium">Medium Impact</span>
+                    </div>
+                </div>
+                <div class="suggestion-card">
+                    <div class="suggestion-icon" style="background: var(--gradient-3);">📝</div>
+                    <div class="suggestion-content">
+                        <h4>Clarity Enhancement</h4>
+                        <p>Break down complex points into bullet points for faster comprehension.</p>
+                        <span class="impact-badge high">High Impact</span>
+                    </div>
+                </div>
+                <div class="suggestion-card">
+                    <div class="suggestion-icon" style="background: var(--gradient-4);">💬</div>
+                    <div class="suggestion-content">
+                        <h4>Engagement Boost</h4>
+                        <p>Ask more open-ended questions to encourage dialogue in meetings.</p>
+                        <span class="impact-badge high">High Impact</span>
+                    </div>
+                </div>
+                <div class="suggestion-card">
+                    <div class="suggestion-icon" style="background: var(--gradient-1);">💪</div>
+                    <div class="suggestion-content">
+                        <h4>Confidence Builder</h4>
+                        <p>Remove hedge words: "I think" → "I believe" for stronger impact.</p>
+                        <span class="impact-badge high">High Impact</span>
+                    </div>
+                </div>
+                <div class="suggestion-card">
+                    <div class="suggestion-icon" style="background: var(--gradient-2);">👂</div>
+                    <div class="suggestion-content">
+                        <h4>Active Listening</h4>
+                        <p>Paraphrase before responding to show understanding and build rapport.</p>
+                        <span class="impact-badge high">High Impact</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role-Based Panel -->
+    <div class="feature-panels" id="roles-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">👔 Role-Based Dashboard</h2>
+                <p style="color: var(--gray);">Personalized tools for your role</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="role-dashboard">
+                <div class="role-card">
+                    <div class="role-header">
+                        <div class="role-icon" style="background: var(--gradient-1);">💼</div>
+                        <div>
+                            <h3>Sales Professional</h3>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Close more deals with AI</p>
+                        </div>
+                    </div>
+                    <ul class="role-modules">
+                        <li>Voice Coach</li>
+                        <li>Accent Trainer</li>
+                        <li>Call Replay</li>
+                        <li>Negotiation Simulator</li>
+                        <li>Email Tone Dialer</li>
+                    </ul>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">32%</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Conversion</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">4.2min</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Avg Call</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">28%</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Close Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="role-card">
+                    <div class="role-header">
+                        <div class="role-icon" style="background: var(--gradient-2);">🎧</div>
+                        <div>
+                            <h3>Customer Support</h3>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Deliver exceptional support</p>
+                        </div>
+                    </div>
+                    <ul class="role-modules">
+                        <li>Voice Coach</li>
+                        <li>Call Replay</li>
+                        <li>Email Tone</li>
+                        <li>Empathy Trainer</li>
+                        <li>Problem Resolver</li>
+                    </ul>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">4.8★</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">CSAT</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">3.2min</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Resolution</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">78%</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">FCR</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="role-card">
+                    <div class="role-header">
+                        <div class="role-icon" style="background: var(--gradient-3);">👔</div>
+                        <div>
+                            <h3>Manager/Leader</h3>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Lead your team to success</p>
+                        </div>
+                    </div>
+                    <ul class="role-modules">
+                        <li>Communication DNA</li>
+                        <li>Body Language</li>
+                        <li>Presentation Coach</li>
+                        <li>Team Dynamics</li>
+                        <li>Feedback Generator</li>
+                    </ul>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">92%</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Engagement</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">45min</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Meeting Avg</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">4.6★</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Feedback</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="role-card">
+                    <div class="role-header">
+                        <div class="role-icon" style="background: var(--gradient-4);">💻</div>
+                        <div>
+                            <h3>Technical Professional</h3>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Communicate technical ideas</p>
+                        </div>
+                    </div>
+                    <ul class="role-modules">
+                        <li>Technical Communicator</li>
+                        <li>Documentation Helper</li>
+                        <li>Presentation Builder</li>
+                        <li>Code Commentator</li>
+                        <li>API Documenter</li>
+                    </ul>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">95%</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Doc Score</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">4.2★</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Code Review</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 1.25rem; font-weight: 700;">88%</div>
+                                <div style="color: var(--gray); font-size: 0.75rem;">Clarity</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Innovative Features Panel -->
+    <div class="feature-panels" id="innovative-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🚀 Additional Innovative Features</h2>
+                <p style="color: var(--gray);">Even more powerful communication tools</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="innovative-features">
+                <div class="innovative-card">
+                    <div class="feature-icon">🌐</div>
+                    <h4>Real-Time Translation Hub</h4>
+                    <p>Instantly translate your communications to 50+ languages with cultural context notes.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">📈</div>
+                    <h4>Meeting Intelligence</h4>
+                    <p>AI-powered meeting analysis with sentiment tracking, action item extraction, and engagement scores.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">🤖</div>
+                    <h4>Communication Coach AI</h4>
+                    <p>Your personal AI coach for instant advice on any communication challenge.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">🎯</div>
+                    <h4>Accent Clarity Trainer</h4>
+                    <p>Master pronunciation, intonation, and rhythm for different accents with targeted exercises.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Communication Analytics</h4>
+                    <p>Comprehensive dashboards tracking your communication growth over time.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">🎓</div>
+                    <h4>Learning Paths</h4>
+                    <p>Personalized learning journeys based on your DNA profile and goals.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">👥</div>
+                    <h4>Peer Practice Rooms</h4>
+                    <p>Connect with peers for real-time practice sessions and feedback.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">🏆</div>
+                    <h4>Achievements & Gamification</h4>
+                    <p>Earn badges, compete on leaderboards, and track your progress with gamified elements.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">📱</div>
+                    <h4>Mobile App</h4>
+                    <p>Practice anywhere with our mobile app for on-the-go training.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">🔗</div>
+                    <h4>Integration Hub</h4>
+                    <p>Connect with Slack, Teams, Zoom, and 100+ other tools.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">📋</div>
+                    <h4>Template Library</h4>
+                    <p>Access thousands of communication templates for emails, presentations, and more.</p>
+                </div>
+                <div class="innovative-card">
+                    <div class="feature-icon">🔔</div>
+                    <h4>Smart Reminders</h4>
+                    <p>AI-powered reminders to practice and follow up on communication goals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accent Trainer Panel -->
+    <div class="feature-panels" id="accent-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🌍 Accent Clarity Trainer</h2>
+                <p style="color: var(--gray);">Master different accents with precision training</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="voice-coach-grid">
+                <div class="coach-card">
+                    <h4>🎯 Target Accents</h4>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);">
+                            <strong>American English</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Vowels, linking, reduction</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
+                            <strong>British English</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: R sounds, t-glottal, intonation</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
+                            <strong>Australian English</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Diphthongs, nasalization</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
+                            <strong>Neutral/Global English</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Clarity, neutral pronunciation</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>📊 Your Progress</h4>
+                    <div class="metric-item">
+                        <span>Pronunciation</span>
+                        <div class="metric-bar"><div class="metric-fill high" style="width: 85%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Intonation</span>
+                        <div class="metric-bar"><div class="metric-fill high" style="width: 78%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Rhythm</span>
+                        <div class="metric-bar"><div class="metric-fill medium" style="width: 72%"></div></div>
+                    </div>
+                    <div class="metric-item">
+                        <span>Clarity</span>
+                        <div class="metric-bar"><div class="metric-fill high" style="width: 88%"></div></div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>📝 Exercises</h4>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <strong>Vowel Sounds</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">"The cat sat on the mat"</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <strong>Consonant Clusters</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">"She sells seashells"</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <strong>Word Stress</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">"develop", "development"</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <strong>Linking Words</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">"What are you going to do?"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>🎤 Practice Sessions</h4>
+                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;">Start Exercise</button>
+                    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.75rem;">Record & Compare</button>
+                    <button class="btn btn-secondary" style="width: 100%;">Listen & Repeat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Feature Panel Management
+        function showFeature(feature) {
+            // Hide all panels
+            document.querySelectorAll('.feature-panels').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Show selected panel
+            const panel = document.getElementById(`${feature}-panel`);
+            if (panel) {
+                panel.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closePanel() {
+            document.querySelectorAll('.feature-panels').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.body.style.overflow = 'auto';
+        }
+
+        function showDashboard() {
+            closePanel();
+        }
+
+        // Voice Coach Functions
+        function startVoiceSession(scenario) {
+            alert(`Starting ${scenario} voice coaching session...`);
+        }
+
+        // Message Simulator Functions
+        let currentScenario = 'customer-complaint';
+        
+        function loadScenario(scenario) {
+            currentScenario = scenario;
+            const messages = {
+                'customer-complaint': [
+                    "I'm very disappointed with the service I received. This is the third time this has happened!",
+                    "I want to speak to a manager immediately.",
+                    "How can you make this right?"
+                ],
+                'negotiation': [
+                    "We're looking at a 20% reduction in price.",
+                    "Our budget is tight this quarter.",
+                    "What can you offer us?"
+                ],
+                'team-conflict': [
+                    "I feel like my ideas are being ignored.",
+                    "It seems like only certain people get heard.",
+                    "How can we improve this?"
+                ],
+                'difficult-customer': [
+                    "I've been waiting for 30 minutes!",
+                    "This is unacceptable!",
+                    "I want a full refund!"
+                ]
+            };
+            
+            const simMessages = document.getElementById('simMessages');
+            simMessages.innerHTML = '';
+            
+            messages[scenario].forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'chat-message incoming';
+                div.innerHTML = `<p>${msg}</p>`;
+                simMessages.appendChild(div);
+            });
+        }
+
+        function handleSimInput(event) {
+            if (event.key === 'Enter') {
+                sendSimResponse();
+            }
+        }
+
+        function sendSimResponse() {
+            const input = document.getElementById('simInput');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            const simMessages = document.getElementById('simMessages');
+            
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message outgoing';
+            userMsg.innerHTML = `<p>${text}</p>`;
+            simMessages.appendChild(userMsg);
+            
+            // Simulate AI response
+            setTimeout(() => {
+                const responses = [
+                    "I understand your concern. Let me help resolve this.",
+                    "Thank you for sharing that. I appreciate your patience.",
+                    "That's a valid point. Here's what I can offer..."
+                ];
+                
+                const botMsg = document.createElement('div');
+                botMsg.className = 'chat-message incoming';
+                botMsg.innerHTML = `<p>${responses[Math.floor(Math.random() * responses.length)]}</p>`;
+                simMessages.appendChild(botMsg);
+                
+                simMessages.scrollTop = simMessages.scrollHeight;
+            }, 500);
+            
+            // Show feedback
+            const feedback = document.getElementById('simFeedback');
+            feedback.style.display = 'block';
+            document.getElementById('feedbackText').textContent = 'Good response! You showed empathy and offered to help. Consider being more specific with your solution.';
+            document.getElementById('feedbackScore').textContent = Math.floor(Math.random() * 15) + 85;
+            
+            input.value = '';
+            simMessages.scrollTop = simMessages.scrollHeight;
+        }
+
+        // Email Tone Analysis
+        function analyzeEmailTone() {
+            const email = document.getElementById('emailInput').value;
+            // Real-time analysis would happen here
+        }
+
+        // Close panels when clicking outside
+        document.querySelectorAll('.feature-panels').forEach(panel => {
+            panel.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePanel();
+                }
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePanel();
+            }
+        });
+
+        // ==================== AI ASSISTANT ====================
+        let aiUserId = localStorage.getItem('vdart_user_id') || 'user_' + Date.now();
+        localStorage.setItem('vdart_user_id', aiUserId);
+        let aiStatusChecked = false;
+
+        async function checkAIStatus() {
+            if (aiStatusChecked) return;
+            try {
+                const res = await fetch('/api/ai/status');
+                const data = await res.json();
+                const statusEl = document.getElementById('ai-status');
+                if (statusEl) {
+                    statusEl.innerHTML = data.success ? 
+                        `<span style="color: ${data.ollamaAvailable ? '#10b981' : '#f59e0b'}">● ${data.message}</span>` :
+                        `<span style="color: #ef4444">● AI unavailable</span>`;
+                }
+                aiStatusChecked = true;
+            } catch (e) {
+                const statusEl = document.getElementById('ai-status');
+                if (statusEl) statusEl.innerHTML = '<span style="color: #ef4444">● Connection error</span>';
+            }
+        }
+
+async function sendAIMessage() {
+    const input = document.getElementById('ai-input');
+    const messagesEl = document.getElementById('ai-messages');
+    const message = input.value.trim();
+    if (!message) return;
+
+    // Add user message
+    messagesEl.innerHTML += `
+        <div class="ai-message user">
+            <strong>You:</strong> ${message}
+        </div>
+    `;
+    input.value = '';
+
+    // Loading
+    messagesEl.innerHTML += `
+        <div class="ai-message loading" id="ai-loading">🤖 Thinking...</div>
+    `;
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    try {
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: aiUserId, message })
+        });
+
+        const data = await res.json();
+
+        // remove loading
+        document.getElementById('ai-loading')?.remove();
+
+        if (data.success) {
+
+            // ✅ 🔥 MAIN FIX HERE
+            let aiText =
+                typeof data.response === "string"
+                    ? data.response
+                    : data.response?.content ||   // Ollama format
+                      data.response?.message?.content ||
+                      JSON.stringify(data.response);
+
+            messagesEl.innerHTML += `
+                <div class="ai-message bot">
+                    <strong>🤖 VDart AI:</strong> ${aiText}
+                </div>
+            `;
+
+            // Sources (no change)
+            if (data.sources && data.sources.length > 0) {
+                const sources = data.sources
+                    .map(s => `<span class="ai-source">${s.title}</span>`)
+                    .join(', ');
+
+                messagesEl.innerHTML += `
+                    <div class="ai-sources">📚 Sources: ${sources}</div>
+                `;
+            }
+
+        } else {
+            messagesEl.innerHTML += `
+                <div class="ai-message error">
+                    ❌ ${data.message || data.error}
+                </div>
+            `;
+        }
+
+    } catch (e) {
+        document.getElementById('ai-loading')?.remove();
+
+        messagesEl.innerHTML += `
+            <div class="ai-message error">
+                ❌ Error connecting to AI
+            </div>
+        `;
+    }
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+</script>
+
+    <!-- AI Assistant Panel -->
+    <div class="feature-panels" id="ai-assistant-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🤖 AI Assistant</h2>
+                <p style="color: var(--gray);">Powered by Llama 3 with RAG & Memory</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content" style="height: calc(100vh - 120px); display: flex; flex-direction: column;">
+            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span><strong>🤖 Ollama Status:</strong> <span id="ai-status">Checking...</span></span>
+                    <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="checkAIStatus()">↻ Refresh</button>
+                </div>
+                <p style="color: var(--gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                    💡 Ask about VDart services, pricing, features, or any communication tips!
+                </p>
+            </div>
+            <div id="ai-messages" style="flex: 1; overflow-y: auto; padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
+                <div class="ai-message info">💬 Hi! I'm your VDart AI Assistant. Ask me anything about our services, pricing, or get communication tips!</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="ai-input" placeholder="Type your message..." style="flex: 1; padding: 1rem; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--light); font-size: 1rem;">
+                <button class="btn btn-primary" onclick="sendAIMessage()">Send</button>
+                <button class="btn btn-secondary" onclick="clearAIHistory()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .ai-message { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px; }
+        .ai-message.user { background: rgba(99, 102, 241, 0.2); text-align: right; }
+        .ai-message.bot { background: rgba(6, 182, 212, 0.2); }
+        .ai-message.loading { color: var(--gray); font-style: italic; }
+        .ai-message.error { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .ai-message.info { background: var(--glass); }
+        .ai-source { display: inline-block; padding: 0.25rem 0.5rem; background: var(--primary); border-radius: 4px; font-size: 0.75rem; margin: 0.25rem; }
+        .ai-sources { font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem; }
+    </style>
+</body>
+</html>
