@@ -1,5 +1,5 @@
 /**
- * AI Service - Llama 3 with RAG and Memory (FIXED)
+ * AI Service - Gemma 2B with RAG and Memory
  */
 
 const http = require('http');
@@ -7,7 +7,7 @@ const http = require('http');
 // ==================== CONFIG ====================
 const OLLAMA_HOST = 'localhost';
 const OLLAMA_PORT = 11434;
-const OLLAMA_MODEL = 'llama3:8b'; // ✅ Original model
+const OLLAMA_MODEL = 'gemma:2b'; // ✅ Using Gemma 2B
 
 // ==================== MEMORY ====================
 const conversationHistory = new Map();
