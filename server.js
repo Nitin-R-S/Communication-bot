@@ -26,6 +26,25 @@ const presentationData = new Map();
 const accentScores = new Map();
 const voiceCoaching = new Map();
 
+function parseJSONSafe(text) {
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
+async function aiAnalyzePrompt(prompt, fallback) {
+    try {
+        const result = await aiService.callOllamaPrompt(prompt);
+        const parsed = parseJSONSafe(result);
+        return parsed || fallback;
+    } catch (error) {
+        console.error('AI analysis failed:', error.message);
+        return fallback;
+    }
+}
+
 // ==================== CORE API ENDPOINTS ====================
 
 // User Authentication
@@ -445,10 +464,10 @@ function generateDNAProfile() {
 
 // ==================== OPENING & PRESENTATIONS Q&A ====================
 
-app.post('/api/presentation/prepare', (req, res) => {
+app.post('/api/presentation/prepare', async (req, res) => {
     const { userId, topic, audience, duration } = req.body;
     const presId = uuidv4();
-    const presentation = {
+    const fallback = {
         id: presId,
         userId,
         topic,
@@ -460,15 +479,20 @@ app.post('/api/presentation/prepare', (req, res) => {
         practiceMode: true,
         createdAt: new Date()
     };
+    const prompt = `You are a presentation expert. Create a presentation structure, Q&A preparation, and improvement tips for topic: "${topic}" and audience: "${audience}" with duration: "${duration}" minutes. Return JSON with keys structure, qaPrep, and tips.`;
+    const aiResult = await aiAnalyzePrompt(prompt, fallback);
+    const presentation = typeof aiResult === 'object' ? { ...fallback, ...aiResult, id: presId, userId, topic, audience, duration, practiceMode: true, createdAt: new Date() } : fallback;
     presentationData.set(presId, presentation);
     res.json({ success: true, presentation });
 });
 
-app.post('/api/presentation/practice', (req, res) => {
+app.post('/api/presentation/practice', async (req, res) => {
     const { presId, question, answer } = req.body;
     const pres = presentationData.get(presId);
     if (pres) {
-        const feedback = evaluateAnswer(question, answer);
+        const fallback = evaluateAnswer(question, answer);
+        const prompt = `You are a presentation coach. Evaluate the following answer to the question: "${question}". Answer: "${answer}". Return JSON with clarity, completeness, structure, examples, overall, and feedback.`;
+        const feedback = await aiAnalyzePrompt(prompt, fallback);
         res.json({ success: true, feedback });
     } else {
         res.json({ success: false, message: 'Presentation not found' });
@@ -589,9 +613,11 @@ function analyzeBodyLanguage(scenario) {
 
 // ==================== SUGGESTION ENGINE ====================
 
-app.post('/api/suggestions/analyze', (req, res) => {
+app.post('/api/suggestions/analyze', async (req, res) => {
     const { userId, context, recentCommunications } = req.body;
-    const suggestions = generateSmartSuggestions(context, recentCommunications);
+    const fallback = generateSmartSuggestions(context, recentCommunications);
+    const prompt = `You are a communication coach. Review the context: "${context}" and recent communications: "${JSON.stringify(recentCommunications || [])}". Return a JSON array of up to 5 suggestions with category, suggestion, impact, and context.`;
+    const suggestions = await aiAnalyzePrompt(prompt, fallback);
     res.json({ success: true, suggestions });
 });
 
@@ -654,9 +680,9 @@ function generateSmartSuggestions(context, recentCommunications) {
 
 // ==================== EMAIL TONE DIALER ====================
 
-app.post('/api/email-tone/analyze', (req, res) => {
+app.post('/api/email-tone/analyze', async (req, res) => {
     const { userId, emailContent, recipient, purpose } = req.body;
-    const analysis = {
+    const fallback = {
         id: uuidv4(),
         userId,
         emailContent,
@@ -667,6 +693,9 @@ app.post('/api/email-tone/analyze', (req, res) => {
         score: Math.floor(Math.random() * 20) + 80,
         createdAt: new Date()
     };
+    const prompt = `You are an expert email communication analyst. Analyze this email content and recipient information, then return JSON with keys toneAnalysis, suggestions, score. toneAnalysis should include formality, friendliness, urgency, confidence, and empathy. suggestions should be an array of short actionable advice. score should be 0-100. Email: "${emailContent}" Recipient: "${recipient}" Purpose: "${purpose}".`;
+    const aiResult = await aiAnalyzePrompt(prompt, fallback);
+    const analysis = typeof aiResult === 'object' ? { ...fallback, ...aiResult, id: fallback.id, userId, emailContent, recipient, purpose, createdAt: new Date() } : fallback;
     emailAnalysis.set(analysis.id, analysis);
     res.json({ success: true, analysis });
 });
@@ -750,9 +779,9 @@ function getRoleBasedFeatures(role) {
 // ==================== ADDITIONAL INNOVATIVE FEATURES ====================
 
 // Real-time Translation Hub
-app.post('/api/translate/realtime', (req, res) => {
+app.post('/api/translate/realtime', async (req, res) => {
     const { text, sourceLang, targetLang, context } = req.body;
-    res.json({
+    const fallback = {
         success: true,
         translation: simulateTranslation(text, targetLang),
         alternatives: [
@@ -760,7 +789,10 @@ app.post('/api/translate/realtime', (req, res) => {
             { text: simulateTranslation(text, targetLang), style: 'casual' }
         ],
         culturalNotes: getCulturalNotes(targetLang, context)
-    });
+    };
+    const prompt = `You are a multilingual communication expert. Translate the following text from ${sourceLang} to ${targetLang}: "${text}". Provide one formal version, one casual version, and concise cultural notes for ${targetLang}. Return JSON with translation, alternatives, and culturalNotes.`;
+    const result = await aiAnalyzePrompt(prompt, fallback);
+    res.json({ success: true, ...result });
 });
 
 function simulateTranslation(text, targetLang) {
@@ -777,9 +809,9 @@ function getCulturalNotes(lang, context) {
 }
 
 // Meeting Intelligence
-app.post('/api/meeting/intelligence', (req, res) => {
+app.post('/api/meeting/intelligence', async (req, res) => {
     const { userId, meetingId, transcript, participants } = req.body;
-    const intelligence = {
+    const fallback = {
         id: uuidv4(),
         meetingId,
         summary: generateMeetingSummary(transcript),
@@ -790,6 +822,8 @@ app.post('/api/meeting/intelligence', (req, res) => {
         engagementScore: Math.floor(Math.random() * 20) + 80,
         createdAt: new Date()
     };
+    const prompt = `You are a meeting intelligence assistant. Based on the transcript: "${transcript}" and participants: "${participants.join(', ')}", return JSON with summary, actionItems, sentimentAnalysis, participantInsights, keyTopics, and engagementScore (0-100).`;
+    const intelligence = await aiAnalyzePrompt(prompt, fallback);
     res.json({ success: true, intelligence });
 });
 
@@ -826,13 +860,14 @@ function extractTopics(transcript) {
 // Check Ollama status
 app.get('/api/ai/status', async (req, res) => {
     const status = await aiService.checkOllamaStatus();
+    const modelName = aiService.getModelName();
     res.json({
         success: true,
         ollamaAvailable: status.available,
         llama3Installed: status.hasLlama3,
-        model: 'llama3',
+        model: modelName,
         message: status.available 
-            ? (status.hasLlama3 ? 'AI Assistant ready!' : 'Ollama running but llama3 not installed')
+            ? (status.hasLlama3 ? `${modelName} ready!` : `${modelName} not installed`) 
             : 'Ollama not running. Install from https://ollama.ai'
     });
 });
@@ -881,9 +916,11 @@ app.get('/api/ai/knowledge', (req, res) => {
 });
 
 // Communication Coach AI
-app.post('/api/coach/ai', (req, res) => {
+app.post('/api/coach/ai', async (req, res) => {
     const { userId, query, context } = req.body;
-    const coachResponse = generateCoachResponse(query, context);
+    const defaultResponse = generateCoachResponse(query, context);
+    const prompt = `You are an expert communication coach. Provide concise advice, a technique, and a practical exercise for this user query. Query: "${query}". Context: "${context || 'general'}". Return JSON with keys advice, technique, exercise.`;
+    const coachResponse = await aiAnalyzePrompt(prompt, defaultResponse);
     res.json({ success: true, response: coachResponse });
 });
 

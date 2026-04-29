@@ -176,8 +176,42 @@ async function checkOllamaStatus() {
     });
 }
 
+async function callOllamaPrompt(prompt) {
+    return callOllama([{ role: 'user', content: prompt }]);
+}
+
+function parseJSONSafe(text) {
+    try {
+        return JSON.parse(text);
+    } catch {
+        return null;
+    }
+}
+
+function getModelName() {
+    return OLLAMA_MODEL;
+}
+
+function getConversationHistory(userId) {
+    return conversationHistory.get(userId) || [];
+}
+
+function clearConversationHistory(userId) {
+    conversationHistory.delete(userId);
+}
+
+const vectorStore = {
+    documents: companyDocs
+};
+
 // ==================== EXPORT ====================
 module.exports = {
     generateAIResponse,
-    checkOllamaStatus
+    checkOllamaStatus,
+    callOllamaPrompt,
+    parseJSONSafe,
+    getModelName,
+    getConversationHistory,
+    clearConversationHistory,
+    vectorStore
 };
