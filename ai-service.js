@@ -8,6 +8,7 @@ const http = require('http');
 const OLLAMA_HOST = 'localhost';
 const OLLAMA_PORT = 11434;
 const OLLAMA_MODEL = 'gemma:2b'; // ✅ Using Gemma 2B
+const FALLBACK_AI_ENABLED = true;
 
 // ==================== MEMORY ====================
 const conversationHistory = new Map();
@@ -132,12 +133,46 @@ Assistant:
 
         console.error("Ollama error:", error.message);
 
+        if (FALLBACK_AI_ENABLED) {
+            const fallbackResponse = generateFallbackResponse(userMessage, context);
+            return {
+                success: true,
+                response: fallbackResponse,
+                sources: [],
+                fallback: true,
+                error: error.message
+            };
+        }
+
         return {
             success: false,
             response: null,
             error: error.message
         };
     }
+}
+
+function generateFallbackResponse(userMessage, context = '') {
+    const normalized = (userMessage || '').toLowerCase();
+    const general = `I cannot reach the Ollama AI backend right now, so I am answering from a local fallback mode. You asked: "${userMessage}".`;
+
+    if (normalized.includes('hello') || normalized.includes('hi')) {
+        return `Hello! ${general}`;
+    }
+
+    if (normalized.includes('accent') || normalized.includes('pronunciation')) {
+        return `Accent training tip: speak slowly and exaggerate vowel sounds. ${general}`;
+    }
+
+    if (normalized.includes('presentation') || normalized.includes('slides')) {
+        return `Presentation advice: keep one main idea per slide and practice your transitions. ${general}`;
+    }
+
+    if (normalized.includes('email') || normalized.includes('subject')) {
+        return `Email best practice: use a clear subject line, short paragraphs, and a call to action. ${general}`;
+    }
+
+    return general + ' I am here to help with communication advice, coaching, and summaries.';
 }
 
 // ==================== STATUS ====================
