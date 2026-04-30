@@ -10,9 +10,17 @@ const aiService = require('./ai-service');
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+const fs = require('fs');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use((err, req, res, next) => {
+    if (err && err instanceof SyntaxError && 'body' in err) {
+        return res.status(400).json({ success: false, message: 'Invalid JSON payload' });
+    }
+    next(err);
+});
 
 // In-memory data stores
 const users = new Map();
@@ -26,6 +34,209 @@ const presentationData = new Map();
 const accentScores = new Map();
 const voiceCoaching = new Map();
 
+// Simple linear regression model for voice scoring (persisted to disk)
+const MODEL_PATH = path.join(__dirname, 'voice_model.json');
+let voiceModel = {
+    // weights: Array (including bias at index 0)
+    weights: null,
+    featureNames: []
+};
+
+function saveModel() {
+    try {
+        // sanitize model before saving: replace non-finite weights with 0
+        const safeModel = JSON.parse(JSON.stringify(voiceModel));
+        if (Array.isArray(safeModel.weights)) {
+            safeModel.weights = safeModel.weights.map(w => (Number.isFinite(w) ? w : 0));
+        }
+        if (safeModel.normParams && safeModel.normParams.mean) {
+            for (const k of Object.keys(safeModel.normParams.mean)) safeModel.normParams.mean[k] = Number(safeModel.normParams.mean[k] || 0);
+            for (const k of Object.keys(safeModel.normParams.std)) safeModel.normParams.std[k] = Number(safeModel.normParams.std[k] || 1);
+        }
+        fs.writeFileSync(MODEL_PATH, JSON.stringify(safeModel, null, 2));
+    } catch (e) {
+        console.error('Failed to save model:', e.message);
+    }
+}
+
+function loadModel() {
+    try {
+        if (fs.existsSync(MODEL_PATH)) {
+            const raw = fs.readFileSync(MODEL_PATH, 'utf8');
+            voiceModel = JSON.parse(raw);
+        }
+    } catch (e) {
+        console.error('Failed to load model:', e.message);
+    }
+}
+
+loadModel();
+
+function extractFeaturesFromAnalysis(analysis) {
+    // Use a set of stable numeric features derived from analysis
+    // Order matters and must match voiceModel.featureNames when saved
+    const f = {
+        wordCount: analysis.wordCount || 0,
+        uniqueWords: analysis.uniqueWords || 0,
+        sentenceCount: analysis.sentenceCount || 0,
+        clarityScore: analysis.clarityScore || 0,
+        paceScore: analysis.paceScore || 0,
+        toneScore: analysis.toneScore || 0,
+        confidenceScore: analysis.confidenceScore || 0,
+        fillerWordCount: analysis.fillerWordCount || 0,
+        estimatedWPM: analysis.estimatedWPM || 0
+    };
+    return f;
+}
+
+function featuresToVector(features, featureNames) {
+    // include bias term at index 0
+    const vec = [1];
+    for (const name of featureNames) {
+        vec.push(Number(features[name] || 0));
+    }
+    return vec;
+}
+
+function predictWithModel(analysis) {
+    if (!voiceModel.weights || !voiceModel.featureNames || voiceModel.weights.length === 0) return null;
+    const features = extractFeaturesFromAnalysis(analysis);
+    // Apply normalization if available
+    let x = [];
+    x.push(1); // bias
+    const means = (voiceModel.normParams && voiceModel.normParams.mean) || {};
+    const stds = (voiceModel.normParams && voiceModel.normParams.std) || {};
+    for (const name of voiceModel.featureNames) {
+        let v = Number(features[name] || 0);
+        const mean = means[name] || 0;
+        const std = stds[name] || 1;
+        const norm = std > 0 ? (v - mean) / std : 0;
+        x.push(norm);
+    }
+    let y = 0;
+    for (let i = 0; i < voiceModel.weights.length; i++) {
+        const w = Number(voiceModel.weights[i] || 0);
+        const xi = Number(x[i] || 0);
+        y += w * xi;
+    }
+    // If we stored a bias scaling, return directly clamped
+    return Math.max(0, Math.min(100, Math.round(y)));
+}
+
+function trainLinearModelFromExamples(examples, options = {}) {
+    // Use normalized gradient descent for stability
+    if (!examples || examples.length === 0) return null;
+    const featureNames = Object.keys(extractFeaturesFromAnalysis(examples[0].analysis));
+    const m = examples.length;
+
+    // Build raw feature matrix (without bias)
+    const rawX = examples.map(e => {
+        const f = extractFeaturesFromAnalysis(e.analysis);
+        return featureNames.map(nm => Number(f[nm] || 0));
+    });
+    const y = examples.map(e => Number(e.label));
+
+    const p = featureNames.length; // number of features
+
+    // compute mean/std
+    const mean = Array(p).fill(0);
+    const std = Array(p).fill(0);
+    for (let j = 0; j < p; j++) {
+        let sum = 0;
+        for (let i = 0; i < m; i++) sum += rawX[i][j];
+        mean[j] = sum / m;
+    }
+    for (let j = 0; j < p; j++) {
+        let acc = 0;
+        for (let i = 0; i < m; i++) acc += Math.pow(rawX[i][j] - mean[j], 2);
+        std[j] = Math.sqrt(acc / m) || 1;
+    }
+
+    // normalize and build X with bias
+    const X = rawX.map(row => [1, ...row.map((v, j) => (v - mean[j]) / std[j])]);
+    const n = X[0].length; // p + 1
+
+    // initialize weights
+    let weights = new Array(n).fill(0);
+
+    const lr = options.lr || 0.05;
+    const epochs = options.epochs || 1000;
+
+    for (let epoch = 0; epoch < epochs; epoch++) {
+        const preds = X.map(row => row.reduce((s, xi, k) => s + xi * weights[k], 0));
+        const errors = preds.map((pred, i) => pred - y[i]);
+        const grads = new Array(n).fill(0);
+        for (let j = 0; j < n; j++) {
+            let g = 0;
+            for (let i = 0; i < m; i++) g += errors[i] * X[i][j];
+            grads[j] = (2 / m) * g;
+        }
+        for (let j = 0; j < n; j++) weights[j] -= lr * grads[j];
+    }
+    // debug: inspect data ranges and NaNs
+    try {
+        console.log('trainLinearModelFromExamples: sample rawX[0]=', rawX[0]);
+        console.log('trainLinearModelFromExamples: sample normalized X[0]=', X[0]);
+        console.log('trainLinearModelFromExamples: sample y[0]=', y[0]);
+        const nanCount = weights.filter(w => !Number.isFinite(w)).length;
+        console.log('trainLinearModelFromExamples: nan/inf in weights before sanitize =', nanCount);
+    } catch (e) {
+        console.error('Debug inspect failed:', e.message || e);
+    }
+
+    // sanitize
+    weights = weights.map(v => (Number.isFinite(v) ? v : 0));
+
+    console.log('trainLinearModelFromExamples: first weights sample ->', weights.slice(0, 10));
+
+    voiceModel = { weights, featureNames, normParams: { mean: Object.fromEntries(featureNames.map((n,i)=>[n,mean[i]])), std: Object.fromEntries(featureNames.map((n,i)=>[n,std[i]])) } };
+    saveModel();
+    return voiceModel;
+}
+
+// Generate synthetic examples to seed/train the model quickly
+function generateSyntheticExamples(count = 200) {
+    const examples = [];
+    for (let i = 0; i < count; i++) {
+        const wordCount = Math.floor(Math.random() * 180) + 20; // 20-200
+        const uniqueWords = Math.max(5, Math.floor(wordCount * (0.4 + Math.random() * 0.6)));
+        const sentenceCount = Math.max(1, Math.floor(wordCount / (10 + Math.floor(Math.random() * 15))));
+        const clarityScore = Math.max(50, Math.min(100, Math.floor(40 + Math.random() * 60)));
+        const paceScore = Math.max(50, Math.min(100, Math.floor(100 - Math.abs((wordCount / Math.max(1, sentenceCount)) - 150) / 2)));
+        const toneScore = Math.max(50, Math.min(100, Math.floor(50 + Math.random() * 50)));
+        const confidenceScore = Math.max(50, Math.min(100, Math.floor(50 + Math.random() * 50)));
+        const fillerWordCount = Math.floor(Math.random() * 8);
+        const estimatedWPM = Math.max(60, Math.min(220, Math.floor((wordCount / Math.max(1, Math.floor(wordCount / 140))) )));
+
+        const analysis = {
+            wordCount,
+            uniqueWords,
+            sentenceCount,
+            clarityScore,
+            paceScore,
+            toneScore,
+            confidenceScore,
+            fillerWordCount,
+            estimatedWPM
+        };
+
+        // Label is a weighted combination + noise
+        const label = Math.max(0, Math.min(100, Math.round(
+            (clarityScore * 0.35) + (paceScore * 0.25) + (confidenceScore * 0.25) + (toneScore * 0.15) + (Math.random() * 6 - 3)
+        )));
+
+        examples.push({ analysis, label });
+    }
+    return examples;
+}
+
+app.post('/api/voice-coach/model/seed-train', (req, res) => {
+    const { count } = req.body || {};
+    const examples = generateSyntheticExamples(count || 300);
+    const model = trainLinearModelFromExamples(examples, { lr: 0.0005, epochs: 2500 });
+    res.json({ success: true, trained: !!model, model });
+});
+
 function parseJSONSafe(text) {
     try {
         return JSON.parse(text);
@@ -36,7 +247,11 @@ function parseJSONSafe(text) {
 
 async function aiAnalyzePrompt(prompt, fallback) {
     try {
-        const result = await aiService.callOllamaPrompt(prompt);
+        const timeoutMs = 2500;
+        const result = await Promise.race([
+            aiService.callOllamaPrompt(prompt),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('AI timeout')), timeoutMs))
+        ]);
         const parsed = parseJSONSafe(result);
         return parsed || fallback;
     } catch (error) {
@@ -111,6 +326,250 @@ app.get('/api/voice-coach/session/:sessionId', (req, res) => {
     const session = voiceCoaching.get(req.params.sessionId);
     res.json({ success: true, session });
 });
+
+// ==================== VOICE COACH ANALYSIS ====================
+app.post('/api/voice-coach/analyze', (req, res) => {
+    const { sessionId, transcript, scenario } = req.body;
+    
+    if (!transcript || transcript.trim().length === 0) {
+        return res.json({ success: false, message: 'Empty transcript' });
+    }
+    
+    const analysis = analyzeVoicePerformance(transcript, scenario);
+
+    // If a trained model exists, add model prediction
+    const modelPred = predictWithModel(analysis);
+    if (modelPred !== null) {
+        analysis.modelScore = modelPred;
+    }
+    
+    if (sessionId) {
+        const session = voiceCoaching.get(sessionId);
+        if (session) {
+            session.analysis = analysis;
+            session.transcript = transcript;
+            session.status = 'completed';
+        }
+    }
+    
+    res.json({ success: true, analysis });
+});
+
+// ==================== MODEL TRAINING & PREDICTION ENDPOINTS ====================
+// Train model with labeled examples: { examples: [{ transcript, scenario, label }] }
+app.post('/api/voice-coach/model/train', (req, res) => {
+    const { examples, options } = req.body;
+    if (!examples || !Array.isArray(examples) || examples.length === 0) {
+        return res.json({ success: false, message: 'No training examples provided' });
+    }
+
+    // Convert each example transcript -> analysis
+    const processed = examples.map(ex => {
+        const analysis = analyzeVoicePerformance(ex.transcript || '', ex.scenario || '');
+        return { analysis, label: Number(ex.label) };
+    });
+
+    const model = trainLinearModelFromExamples(processed, options || {});
+    res.json({ success: true, model });
+});
+
+app.get('/api/voice-coach/model/status', (req, res) => {
+    res.json({ success: true, model: voiceModel, hasModel: !!voiceModel.weights });
+});
+
+app.post('/api/voice-coach/model/predict', (req, res) => {
+    const { transcript, scenario } = req.body;
+    if (!transcript) return res.json({ success: false, message: 'No transcript provided' });
+    const analysis = analyzeVoicePerformance(transcript, scenario);
+    const modelPred = predictWithModel(analysis);
+    // If model not trained, fallback to simple aggregate score so frontend shows live feedback
+    let finalScore = null;
+    if (modelPred !== null) {
+        finalScore = modelPred;
+    } else {
+        // average of core metrics as fallback
+        finalScore = Math.round((analysis.clarityScore + analysis.paceScore + analysis.confidenceScore + analysis.toneScore) / 4);
+    }
+    res.json({ success: true, analysis, modelScore: finalScore, modelUsed: modelPred !== null });
+});
+
+function analyzeVoicePerformance(transcript, scenario) {
+    const words = transcript.split(/\s+/).filter(w => w.length > 0);
+    const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    
+    // Filler words analysis
+    const fillerWords = ['um', 'uh', 'like', 'you know', 'basically', 'actually', 'literally', 'sort of', 'kind of', 'i mean'];
+    let fillerCount = 0;
+    words.forEach(word => {
+        const lower = word.toLowerCase().replace(/[,.:;!?]/g, '');
+        if (fillerWords.includes(lower)) {
+            fillerCount++;
+        }
+    });
+    
+    // Calculate clarity score based on word variety and structure
+    const uniqueWords = new Set(words.map(w => w.toLowerCase()));
+    const vocabularyScore = (uniqueWords.size / words.length) * 100;
+    const sentenceLength = words.length / Math.max(sentences.length, 1);
+    const clarityScore = Math.round(
+        (Math.min(vocabularyScore, 100) * 0.4) +
+        (Math.min((sentenceLength / 25) * 100, 100) * 0.6)
+    );
+    
+    // Pace calculation (assuming 1-2 minutes of speech, estimate WPM)
+    const estimatedWPM = words.length > 50 ? words.length : words.length * 2;
+    const optimalWPM = 150;
+    let paceScore = 100 - Math.abs(estimatedWPM - optimalWPM) / optimalWPM * 50;
+    paceScore = Math.max(60, Math.min(100, paceScore));
+    
+    // Tone analysis based on punctuation and word choice
+    const questionMarks = (transcript.match(/\?/g) || []).length;
+    const exclamations = (transcript.match(/!/g) || []).length;
+    const positiveWords = ['great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love', 'perfect', 'confident', 'professional'];
+    let positiveCount = 0;
+    words.forEach(word => {
+        const lower = word.toLowerCase().replace(/[,.:;!?]/g, '');
+        if (positiveWords.includes(lower)) {
+            positiveCount++;
+        }
+    });
+    
+    const toneScore = Math.round(
+        (positiveCount / words.length) * 50 +
+        ((questionMarks + exclamations) / sentences.length) * 30 +
+        50
+    );
+    
+    // Confidence score
+    const confidenceMarkers = ['confident', 'professional', 'definitely', 'absolutely', 'certainly'];
+    let confidenceMarkerCount = 0;
+    words.forEach(word => {
+        const lower = word.toLowerCase().replace(/[,.:;!?]/g, '');
+        if (confidenceMarkers.includes(lower)) {
+            confidenceMarkerCount++;
+        }
+    });
+    
+    let confidenceScore = Math.round(
+        (1 - (fillerCount / words.length)) * 50 + 
+        (confidenceMarkerCount / words.length) * 30 +
+        (vocabularyScore / 100) * 20
+    );
+    confidenceScore = Math.max(60, Math.min(100, confidenceScore));
+    
+    // Scenario-specific scoring adjustments
+    const scenarioBonus = getScenarioBonus(transcript, scenario);
+    
+    return {
+        wordCount: words.length,
+        sentenceCount: sentences.length,
+        clarityScore: Math.max(65, Math.min(100, clarityScore + scenarioBonus.clarity)),
+        paceScore: Math.max(60, Math.min(100, paceScore)),
+        toneScore: Math.max(70, Math.min(100, toneScore)),
+        confidenceScore: Math.max(65, Math.min(100, confidenceScore)),
+        fillerWordCount: fillerCount,
+        estimatedWPM: estimatedWPM,
+        uniqueWords: uniqueWords.size,
+        suggestions: generateDetailedSuggestions(
+            transcript,
+            fillerCount,
+            words.length,
+            clarityScore,
+            paceScore,
+            scenario
+        )
+    };
+}
+
+function getScenarioBonus(transcript, scenario) {
+    const lowerTranscript = transcript.toLowerCase();
+    let clarityBonus = 0;
+    
+    switch(scenario) {
+        case 'sales':
+            // Check for sales-specific language
+            const salesWords = ['product', 'solution', 'benefit', 'invest', 'opportunity', 'customer', 'value'];
+            const salesCount = salesWords.filter(w => lowerTranscript.includes(w)).length;
+            clarityBonus = (salesCount / salesWords.length) * 15;
+            break;
+        case 'support':
+            // Check for empathetic language
+            const supportWords = ['understand', 'help', 'sorry', 'appreciate', 'problem', 'solution', 'thank'];
+            const supportCount = supportWords.filter(w => lowerTranscript.includes(w)).length;
+            clarityBonus = (supportCount / supportWords.length) * 15;
+            break;
+        case 'presentation':
+            // Check for structured presentation language
+            const presentationWords = ['first', 'second', 'third', 'summary', 'conclusion', 'data', 'analysis'];
+            const presentationCount = presentationWords.filter(w => lowerTranscript.includes(w)).length;
+            clarityBonus = (presentationCount / presentationWords.length) * 15;
+            break;
+        case 'meeting':
+            // Check for professional introduction
+            const meetingWords = ['team', 'role', 'responsibility', 'experience', 'collaborate', 'professional'];
+            const meetingCount = meetingWords.filter(w => lowerTranscript.includes(w)).length;
+            clarityBonus = (meetingCount / meetingWords.length) * 15;
+            break;
+    }
+    
+    return { clarity: Math.max(0, clarityBonus) };
+}
+
+function generateDetailedSuggestions(transcript, fillerCount, wordCount, clarityScore, paceScore, scenario) {
+    const suggestions = [];
+    const fillerRatio = fillerCount / wordCount;
+    
+    // Filler words suggestions
+    if (fillerCount > 5) {
+        suggestions.push(`Reduce filler words (${fillerCount} found). Practice pausing instead of saying "um" or "uh".`);
+    } else if (fillerCount > 0) {
+        suggestions.push(`Good job! You used ${fillerCount} filler word(s). Keep working to eliminate them completely.`);
+    } else {
+        suggestions.push('Excellent! No filler words detected. Your speech is very clean.');
+    }
+    
+    // Clarity suggestions
+    if (clarityScore < 70) {
+        suggestions.push('Work on clarity: speak more slowly and enunciate each word clearly.');
+    } else if (clarityScore < 85) {
+        suggestions.push('Your clarity is good. Try varying your sentence structure for more impact.');
+    }
+    
+    // Pace suggestions
+    if (paceScore < 70) {
+        suggestions.push('Adjust your pace - you\'re speaking too fast. Aim for 140-160 words per minute.');
+    } else if (paceScore >= 85) {
+        suggestions.push('Perfect pace! You\'re maintaining an ideal speaking speed.');
+    }
+    
+    // Scenario-specific suggestions
+    if (scenario === 'sales') {
+        if (transcript.toLowerCase().includes('benefit') || transcript.toLowerCase().includes('value')) {
+            suggestions.push('Great! You emphasized the value proposition.');
+        } else {
+            suggestions.push('Consider emphasizing the benefits and value of the product.');
+        }
+    } else if (scenario === 'support') {
+        if (transcript.toLowerCase().includes('understand') || transcript.toLowerCase().includes('help')) {
+            suggestions.push('Good empathy shown. Maintain this customer-centric approach.');
+        } else {
+            suggestions.push('Try to show more empathy when handling customer concerns.');
+        }
+    } else if (scenario === 'presentation') {
+        if (transcript.match(/first|second|third|finally/i)) {
+            suggestions.push('Good structure! You used clear transitions between points.');
+        } else {
+            suggestions.push('Try structuring your presentation with clear transitions like "first," "second," etc.');
+        }
+    }
+    
+    // Add word count feedback
+    if (wordCount < 30) {
+        suggestions.push('Try speaking for longer. Aim for at least 60-90 seconds of content.');
+    }
+    
+    return suggestions;
+}
 
 function analyzeVoiceMetrics(transcript, audioData) {
     const words = transcript.split(' ');
@@ -682,7 +1141,14 @@ function generateSmartSuggestions(context, recentCommunications) {
 
 app.post('/api/email-tone/analyze', async (req, res) => {
     const { userId, emailContent, recipient, purpose } = req.body;
-    const fallback = {
+    const grammar = analyzeEmailGrammar(emailContent || '');
+    const spelling = analyzeEmailSpelling(emailContent || '');
+    const combinedIssues = [...(grammar.issues || []), ...(spelling.issues || [])];
+    const correctedDraftText = spelling.corrected || grammar.corrected || String(emailContent || '');
+    const features = extractEmailToneFeatures(emailContent || '', recipient || '', purpose || '', {
+        issues: combinedIssues
+    });
+    const analysis = {
         id: uuidv4(),
         userId,
         emailContent,
@@ -690,42 +1156,267 @@ app.post('/api/email-tone/analyze', async (req, res) => {
         purpose,
         toneAnalysis: analyzeEmailTone(emailContent),
         suggestions: generateEmailSuggestions(emailContent, recipient, purpose),
-        score: Math.floor(Math.random() * 20) + 80,
+        changesToMake: generateEmailChanges(emailContent, recipient, purpose),
+        grammarIssues: grammar.issues,
+        grammarIssueCount: grammar.issues.length,
+        spellingIssues: spelling.issues,
+        spellingIssueCount: spelling.issues.length,
+        correctedDraft: correctedDraftText,
+        rewrittenDraft: generateImprovedEmailDraft(emailContent, recipient, purpose, correctedDraftText),
+        score: scoreEmailTone(features),
         createdAt: new Date()
     };
-    const prompt = `You are an expert email communication analyst. Analyze this email content and recipient information, then return JSON with keys toneAnalysis, suggestions, score. toneAnalysis should include formality, friendliness, urgency, confidence, and empathy. suggestions should be an array of short actionable advice. score should be 0-100. Email: "${emailContent}" Recipient: "${recipient}" Purpose: "${purpose}".`;
-    const aiResult = await aiAnalyzePrompt(prompt, fallback);
-    const analysis = typeof aiResult === 'object' ? { ...fallback, ...aiResult, id: fallback.id, userId, emailContent, recipient, purpose, createdAt: new Date() } : fallback;
     emailAnalysis.set(analysis.id, analysis);
     res.json({ success: true, analysis });
 });
 
-function analyzeEmailTone(emailContent) {
-    const words = emailContent.toLowerCase();
+function extractEmailToneFeatures(emailContent, recipient, purpose, grammar = { issues: [] }) {
+    const content = String(emailContent || '');
+    const lower = content.toLowerCase();
+    const words = lower.split(/\s+/).filter(Boolean);
+    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0);
+    const thankCount = (lower.match(/\b(thanks|thank you|appreciate|appreciation)\b/g) || []).length;
+    const pleaseCount = (lower.match(/\bplease\b/g) || []).length;
+    const questionCount = (content.match(/\?/g) || []).length;
+    const actionCount = (lower.match(/\b(review|reply|confirm|send|share|schedule|join|finish|finalize|approve|update|let me know)\b/g) || []).length;
+    const urgencyCount = (lower.match(/\b(asap|urgent|immediately|soon|today|tomorrow|deadline)\b/g) || []).length;
+    const apologyCount = (lower.match(/\b(sorry|apologize|apologies)\b/g) || []).length;
+    const greetingCount = (lower.match(/\b(hi|hello|dear|good morning|good afternoon|hey)\b/g) || []).length;
+    const closingCount = (lower.match(/\b(regards|best|sincerely|thanks|thank you)\b/g) || []).length;
+
     return {
-        formality: words.includes('kindly') || words.includes('respectfully') ? 'formal' : 'casual',
-        friendliness: words.includes('thanks') || words.includes('appreciate') ? 'warm' : 'neutral',
-        urgency: words.includes('asap') || words.includes('urgent') ? 'high' : 'normal',
-        confidence: words.includes('will') || words.includes('can') ? 'confident' : 'tentative',
-        empathy: words.includes('understand') || words.includes('sorry') ? 'empathetic' : 'neutral'
+        wordCount: words.length,
+        sentenceCount: Math.max(1, sentences.length),
+        thankCount,
+        pleaseCount,
+        questionCount,
+        actionCount,
+        urgencyCount,
+        apologyCount,
+        greetingCount,
+        closingCount,
+        recipientProvided: recipient ? 1 : 0,
+        purposeProvided: purpose ? 1 : 0,
+        length: content.length,
+        grammarIssueCount: Array.isArray(grammar.issues) ? grammar.issues.length : 0
+    };
+}
+
+function scoreEmailTone(features) {
+    let score = 40;
+    score += Math.min(10, features.greetingCount * 3.5);
+    score += Math.min(12, features.thankCount * 4);
+    score += Math.min(10, features.pleaseCount * 2.5);
+    score += Math.min(12, features.actionCount * 2.25);
+    score += Math.min(8, features.closingCount * 2);
+    score += Math.min(6, features.recipientProvided * 6);
+    score += Math.min(6, features.purposeProvided * 6);
+    score += Math.min(5, features.questionCount * 1.5);
+    score += Math.min(6, features.apologyCount * 2);
+    score += Math.min(8, Math.max(0, features.wordCount - 20) / 10);
+    score -= Math.min(14, features.urgencyCount * 4);
+    score -= Math.max(0, Math.floor((features.length - 280) / 25));
+    score -= Math.min(18, features.grammarIssueCount * 4.5);
+    score -= Math.min(18, (features.spellingIssueCount || 0) * 5);
+    return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+function analyzeEmailGrammar(emailContent) {
+    const content = String(emailContent || '').trim();
+    const issues = [];
+    if (!content) {
+        return { issues, corrected: '' };
+    }
+
+    if (/\s{2,}/.test(content)) {
+        issues.push({ type: 'spacing', message: 'Remove extra spaces between words.' });
+    }
+    if (/\bi\b/.test(content)) {
+        issues.push({ type: 'capitalization', message: 'Use a capital I when referring to yourself.' });
+    }
+    if (/[,;:]\s*$/.test(content)) {
+        issues.push({ type: 'punctuation', message: 'Avoid ending the message with a hanging punctuation mark.' });
+    }
+
+    const normalized = content.replace(/\s+/g, ' ').trim();
+    const sentences = normalized.split(/([.!?]+)/).filter(Boolean);
+    let rebuilt = '';
+    for (let i = 0; i < sentences.length; i += 2) {
+        const text = (sentences[i] || '').trim();
+        const punct = sentences[i + 1] || '.';
+        if (!text) continue;
+        const fixedText = text.charAt(0).toUpperCase() + text.slice(1);
+        rebuilt += fixedText + punct + ' ';
+    }
+
+    let corrected = rebuilt.trim();
+    if (!corrected) {
+        corrected = normalized;
+    }
+    if (!/[.!?]$/.test(corrected)) {
+        corrected += '.';
+    }
+
+    corrected = corrected
+        .replace(/\bi\b/g, 'I')
+        .replace(/\s+/g, ' ')
+        .replace(/\s+([,.!?;:])/g, '$1');
+
+    if (corrected !== content) {
+        issues.push({ type: 'rewrite', message: 'Apply grammar cleanup and sentence capitalization.' });
+    }
+
+    return { issues, corrected };
+}
+
+function analyzeEmailSpelling(emailContent) {
+    const content = String(emailContent || '').trim();
+    const issues = [];
+    if (!content) {
+        return { issues, corrected: '' };
+    }
+
+    const replacements = [
+        ['recieve', 'receive'],
+        ['receve', 'receive'],
+        ['seperate', 'separate'],
+        ['definately', 'definitely'],
+        ['occured', 'occurred'],
+        ['untill', 'until'],
+        ['wich', 'which'],
+        ['teh', 'the'],
+        ['pleaze', 'please'],
+        ['anythng', 'anything'],
+        ['adresss', 'address'],
+        ['adress', 'address'],
+        ['wierd', 'weird'],
+        ['enviroment', 'environment'],
+        ['acommodate', 'accommodate'],
+        ['embarass', 'embarrass'],
+        ['restarant', 'restaurant'],
+        ['thier', 'their'],
+        ['alot', 'a lot'],
+        ['infromation', 'information'],
+        ['proffesional', 'professional'],
+        ['repsonse', 'response'],
+        ['finalyse', 'finalize'],
+        ['thnaks', 'thanks']
+    ];
+
+    let corrected = content;
+    replacements.forEach(([wrong, right]) => {
+        const regex = new RegExp(`\\b${wrong}\\b`, 'gi');
+        if (regex.test(corrected)) {
+            issues.push({ type: 'spelling', message: `Correct "${wrong}" to "${right}".` });
+            corrected = corrected.replace(regex, right);
+        }
+    });
+
+    corrected = corrected.replace(/\s+/g, ' ').trim();
+    if (corrected && !/[.!?]$/.test(corrected)) {
+        corrected += '.';
+    }
+
+    if (corrected !== content) {
+        issues.push({ type: 'spelling-rewrite', message: 'Apply spelling corrections to improve clarity.' });
+    }
+
+    return { issues, corrected };
+}
+
+function analyzeEmailTone(emailContent) {
+    const words = String(emailContent || '').toLowerCase();
+    return {
+        formality: words.includes('kindly') || words.includes('respectfully') || words.includes('please') ? 'formal' : 'casual',
+        friendliness: words.includes('thanks') || words.includes('thank you') || words.includes('appreciate') ? 'warm' : 'neutral',
+        urgency: words.includes('asap') || words.includes('urgent') || words.includes('tomorrow') ? 'high' : 'normal',
+        confidence: words.includes('will') || words.includes('can') || words.includes('confirm') ? 'confident' : 'tentative',
+        empathy: words.includes('understand') || words.includes('sorry') || words.includes('appreciate') ? 'empathetic' : 'neutral'
     };
 }
 
 function generateEmailSuggestions(emailContent, recipient, purpose) {
     const suggestions = [];
+    const lower = String(emailContent || '').toLowerCase();
+    const grammar = analyzeEmailGrammar(emailContent || '');
     if (emailContent.length > 500) {
         suggestions.push({ type: 'length', message: 'Consider shortening - keep under 200 words for faster response' });
     }
     if (!emailContent.includes('?')) {
         suggestions.push({ type: 'engagement', message: 'Add a clear question or call to action' });
     }
-    if (!emailContent.includes('thanks') && !emailContent.includes('thank')) {
+    if (!lower.includes('thanks') && !lower.includes('thank')) {
         suggestions.push({ type: 'politeness', message: 'Add a thank you or appreciation' });
     }
-    if (purpose === 'request' && !emailContent.includes('please')) {
+    if ((purpose === 'request' || purpose === 'follow-up' || purpose === 'update') && !lower.includes('please')) {
         suggestions.push({ type: 'tone', message: 'Add "please" for a more polite request' });
     }
+    if (!recipient) {
+        suggestions.push({ type: 'context', message: 'Add the recipient so the tone can be tuned to the audience' });
+    }
+    if (!purpose) {
+        suggestions.push({ type: 'context', message: 'Add the purpose so the model can optimize the message' });
+    }
+    grammar.issues.slice(0, 3).forEach(issue => {
+        suggestions.push({ type: issue.type, message: issue.message });
+    });
     return suggestions;
+}
+
+function generateEmailChanges(emailContent, recipient, purpose) {
+    const lower = String(emailContent || '').toLowerCase();
+    const changes = [];
+    const grammar = analyzeEmailGrammar(emailContent || '');
+
+    if (!recipient) {
+        changes.push('Specify who the email is for so the tone can match the audience.');
+    }
+    if (!purpose) {
+        changes.push('State the purpose clearly, such as request, update, follow-up, or apology.');
+    }
+    if (!lower.match(/\b(hi|hello|dear|hey)\b/)) {
+        changes.push('Add a short greeting to make the message feel more natural.');
+    }
+    if (!lower.includes('please')) {
+        changes.push('Add "please" to soften requests and make the tone more professional.');
+    }
+    if (!lower.match(/\b(thank you|thanks|appreciate)\b/)) {
+        changes.push('Add appreciation or thanks near the end to improve warmth.');
+    }
+    if (!emailContent.includes('?')) {
+        changes.push('End with one clear call to action or question so the next step is obvious.');
+    }
+    if (emailContent.length > 450) {
+        changes.push('Shorten the email and keep only the details needed for the response.');
+    }
+    if (!lower.match(/\b(regards|best|sincerely|thank you|thanks)\b/)) {
+        changes.push('Add a professional closing, like Best regards or Thanks.');
+    }
+    grammar.issues.forEach(issue => {
+        changes.push(issue.message);
+    });
+
+    return changes.length ? changes : ['Tone looks good. You can still make it shorter and more specific for a stronger response.'];
+}
+
+function generateImprovedEmailDraft(emailContent, recipient, purpose, correctedDraft) {
+    if (correctedDraft && correctedDraft.trim()) {
+        return correctedDraft;
+    }
+    const base = String(emailContent || '').trim();
+    if (!base) {
+        return 'Hi there,\n\nI hope you are doing well.\n\nBest regards,';
+    }
+
+    const greeting = recipient ? `Hi ${recipient},` : 'Hi there,';
+    const purposeLine = purpose ? `I am reaching out regarding ${purpose}.` : 'I am reaching out to follow up on the request.';
+    const body = base
+        .replace(/^hi\b[^\n]*,?/i, '')
+        .replace(/^hello\b[^\n]*,?/i, '')
+        .replace(/^dear\b[^\n]*,?/i, '')
+        .trim();
+    const closing = '\n\nBest regards,';
+    return `${greeting}\n\n${purposeLine}\n\n${body || 'Please let me know how you would like to proceed.'}${closing}`;
 }
 
 // ==================== ROLE-BASED FEATURES ====================

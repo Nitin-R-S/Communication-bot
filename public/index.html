@@ -1300,17 +1300,17 @@
             <span class="logo-text">VDart CommHub</span>
         </div>
         <nav class="nav-links">
-            <a href="#" class="active" onclick="showDashboard()">Dashboard</a>
-            <a href="#" onclick="showFeature('voice-coach')">Voice Coach</a>
-            <a href="#" onclick="showFeature('call-replay')">Call Replay</a>
-            <a href="#" onclick="showFeature('simulator')">Simulator</a>
-            <a href="#" onclick="showFeature('dna')">DNA</a>
-            <a href="#" onclick="showFeature('body-language')">Body Language</a>
-            <a href="#" onclick="showFeature('email-tone')">Email</a>
-            <a href="#" onclick="showFeature('presentation')">Presentations</a>
-            <a href="#" onclick="showFeature('suggestions')">Suggestions</a>
-            <a href="#" onclick="showFeature('ai-assistant')">🤖 AI Assistant</a>
-            <a href="#" onclick="showFeature('innovative')">+More</a>
+            <a href="#" class="active" data-feature="dashboard">Dashboard</a>
+            <a href="#" data-feature="voice-coach">Voice Coach</a>
+            <a href="#" data-feature="call-replay">Call Replay</a>
+            <a href="#" data-feature="simulator">Simulator</a>
+            <a href="#" data-feature="dna">DNA</a>
+            <a href="#" data-feature="body-language">Body Language</a>
+            <a href="#" data-feature="email-tone">Email</a>
+            <a href="#" data-feature="presentation">Presentations</a>
+            <a href="#" data-feature="suggestions">Suggestions</a>
+            <a href="#" data-feature="ai-assistant">🤖 AI Assistant</a>
+            <a href="#" data-feature="innovative">+More</a>
         </nav>
         <div class="user-profile">
             <div class="user-avatar">JD</div>
@@ -1332,10 +1332,10 @@
                 everything you need to become an exceptional communicator.
             </p>
             <div class="hero-buttons">
-                <button class="btn btn-primary" onclick="showFeature('voice-coach')">
+                <button class="btn btn-primary" data-feature="voice-coach">
                     🚀 Start Training
                 </button>
-                <button class="btn btn-secondary" onclick="showFeature('dna')">
+                <button class="btn btn-secondary" data-feature="dna">
                     📊 Analyze DNA
                 </button>
             </div>
@@ -1343,7 +1343,7 @@
 
         <div class="dashboard" id="mainDashboard">
             <!-- Voice Coach Card -->
-            <div class="card" onclick="showFeature('voice-coach')">
+            <div class="card" data-feature="voice-coach">
                 <div class="card-icon gradient-1">🎤</div>
                 <h3>Live Voice Coach</h3>
                 <p>Real-time voice analysis with instant feedback on clarity, pace, tone, and confidence.</p>
@@ -1364,7 +1364,7 @@
             </div>
 
             <!-- Accent Clarity Card -->
-            <div class="card" onclick="showFeature('accent')">
+            <div class="card" data-feature="accent">
                 <div class="card-icon gradient-2">🌍</div>
                 <h3>Accent Clarity Trainer</h3>
                 <p>Master different accents with pronunciation, intonation, and rhythm training.</p>
@@ -1385,7 +1385,7 @@
             </div>
 
             <!-- Call Replay Card -->
-            <div class="card" onclick="showFeature('call-replay')">
+            <div class="card" data-feature="call-replay">
                 <div class="card-icon gradient-3">📞</div>
                 <h3>Call Replay Room</h3>
                 <p>Analyze your calls with AI-powered insights on talk time, interruptions, and sentiment.</p>
@@ -1406,7 +1406,7 @@
             </div>
 
             <!-- Message Simulator Card -->
-            <div class="card" onclick="showFeature('simulator')">
+            <div class="card" data-feature="simulator">
                 <div class="card-icon gradient-4">💬</div>
                 <h3>Message Convo Simulator</h3>
                 <p>Practice difficult conversations with AI-powered scenarios and real-time feedback.</p>
@@ -1427,7 +1427,7 @@
             </div>
 
             <!-- Communication DNA Card -->
-            <div class="card" onclick="showFeature('dna')">
+            <div class="card" data-feature="dna">
                 <div class="card-icon gradient-1">🧬</div>
                 <h3>Communication DNA Sequencer</h3>
                 <p>Discover your unique communication profile and get personalized improvement plans.</p>
@@ -1448,7 +1448,7 @@
             </div>
 
             <!-- Body Language Card -->
-            <div class="card" onclick="showFeature('body-language')">
+            <div class="card" data-feature="body-language">
                 <div class="card-icon gradient-2">🪞</div>
                 <h3>Body Language Mirror</h3>
                 <p>AI-powered body language analysis with real-time feedback on posture and gestures.</p>
@@ -1469,7 +1469,7 @@
             </div>
 
             <!-- Presentation Q&A Card -->
-            <div class="card" onclick="showFeature('presentation')">
+            <div class="card" data-feature="presentation">
                 <div class="card-icon gradient-3">📊</div>
                 <h3>Presentation Q&A Prep</h3>
                 <p>Prepare for any question with AI-generated likely questions and model answers.</p>
@@ -1490,7 +1490,7 @@
             </div>
 
             <!-- Email Tone Card -->
-            <div class="card" onclick="showFeature('email-tone')">
+            <div class="card" data-feature="email-tone">
                 <div class="card-icon gradient-4">📧</div>
                 <h3>Email Tone Dialer</h3>
                 <p>Analyze and optimize your email tone for maximum impact and appropriate delivery.</p>
@@ -1511,7 +1511,7 @@
             </div>
 
             <!-- Suggestion Engine Card -->
-            <div class="card" onclick="showFeature('suggestions')">
+            <div class="card" data-feature="suggestions">
                 <div class="card-icon gradient-1">💡</div>
                 <h3>AI Suggestion Engine</h3>
                 <p>Smart, context-aware suggestions that learn from your communication patterns.</p>
@@ -1532,7 +1532,7 @@
             </div>
 
             <!-- Role-Based Card -->
-            <div class="card" onclick="showFeature('roles')">
+            <div class="card" data-feature="roles">
                 <div class="card-icon gradient-2">👔</div>
                 <h3>Role-Based Dashboard</h3>
                 <p>Personalized tools and metrics based on your role - Sales, Support, Manager, or Dev.</p>
@@ -1564,106 +1564,197 @@
             <button class="close-panel" onclick="closePanel()">×</button>
         </div>
         <div class="panel-content">
-            <div class="voice-coach-grid">
+            <div id="voice-coach-selection" class="voice-coach-grid">
                 <div class="coach-card">
-                    <h4>📊 Real-Time Metrics</h4>
-                    <div class="metric-item">
-                        <span>Clarity Score</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 92%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Pace (WPM)</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 85%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Tone Consistency</span>
-                        <div class="metric-bar"><div class="metric-fill medium" style="width: 78%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Confidence Level</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 88%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Filler Words</span>
-                        <div class="metric-bar"><div class="metric-fill low" style="width: 15%"></div></div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>🎯 Coaching Scenarios</h4>
+                    <h4>🎯 Select Scenario</h4>
                     <div style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('sales')">
-                            <strong>Sales Pitch</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Practice your elevator pitch</p>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('sales')" style="border: 1px solid var(--glass-border);">
+                            <strong>💼 Sales Pitch</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Practice your elevator pitch and sales techniques</p>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('support')">
-                            <strong>Customer Support</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Handle customer inquiries</p>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('support')" style="border: 1px solid var(--glass-border);">
+                            <strong>🎧 Customer Support</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Handle customer inquiries professionally</p>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('meeting')">
-                            <strong>Meeting Introduction</strong>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('meeting')" style="border: 1px solid var(--glass-border);">
+                            <strong>👤 Meeting Introduction</strong>
                             <p style="color: var(--gray); font-size: 0.85rem;">Introduce yourself professionally</p>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="startVoiceSession('presentation')">
-                            <strong>Presentation Delivery</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Present with confidence</p>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('presentation')" style="border: 1px solid var(--glass-border);">
+                            <strong>📊 Presentation Delivery</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Present with confidence and clarity</p>
                         </div>
                     </div>
                 </div>
                 <div class="coach-card">
                     <h4>📈 Session History</h4>
-                    <div style="display: grid; gap: 0.75rem;">
+                    <div id="session-history-container" style="display: grid; gap: 0.75rem;">
                         <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between;">
-                                <span>Today's Session</span>
-                                <span style="color: var(--success);">92%</span>
+                                <span>No sessions yet</span>
                             </div>
-                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">15 min ago</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>Yesterday's Session</span>
-                                <span style="color: var(--success);">88%</span>
-                            </div>
-                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">2:30 PM</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>Weekly Average</span>
-                                <span style="color: var(--success);">87%</span>
-                            </div>
-                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">+5% improvement</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>💬 Live Feedback</h4>
-                    <div class="real-time-feedback">
-                        <div class="feedback-item">
-                            <div class="feedback-icon positive">✓</div>
-                            <div>
-                                <strong>Great pace!</strong>
-                                <p style="color: var(--gray); font-size: 0.85rem;">Maintain this speed - 150 WPM is optimal</p>
-                            </div>
-                        </div>
-                        <div class="feedback-item">
-                            <div class="feedback-icon warning">!</div>
-                            <div>
-                                <strong>Watch filler words</strong>
-                                <p style="color: var(--gray); font-size: 0.85rem;">You used "um" 3 times in the last minute</p>
-                            </div>
-                        </div>
-                        <div class="feedback-item">
-                            <div class="feedback-icon positive">✓</div>
-                            <div>
-                                <strong>Excellent tone</strong>
-                                <p style="color: var(--gray); font-size: 0.85rem;">Confident and professional throughout</p>
-                            </div>
+                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">Start a session to see history</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div id="voice-coach-recording" style="display: none;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                    <!-- Recording Section -->
+                    <div class="coach-card">
+                        <h4 id="scenario-title">🎤 Recording Session</h4>
+                        <p id="scenario-desc" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;"></p>
+                        
+                        <!-- Recording Status -->
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div id="recording-indicator" style="width: 15px; height: 15px; background: #ef4444; border-radius: 50%; animation: pulse 1s infinite; display: none;"></div>
+                                <span id="recording-status">Ready to record</span>
+                                <span id="recording-timer" style="margin-left: auto; color: var(--primary); font-weight: bold;">00:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Recording Controls -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                            <button id="start-record-btn" class="btn btn-primary" onclick="startRecording()" style="padding: 0.75rem; font-size: 0.9rem;">
+                                🔴 Start
+                            </button>
+                            <button id="stop-record-btn" class="btn btn-secondary" onclick="stopRecording()" style="padding: 0.75rem; font-size: 0.9rem; display: none;">
+                                ⏹ Stop
+                            </button>
+                            <button id="reset-record-btn" class="btn btn-secondary" onclick="resetRecording()" style="padding: 0.75rem; font-size: 0.9rem;">
+                                🔄 Reset
+                            </button>
+                        </div>
+
+                        <!-- Transcript -->
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
+                            <h5 style="margin-bottom: 0.75rem; color: var(--secondary);">📝 Your Transcript</h5>
+                            <p id="transcript-text" style="color: var(--light); line-height: 1.6; min-height: 80px; max-height: 150px; overflow-y: auto;">
+                                <em style="color: var(--gray);">Waiting for speech...</em>
+                            </p>
+                        </div>
+
+                        <!-- Confidence -->
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Speech Confidence:</span>
+                                <span id="confidence-score" style="color: var(--secondary); font-weight: bold;">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics & Feedback Section -->
+                    <div>
+                        <div class="coach-card">
+                            <h4>📊 Real-Time Metrics</h4>
+                            <div class="metric-item">
+                                <span>Clarity</span>
+                                <div class="metric-bar"><div id="clarity-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="clarity-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Pace (WPM)</span>
+                                <div class="metric-bar"><div id="pace-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="pace-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Confidence</span>
+                                <div class="metric-bar"><div id="confidence-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="confidence-metric" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Tone</span>
+                                <div class="metric-bar"><div id="tone-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="tone-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Filler Words</span>
+                                <div class="metric-bar"><div id="filler-bar" class="metric-fill low" style="width: 0%"></div></div>
+                                <span id="filler-score" style="font-size: 0.85rem; color: var(--gray);">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>AI Score</span>
+                                <div class="metric-bar"><div id="model-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="model-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                        </div>
+
+                        <div class="coach-card" style="margin-top: 1rem;">
+                            <h4>💬 Live Feedback</h4>
+                            <div id="feedback-container" style="max-height: 250px; overflow-y: auto;">
+                                <p style="color: var(--gray); text-align: center; padding: 1rem;">
+                                    <em>Feedback will appear here</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="backToScenarios()" style="flex: 1;">← Back to Scenarios</button>
+                    <button class="btn btn-primary" id="finish-session-btn" onclick="finishVoiceSession()" style="flex: 1; display: none;">✓ Finish Session</button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .metric-item {
+            margin-bottom: 1rem;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.25rem;
+        }
+        
+        .metric-item span:last-child {
+            text-align: right;
+        }
+        
+        .feedback-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--glass);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .feedback-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        
+        .feedback-icon.positive {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .feedback-icon.warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .feedback-icon.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+    </style>
 
     <!-- Call Replay Panel -->
     <div class="feature-panels" id="call-replay-panel">
@@ -2013,48 +2104,66 @@
             <div class="tone-dialer">
                 <div class="email-editor">
                     <h4 style="margin-bottom: 1rem;">Compose Your Email</h4>
+                    <input id="emailRecipient" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Recipient or audience (e.g. client, manager, team)" oninput="analyzeEmailTone()" />
+                    <input id="emailPurpose" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Purpose (e.g. update, apology, follow-up)" oninput="analyzeEmailTone()" />
                     <textarea class="email-input" id="emailInput" placeholder="Start typing your email here..." oninput="analyzeEmailTone()"></textarea>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary" style="flex: 1;">✨ Analyze Tone</button>
-                        <button class="btn btn-secondary">📋 Copy</button>
+                        <button class="btn btn-primary" style="flex: 1;" onclick="analyzeEmailTone(true)">✨ Analyze Tone</button>
+                        <button class="btn btn-secondary" onclick="copyEmailContent()">📋 Copy</button>
                     </div>
                 </div>
                 <div class="tone-analysis">
                     <h4 style="margin-bottom: 1rem;">Tone Analysis</h4>
                     <div class="tone-gauge">
-                        <div class="tone-needle" style="transform: rotate(-30deg);"></div>
+                        <div class="tone-needle" id="email-tone-needle" style="transform: rotate(-30deg);"></div>
                     </div>
                     <div style="text-align: center; margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">Professional</div>
-                        <p style="color: var(--gray);">Score: 85/100</p>
+                        <div id="email-tone-label" style="font-size: 1.5rem; font-weight: 700;">Professional</div>
+                        <p id="email-tone-score" style="color: var(--gray);">Score: 85/100</p>
                     </div>
                     <div style="margin-top: 1.5rem;">
                         <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
                             <span>Formality</span>
-                            <span style="color: var(--success);">High</span>
+                            <span id="email-tone-formality" style="color: var(--success);">High</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
                             <span>Friendly</span>
-                            <span style="color: var(--success);">Warm</span>
+                            <span id="email-tone-friendliness" style="color: var(--success);">Warm</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
                             <span>Urgency</span>
-                            <span style="color: var(--warning);">Normal</span>
+                            <span id="email-tone-urgency" style="color: var(--warning);">Normal</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
                             <span>Confidence</span>
-                            <span style="color: var(--success);">Confident</span>
+                            <span id="email-tone-confidence" style="color: var(--success);">Confident</span>
                         </div>
                         <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
                             <span>Empathy</span>
-                            <span style="color: var(--success);">Empathetic</span>
+                            <span id="email-tone-empathy" style="color: var(--success);">Empathetic</span>
                         </div>
                     </div>
-                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
-                        <h5 style="color: var(--success);">✓ Suggestions</h5>
-                        <ul style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                    <div id="email-tone-suggestions-wrap" style="margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                        <h5 style="color: var(--success);">✓ Changes to make</h5>
+                        <ul id="email-tone-suggestions" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
                             <li>Great use of professional language</li>
                             <li>Consider adding a clear call-to-action</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                        <h5 style="color: #3b82f6;">Suggested rewrite</h5>
+                        <div id="email-tone-rewrite" style="margin-top: 0.5rem; white-space: pre-wrap; color: var(--gray); font-size: 0.9rem;">Type your email to see a rewritten version.</div>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
+                        <h5 style="color: var(--warning);">Grammar fixes</h5>
+                        <ul id="email-tone-grammar" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            <li>No grammar issues detected yet</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                        <h5 style="color: #ef4444;">Spelling fixes</h5>
+                        <ul id="email-tone-spelling" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            <li>No spelling issues detected yet</li>
                         </ul>
                     </div>
                 </div>
@@ -2498,6 +2607,33 @@
             if (panel) {
                 panel.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                // Hide main dashboard content while panel is open
+                const main = document.getElementById('mainDashboard');
+                if (main) main.style.display = 'none';
+
+                // Update nav link active state (uses data-feature populated when wiring handlers)
+                document.querySelectorAll('.nav-links a').forEach(a => {
+                    a.classList.toggle('active', a.dataset.feature === feature);
+                });
+                // If opening voice coach, initialize default scenario and start recording
+                if (feature === 'voice-coach') {
+                    // Use a short timeout to ensure DOM is visible
+                    setTimeout(() => {
+                        try {
+                            startVoiceSession('sales');
+                        } catch (e) {
+                            console.warn('Could not auto-start voice session:', e);
+                        }
+                    }, 200);
+                } else if (feature === 'email-tone') {
+                    setTimeout(() => {
+                        try {
+                            resetEmailToneUI();
+                        } catch (e) {
+                            console.warn('Could not reset email tone panel:', e);
+                        }
+                    }, 0);
+                }
             }
         }
 
@@ -2506,22 +2642,528 @@
                 panel.classList.remove('active');
             });
             document.body.style.overflow = 'auto';
+            // Restore main dashboard
+            const main = document.getElementById('mainDashboard');
+            if (main) main.style.display = 'grid';
+
+            // Clear active nav link
+            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
         }
 
         function showDashboard() {
             closePanel();
+            const main = document.getElementById('mainDashboard');
+            if (main) main.style.display = 'grid';
         }
 
         // Voice Coach Functions
-        function startVoiceSession(scenario) {
-            alert(`Starting ${scenario} voice coaching session...`);
+        let audioContext;
+        let mediaRecorder;
+        let recordedChunks = [];
+        let startTime;
+        let timerInterval;
+        let currentVoiceSession = null;
+        let currentScenario = null;
+        let voiceSessions = [];
+
+        const scenarioDescriptions = {
+            'sales': {
+                title: '💼 Sales Pitch',
+                desc: 'Give a 30-60 second sales pitch. Focus on clarity, confidence, and persuasion.',
+                prompt: 'Give a compelling pitch for a communication software product'
+            },
+            'support': {
+                title: '🎧 Customer Support',
+                desc: 'Respond to a customer complaint. Show empathy and professionalism.',
+                prompt: 'A customer is upset about a delayed delivery. Respond professionally.'
+            },
+            'meeting': {
+                title: '👤 Meeting Introduction',
+                desc: 'Introduce yourself in a professional meeting. Be clear and confident.',
+                prompt: 'Introduce yourself and your role in a team meeting'
+            },
+            'presentation': {
+                title: '📊 Presentation',
+                desc: 'Deliver a 1-2 minute presentation excerpt. Speak clearly and confidently.',
+                prompt: 'Present your key findings from a recent project analysis'
+            }
+        };
+
+        async function startVoiceSession(scenario) {
+            currentScenario = scenario;
+            const scDesc = scenarioDescriptions[scenario];
+            
+            document.getElementById('voice-coach-selection').style.display = 'none';
+            document.getElementById('voice-coach-recording').style.display = 'block';
+            document.getElementById('scenario-title').textContent = scDesc.title;
+            document.getElementById('scenario-desc').textContent = scDesc.desc;
+            
+            // Initialize audio
+            if (!audioContext) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    mediaRecorder = new MediaRecorder(stream);
+                    
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            recordedChunks.push(event.data);
+                        }
+                    };
+                    
+                    // Initialize speech recognition
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    if (SpeechRecognition) {
+                        window.recognition = new SpeechRecognition();
+                        window.recognition.continuous = true;
+                        window.recognition.interimResults = true;
+                        window.recognition.language = 'en-US';
+                        
+                        window.recognition.onstart = () => {
+                            document.getElementById('recording-status').textContent = '🎤 Listening...';
+                        };
+                        
+                        window.recognition.onresult = (event) => {
+                            let interimTranscript = '';
+                            let finalTranscript = '';
+                            
+                            for (let i = event.resultIndex; i < event.results.length; i++) {
+                                const transcript = event.results[i][0].transcript;
+                                
+                                if (event.results[i].isFinal) {
+                                    finalTranscript += transcript + ' ';
+                                } else {
+                                    interimTranscript += transcript;
+                                }
+                            }
+                            
+                            let currentText = document.getElementById('transcript-text').textContent;
+                            if (currentText.includes('Waiting for speech')) {
+                                currentText = '';
+                            }
+                            
+                            document.getElementById('transcript-text').textContent = currentText + finalTranscript + interimTranscript;
+                            document.getElementById('confidence-score').textContent = Math.floor(event.results[event.results.length - 1][0].confidence * 100) + '%';
+                            // Debounced model prediction for real-time AI scoring
+                            try {
+                                scheduleModelPredict(document.getElementById('transcript-text').textContent);
+                            } catch (e) {
+                                console.warn('Model predict scheduling failed', e);
+                            }
+                        };
+                        
+                        window.recognition.onerror = (event) => {
+                            console.error('Speech recognition error:', event.error);
+                        };
+                    }
+                    
+                    // Start backend session
+                    const res = await fetch('/api/voice-coach/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: localStorage.getItem('vdart_user_id'), scenario })
+                    });
+                    
+                    const data = await res.json();
+                    currentVoiceSession = data.session;
+                    // Auto-start recording once session and audio are initialized
+                    if (mediaRecorder && window.recognition) {
+                        startRecording();
+                    }
+                    
+                } catch (error) {
+                    alert('Error accessing microphone: ' + error.message);
+                }
+            }
         }
 
+        function startRecording() {
+            if (!mediaRecorder || !window.recognition) {
+                alert('Audio not initialized. Please reload the page.');
+                return;
+            }
+            
+            recordedChunks = [];
+            startTime = Date.now();
+            
+            mediaRecorder.start();
+            window.recognition.start();
+            
+            document.getElementById('start-record-btn').style.display = 'none';
+            document.getElementById('stop-record-btn').style.display = 'block';
+            document.getElementById('recording-indicator').style.display = 'block';
+            document.getElementById('recording-status').textContent = '🎤 Recording...';
+            document.getElementById('transcript-text').textContent = '';
+            document.getElementById('transcript-text').style.color = 'var(--light)';
+            
+            // Timer
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(elapsed / 60);
+                const secs = elapsed % 60;
+                document.getElementById('recording-timer').textContent = 
+                    (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }, 100);
+        }
+
+        function stopRecording() {
+            if (!mediaRecorder || !window.recognition) return;
+            
+            mediaRecorder.stop();
+            window.recognition.stop();
+            
+            clearInterval(timerInterval);
+            
+            document.getElementById('start-record-btn').style.display = 'block';
+            document.getElementById('stop-record-btn').style.display = 'none';
+            document.getElementById('recording-indicator').style.display = 'none';
+            document.getElementById('recording-status').textContent = '✓ Recording stopped';
+            document.getElementById('finish-session-btn').style.display = 'block';
+            
+            // Analyze the recording
+            analyzeVoiceRecording();
+        }
+
+        function resetRecording() {
+            recordedChunks = [];
+            document.getElementById('recording-timer').textContent = '00:00';
+            document.getElementById('transcript-text').innerHTML = '<em style="color: var(--gray);">Waiting for speech...</em>';
+            document.getElementById('confidence-score').textContent = '0%';
+            document.getElementById('recording-status').textContent = 'Ready to record';
+            document.getElementById('start-record-btn').style.display = 'block';
+            document.getElementById('stop-record-btn').style.display = 'none';
+            document.getElementById('finish-session-btn').style.display = 'none';
+            document.getElementById('recording-indicator').style.display = 'none';
+            
+            // Reset metrics
+            resetMetrics();
+        }
+
+        function resetMetrics() {
+            document.getElementById('clarity-bar').style.width = '0%';
+            document.getElementById('clarity-score').textContent = '--';
+            document.getElementById('pace-bar').style.width = '0%';
+            document.getElementById('pace-score').textContent = '--';
+            document.getElementById('confidence-bar').style.width = '0%';
+            document.getElementById('confidence-metric').textContent = '--';
+            document.getElementById('tone-bar').style.width = '0%';
+            document.getElementById('tone-score').textContent = '--';
+            document.getElementById('filler-bar').style.width = '0%';
+            document.getElementById('filler-score').textContent = '0';
+            document.getElementById('feedback-container').innerHTML = '<p style="color: var(--gray); text-align: center; padding: 1rem;"><em>Feedback will appear here</em></p>';
+        }
+
+        async function analyzeVoiceRecording() {
+            const transcript = document.getElementById('transcript-text').textContent.trim();
+            
+            if (!transcript || transcript.includes('Waiting')) {
+                alert('Please record something first');
+                return;
+            }
+            
+            if (!currentVoiceSession) {
+                alert('Session not found');
+                return;
+            }
+            
+            try {
+                // Send to backend for analysis
+                const res = await fetch('/api/voice-coach/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: currentVoiceSession.id,
+                        transcript: transcript,
+                        scenario: currentScenario
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    const analysis = data.analysis;
+                    
+                    // Update metrics
+                    updateMetricBar('clarity', analysis.clarityScore);
+                    updateMetricBar('pace', analysis.paceScore);
+                    updateMetricBar('confidence', analysis.confidenceScore);
+                    updateMetricBar('tone', analysis.toneScore);
+                    
+                    // Update filler words
+                    document.getElementById('filler-score').textContent = analysis.fillerWordCount;
+                    const fillerPercent = Math.min((analysis.fillerWordCount / 10) * 100, 100);
+                    document.getElementById('filler-bar').style.width = fillerPercent + '%';
+                    
+                    // Display feedback
+                    displayFeedback(analysis);
+                    
+                    // Add to session history
+                    voiceSessions.push({
+                        scenario: currentScenario,
+                        score: Math.floor((analysis.clarityScore + analysis.paceScore + analysis.confidenceScore + analysis.toneScore) / 4),
+                        time: new Date(),
+                        transcript: transcript
+                    });
+                    
+                    updateSessionHistory();
+                    // If backend returned modelScore, update UI
+                    if (analysis.modelScore !== undefined && analysis.modelScore !== null) {
+                        updateMetricBar('model', analysis.modelScore);
+                        const el = document.getElementById('model-score');
+                        if (el) el.textContent = analysis.modelScore;
+                    }
+                }
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Error analyzing recording: ' + error.message);
+            }
+        }
+
+        function updateMetricBar(metric, score) {
+            const barId = metric + '-bar';
+            const scoreIdMap = {
+                confidence: 'confidence-metric'
+            };
+            const scoreId = scoreIdMap[metric] || (metric + '-score');
+
+            const bar = document.getElementById(barId);
+            const scoreEl = document.getElementById(scoreId);
+            const numericScore = Number(score);
+
+            if (!bar || !scoreEl || !Number.isFinite(numericScore)) {
+                return;
+            }
+
+            bar.style.width = numericScore + '%';
+            scoreEl.textContent = Math.round(numericScore);
+
+            // Add color based on score
+            if (score >= 80) {
+                bar.style.background = 'linear-gradient(90deg, #10b981, #14b8a6)';
+            } else if (score >= 60) {
+                bar.style.background = 'linear-gradient(90deg, #f59e0b, #f97316)';
+            } else {
+                bar.style.background = 'linear-gradient(90deg, #ef4444, #dc2626)';
+            }
+        }
+
+        function displayFeedback(analysis) {
+            let feedbackHTML = '';
+            const suggestions = analysis.suggestions || [];
+            
+            // Clarity feedback
+            if (analysis.clarityScore >= 80) {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon positive">✓</div>
+                        <div>
+                            <strong>Excellent clarity!</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Your speech is clear and easy to understand</p>
+                        </div>
+                    </div>
+                `;
+            } else if (analysis.clarityScore >= 60) {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon warning">!</div>
+                        <div>
+                            <strong>Good clarity</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Try to enunciate more clearly for better impact</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Pace feedback
+            if (analysis.paceScore >= 80) {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon positive">✓</div>
+                        <div>
+                            <strong>Perfect pace!</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">You're speaking at an ideal speed (~150 WPM)</p>
+                        </div>
+                    </div>
+                `;
+            } else if (analysis.paceScore >= 60) {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon warning">!</div>
+                        <div>
+                            <strong>Adjust pace</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Try to slow down slightly for better comprehension</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon warning">!</div>
+                        <div>
+                            <strong>Too fast</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Slow down and take deliberate pauses between sentences</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Confidence feedback
+            if (analysis.confidenceScore >= 80) {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon positive">✓</div>
+                        <div>
+                            <strong>Confident delivery!</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Your tone conveys confidence and authority</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Filler words feedback
+            if (analysis.fillerWordCount > 0) {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon warning">!</div>
+                        <div>
+                            <strong>Reduce filler words</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Found ${analysis.fillerWordCount} filler words. Use pauses instead.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon positive">✓</div>
+                        <div>
+                            <strong>No filler words!</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Excellent - you spoke clearly without "um" or "uh"</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add AI suggestions
+            suggestions.forEach(suggestion => {
+                feedbackHTML += `
+                    <div class="feedback-item">
+                        <div class="feedback-icon warning">💡</div>
+                        <div>
+                            <strong>Tip</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">${suggestion}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('feedback-container').innerHTML = feedbackHTML;
+        }
+
+        function updateSessionHistory() {
+            const historyContainer = document.getElementById('session-history-container');
+            
+            if (voiceSessions.length === 0) {
+                historyContainer.innerHTML = `
+                    <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>No sessions yet</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            voiceSessions.slice(-3).reverse().forEach((session, index) => {
+                const time = new Date(session.time).toLocaleTimeString();
+                const date = new Date(session.time).toLocaleDateString();
+                html += `
+                    <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>${session.scenario}</span>
+                            <span style="color: ${session.score >= 80 ? '#10b981' : session.score >= 60 ? '#f59e0b' : '#ef4444'};">${session.score}%</span>
+                        </div>
+                        <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">${time} - ${date}</p>
+                    </div>
+                `;
+            });
+            
+            historyContainer.innerHTML = html;
+        }
+
+        function backToScenarios() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                stopRecording();
+            }
+            
+            document.getElementById('voice-coach-selection').style.display = 'block';
+            document.getElementById('voice-coach-recording').style.display = 'none';
+            resetRecording();
+        }
+
+        async function finishVoiceSession() {
+            backToScenarios();
+        }
+
+        // Expose functions globally for inline handlers
+        window.showFeature = showFeature;
+        window.closePanel = closePanel;
+        window.showDashboard = showDashboard;
+        window.startVoiceSession = startVoiceSession;
+        window.startRecording = startRecording;
+        window.stopRecording = stopRecording;
+        window.resetRecording = resetRecording;
+        window.finishVoiceSession = finishVoiceSession;
+
+        // Replace fragile inline onclick handlers with proper event listeners
+        document.querySelectorAll('[onclick]').forEach(el => {
+            const attr = el.getAttribute('onclick');
+            if (!attr) return;
+            const showMatch = attr.match(/showFeature\('([^']+)'\)/);
+            if (showMatch) {
+                const feature = showMatch[1];
+                // mark element with data-feature for active link management
+                el.dataset.feature = feature;
+                el.removeAttribute('onclick');
+                el.addEventListener('click', (e) => { e.preventDefault(); showFeature(feature); });
+                return;
+            }
+            const startMatch = attr.match(/startVoiceSession\('([^']+)'\)/);
+            if (startMatch) {
+                const scenario = startMatch[1];
+                el.dataset.scenario = scenario;
+                el.removeAttribute('onclick');
+                el.addEventListener('click', (e) => { e.preventDefault(); startVoiceSession(scenario); });
+                return;
+            }
+        });
+
+        // Attach listeners to elements using data-feature (nav links, buttons, cards)
+        document.querySelectorAll('[data-feature]').forEach(el => {
+            const feature = el.dataset.feature;
+            if (!feature) return;
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (feature === 'dashboard') showDashboard();
+                else showFeature(feature);
+            });
+        });
+
+        // Attach listeners to elements using data-scenario (voice coach scenario tiles)
+        document.querySelectorAll('[data-scenario]').forEach(el => {
+            const scenario = el.dataset.scenario;
+            if (!scenario) return;
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                startVoiceSession(scenario);
+            });
+        });
+
         // Message Simulator Functions
-        let currentScenario = 'customer-complaint';
+        let simCurrentScenario = 'customer-complaint';
         
         function loadScenario(scenario) {
-            currentScenario = scenario;
+            simCurrentScenario = scenario;
             const messages = {
                 'customer-complaint': [
                     "I'm very disappointed with the service I received. This is the third time this has happened!",
@@ -2601,10 +3243,201 @@
             simMessages.scrollTop = simMessages.scrollHeight;
         }
 
+        // ==================== MODEL PREDICTION (FRONTEND) ====================
+        let modelPredictTimeout = null;
+        function scheduleModelPredict(text) {
+            if (!text || text.trim().length === 0) return;
+            if (modelPredictTimeout) clearTimeout(modelPredictTimeout);
+            modelPredictTimeout = setTimeout(() => callModelPredict(text), 700);
+        }
+
+        async function callModelPredict(text) {
+            try {
+                const res = await fetch('/api/voice-coach/model/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ transcript: text, scenario: currentScenario || null })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    const score = data.modelScore ?? null;
+                    if (score !== null) {
+                        updateMetricBar('model', score);
+                        const el = document.getElementById('model-score');
+                        if (el) el.textContent = score;
+                    }
+                }
+            } catch (e) {
+                // ignore transient errors
+                console.warn('Model predict error', e);
+            }
+        }
+
         // Email Tone Analysis
-        function analyzeEmailTone() {
-            const email = document.getElementById('emailInput').value;
-            // Real-time analysis would happen here
+        let emailToneTimeout = null;
+        let lastEmailToneRequest = 0;
+
+        function copyEmailContent() {
+            const email = document.getElementById('emailInput');
+            if (!email) return;
+            email.select();
+            email.setSelectionRange(0, email.value.length);
+            navigator.clipboard.writeText(email.value).catch(() => {
+                try {
+                    document.execCommand('copy');
+                } catch (e) {
+                    console.warn('Copy failed', e);
+                }
+            });
+        }
+
+        function analyzeEmailTone(force = false) {
+            const email = document.getElementById('emailInput');
+            if (!email) return;
+            const emailContent = email.value.trim();
+
+            if (!emailContent) {
+                resetEmailToneUI();
+                return;
+            }
+
+            if (!force) {
+                if (emailToneTimeout) clearTimeout(emailToneTimeout);
+                emailToneTimeout = setTimeout(() => analyzeEmailTone(true), 500);
+                return;
+            }
+
+            const requestId = ++lastEmailToneRequest;
+            fetch('/api/email-tone/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: aiUserId,
+                    emailContent,
+                    recipient: document.getElementById('emailRecipient')?.value || '',
+                    purpose: document.getElementById('emailPurpose')?.value || ''
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (requestId !== lastEmailToneRequest) return;
+                    if (!data || !data.success || !data.analysis) return;
+                    renderEmailToneAnalysis(data.analysis);
+                })
+                .catch(err => {
+                    console.warn('Email tone analysis failed', err);
+                });
+        }
+
+        function resetEmailToneUI() {
+            const needle = document.getElementById('email-tone-needle');
+            const label = document.getElementById('email-tone-label');
+            const score = document.getElementById('email-tone-score');
+            const suggestions = document.getElementById('email-tone-suggestions');
+            const rewrite = document.getElementById('email-tone-rewrite');
+            const grammar = document.getElementById('email-tone-grammar');
+            const spelling = document.getElementById('email-tone-spelling');
+            const formality = document.getElementById('email-tone-formality');
+            const friendliness = document.getElementById('email-tone-friendliness');
+            const urgency = document.getElementById('email-tone-urgency');
+            const confidence = document.getElementById('email-tone-confidence');
+            const empathy = document.getElementById('email-tone-empathy');
+
+            if (needle) needle.style.transform = 'rotate(-30deg)';
+            if (label) label.textContent = 'Professional';
+            if (score) score.textContent = 'Score: --/100';
+            if (formality) formality.textContent = 'High';
+            if (friendliness) friendliness.textContent = 'Warm';
+            if (urgency) urgency.textContent = 'Normal';
+            if (confidence) confidence.textContent = 'Confident';
+            if (empathy) empathy.textContent = 'Empathetic';
+            if (suggestions) {
+                suggestions.innerHTML = '<li>Start typing an email to see live tone feedback</li>';
+            }
+            if (rewrite) {
+                rewrite.textContent = 'Type your email to see a rewritten version.';
+            }
+            if (grammar) {
+                grammar.innerHTML = '<li>No grammar issues detected yet</li>';
+            }
+            if (spelling) {
+                spelling.innerHTML = '<li>No spelling issues detected yet</li>';
+            }
+        }
+
+        function renderEmailToneAnalysis(analysis) {
+            const toneAnalysis = analysis.toneAnalysis || {};
+            const score = Number(analysis.score ?? 0);
+            const needle = document.getElementById('email-tone-needle');
+            const label = document.getElementById('email-tone-label');
+            const scoreEl = document.getElementById('email-tone-score');
+            const suggestionsEl = document.getElementById('email-tone-suggestions');
+            const suggestionsWrap = document.getElementById('email-tone-suggestions-wrap');
+            const rewriteEl = document.getElementById('email-tone-rewrite');
+            const grammarEl = document.getElementById('email-tone-grammar');
+            const spellingEl = document.getElementById('email-tone-spelling');
+
+            if (needle) {
+                const angle = -30 + Math.max(0, Math.min(100, score)) * 1.8;
+                needle.style.transform = `rotate(${angle}deg)`;
+            }
+
+            if (label) {
+                if (score >= 85) label.textContent = 'Excellent';
+                else if (score >= 70) label.textContent = 'Professional';
+                else if (score >= 55) label.textContent = 'Balanced';
+                else label.textContent = 'Needs Work';
+            }
+
+            if (scoreEl) {
+                scoreEl.textContent = `Score: ${Math.round(score)}/100`;
+            }
+
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value || '--';
+            };
+
+            setText('email-tone-formality', toneAnalysis.formality);
+            setText('email-tone-friendliness', toneAnalysis.friendliness);
+            setText('email-tone-urgency', toneAnalysis.urgency);
+            setText('email-tone-confidence', toneAnalysis.confidence);
+            setText('email-tone-empathy', toneAnalysis.empathy);
+
+            if (suggestionsEl) {
+                const changes = Array.isArray(analysis.changesToMake) && analysis.changesToMake.length
+                    ? analysis.changesToMake
+                    : Array.isArray(analysis.suggestions) ? analysis.suggestions : [];
+                suggestionsEl.innerHTML = changes.length
+                    ? changes.map(item => `<li>${typeof item === 'string' ? item : item.message || JSON.stringify(item)}</li>`).join('')
+                    : '<li>No suggestions yet</li>';
+            }
+
+            if (rewriteEl) {
+                rewriteEl.textContent = analysis.correctedDraft || analysis.rewrittenDraft || 'No rewritten draft available.';
+            }
+
+            if (grammarEl) {
+                const issues = Array.isArray(analysis.grammarIssues) ? analysis.grammarIssues : [];
+                grammarEl.innerHTML = issues.length
+                    ? issues.map(item => `<li>${typeof item === 'string' ? item : item.message || JSON.stringify(item)}</li>`).join('')
+                    : '<li>No grammar issues detected</li>';
+            }
+
+            if (spellingEl) {
+                const issues = Array.isArray(analysis.spellingIssues) ? analysis.spellingIssues : [];
+                spellingEl.innerHTML = issues.length
+                    ? issues.map(item => `<li>${typeof item === 'string' ? item : item.message || JSON.stringify(item)}</li>`).join('')
+                    : '<li>No spelling issues detected</li>';
+            }
+
+            if (suggestionsWrap) {
+                suggestionsWrap.style.background = score >= 75
+                    ? 'rgba(16, 185, 129, 0.1)'
+                    : score >= 55
+                        ? 'rgba(245, 158, 11, 0.1)'
+                        : 'rgba(239, 68, 68, 0.1)';
+            }
         }
 
         // Close panels when clicking outside
@@ -2725,6 +3558,19 @@ async function sendAIMessage() {
 
     messagesEl.scrollTop = messagesEl.scrollHeight;
 }
+
+// ==================== ENTER KEY HANDLER FOR AI CHAT ====================
+document.addEventListener('DOMContentLoaded', function() {
+    const aiInput = document.getElementById('ai-input');
+    if (aiInput) {
+        aiInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendAIMessage();
+            }
+        });
+    }
+});
 </script>
 
     <!-- AI Assistant Panel -->
