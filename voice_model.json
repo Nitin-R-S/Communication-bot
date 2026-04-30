@@ -1,0 +1,49 @@
+{
+  "weights": [
+    61.41537823558506,
+    0.06853716981438761,
+    0.1395584062259159,
+    -0.07855250215182166,
+    5.08506060290899,
+    0,
+    1.9776848258037727,
+    3.222690619866564,
+    -0.0437557228233059,
+    -0.001525181662423842
+  ],
+  "featureNames": [
+    "wordCount",
+    "uniqueWords",
+    "sentenceCount",
+    "clarityScore",
+    "paceScore",
+    "toneScore",
+    "confidenceScore",
+    "fillerWordCount",
+    "estimatedWPM"
+  ],
+  "normParams": {
+    "mean": {
+      "wordCount": 110.3725,
+      "uniqueWords": 77.44,
+      "sentenceCount": 6.655,
+      "clarityScore": 70.595,
+      "paceScore": 50,
+      "toneScore": 74.5325,
+      "confidenceScore": 74.2675,
+      "fillerWordCount": 3.4525,
+      "estimatedWPM": 114.8175
+    },
+    "std": {
+      "wordCount": 51.87965635728516,
+      "uniqueWords": 44.09100134948173,
+      "sentenceCount": 4.0001218731433665,
+      "clarityScore": 16.147011333370646,
+      "paceScore": 1,
+      "toneScore": 14.381374890809285,
+      "confidenceScore": 14.434366759577642,
+      "fillerWordCount": 2.207429217438238,
+      "estimatedWPM": 45.907398028531325
+    }
+  }
+}
