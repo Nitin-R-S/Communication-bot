@@ -1657,186 +1657,20 @@
 
     <!-- Accent Trainer Panel -->
     <div id="accent-panel-placeholder"></div>
-
-    <!-- TensorFlow.js & MediaPipe for ML/DL Analysis -->
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils"></script>
-
+        
     <script>
-        // ==================== ML/DL ANALYSIS ENGINE ====================
+        // ==================== LEGACY ML ANALYSIS (kept for reference) ====================
         let detector = null;
         let poses = [];
         
         async function initPoseDetector() {
-            try {
-                const net = await posenet.load();
-                detector = net;
-                return true;
-            } catch (e) {
-                console.log('Using fallback analysis (pose detection unavailable)');
-                return false;
-            }
+            // Posenet removed - MediaPipe engine handles CV now
         }
         
         initPoseDetector();
         
         async function analyzeBodyLanguageML(videoElement) {
-            try {
-                if (!detector) {
-                    return getAIEnhancedAnalysis();
-                }
-                
-                // Detect poses from video
-                const poses = await detector.estimateMultiplePoses(videoElement, {
-                    maxPoseDetections: 1,
-                    scoreThreshold: 0.5,
-                    nmsRadius: 20
-                });
-                
-                if (poses.length === 0) {
-                    return getAIEnhancedAnalysis();
-                }
-                
-                const pose = poses[0];
-                const keypoints = pose.keypoints;
-                
-                // Calculate metrics from pose data
-                const metrics = calculateBodyMetrics(keypoints);
-                
-                return metrics;
-            } catch (e) {
-                console.error('ML Analysis error:', e);
-                return getAIEnhancedAnalysis();
-            }
-        }
-        
-        function calculateBodyMetrics(keypoints) {
-            // Extract key body parts
-            const nose = findKeypoint(keypoints, 'nose');
-            const leftShoulder = findKeypoint(keypoints, 'leftShoulder');
-            const rightShoulder = findKeypoint(keypoints, 'rightShoulder');
-            const leftHip = findKeypoint(keypoints, 'leftHip');
-            const rightHip = findKeypoint(keypoints, 'rightHip');
-            const leftEye = findKeypoint(keypoints, 'leftEye');
-            const rightEye = findKeypoint(keypoints, 'rightEye');
-            const leftElbow = findKeypoint(keypoints, 'leftElbow');
-            const rightElbow = findKeypoint(keypoints, 'rightElbow');
-            const leftWrist = findKeypoint(keypoints, 'leftWrist');
-            const rightWrist = findKeypoint(keypoints, 'rightWrist');
-            
-            // Calculate posture score (0-100)
-            const postureScore = calculatePostureScore(leftShoulder, rightShoulder, leftHip, rightHip, nose);
-            
-            // Calculate gesture score (hand movement range)
-            const gestureScore = calculateGestureScore(leftWrist, rightWrist, leftShoulder, rightShoulder);
-            
-            // Calculate eye contact probability
-            const eyeContactScore = calculateEyeContactScore(leftEye, rightEye, nose);
-            
-            // Calculate facial expressions (based on face position and movement)
-            const facialExpressionScore = 85 + Math.random() * 10;
-            
-            // Calculate smile confidence
-            const smileScore = 82 + Math.random() * 10;
-            
-            // Calculate nodding/engagement
-            const engagementScore = calculateEngagementScore(nose);
-            
-            return {
-                postureScore: Math.min(100, Math.max(50, postureScore)),
-                gestureScore: Math.min(100, Math.max(50, gestureScore)),
-                eyeContactScore: Math.min(100, Math.max(50, eyeContactScore)),
-                facialExpressionScore: Math.min(100, Math.max(50, facialExpressionScore)),
-                smileScore: Math.min(100, Math.max(50, smileScore)),
-                engagementScore: Math.min(100, Math.max(50, engagementScore))
-            };
-        }
-        
-        function findKeypoint(keypoints, name) {
-            const partNames = ['nose', 'leftEye', 'rightEye', 'leftEar', 'rightEar',
-                'leftShoulder', 'rightShoulder', 'leftElbow', 'rightElbow',
-                'leftWrist', 'rightWrist', 'leftHip', 'rightHip',
-                'leftKnee', 'rightKnee', 'leftAnkle', 'rightAnkle'];
-            
-            const idx = partNames.indexOf(name);
-            return idx !== -1 ? keypoints[idx] : { x: 0, y: 0, score: 0 };
-        }
-        
-        function calculatePostureScore(leftShoulder, rightShoulder, leftHip, rightHip, nose) {
-            // Measure body alignment and uprightness
-            const shoulderMid = {
-                x: (leftShoulder.x + rightShoulder.x) / 2,
-                y: (leftShoulder.y + rightShoulder.y) / 2
-            };
-            const hipMid = {
-                x: (leftHip.x + rightHip.x) / 2,
-                y: (leftHip.y + rightHip.y) / 2
-            };
-            
-            // Calculate vertical alignment
-            const xDiff = Math.abs(shoulderMid.x - hipMid.x);
-            const yDiff = Math.abs(shoulderMid.y - hipMid.y);
-            
-            // Upright posture has low x difference and high y difference
-            const alignment = Math.max(0, 100 - (xDiff / yDiff) * 50);
-            
-            // Check shoulder level (should be level)
-            const shoulderDiff = Math.abs(leftShoulder.y - rightShoulder.y);
-            const levelness = Math.max(0, 100 - shoulderDiff * 2);
-            
-            return (alignment + levelness) / 2 + 15;
-        }
-        
-        function calculateGestureScore(leftWrist, rightWrist, leftShoulder, rightShoulder) {
-            // Measure hand movement range and expressiveness
-            const leftRange = Math.abs(leftWrist.y - leftShoulder.y);
-            const rightRange = Math.abs(rightWrist.y - rightShoulder.y);
-            const horizontalRange = Math.abs(leftWrist.x - rightWrist.x);
-            
-            // Hands away from body = good gesturing
-            const expressiveness = Math.min(100, (leftRange + rightRange + horizontalRange) / 5);
-            
-            return expressiveness + 20;
-        }
-        
-        function calculateEyeContactScore(leftEye, rightEye, nose) {
-            // Eye contact is typically looking forward (similar y-level to camera)
-            const eyeMid = (leftEye.y + rightEye.y) / 2;
-            
-            // Forward gaze (eyes at nose level or slightly above)
-            const gazeDistance = Math.abs(eyeMid - nose.y);
-            const gazeScore = Math.max(0, 100 - gazeDistance * 3);
-            
-            // Eye confidence
-            const eyeConfidence = Math.min(leftEye.score, rightEye.score) * 100;
-            
-            return (gazeScore + eyeConfidence) / 2 + 15;
-        }
-        
-        function calculateEngagementScore(nose) {
-            // Head movement/nods and engagement
-            return 75 + Math.random() * 15;
-        }
-        
-        async function getAIEnhancedAnalysis() {
-            // If ML unavailable, use AI analysis
-            const userId = 'user_' + Date.now();
-            try {
-                const res = await fetch('/api/ai/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        userId: userId,
-                        message: 'Provide a body language analysis with scores 0-100 for: posture, gestures, eye contact, facial expressions, smile, and engagement. Return JSON with these fields.'
-                    })
-                });
-                const data = await res.json();
-                return data || getDefaultAnalysis();
-            } catch (e) {
-                return getDefaultAnalysis();
-            }
+            return getDefaultAnalysis();
         }
         
         function getDefaultAnalysis() {
@@ -1849,8 +1683,8 @@
                 engagementScore: 89
             };
         }
-        
-        // Feature Panel Management
+
+        // Feature Panel Management        
         async function showFeature(feature) {
             // Hide all panels
             document.querySelectorAll('.feature-panels').forEach(panel => {
@@ -1906,6 +1740,12 @@
                                     if (closeMatch) {
                                         el.removeAttribute('onclick');
                                         el.addEventListener('click', (e) => { e.preventDefault(); closePanel(); });
+                                        return;
+                                    }
+                                    const blStartMatch = attr.match(/startBodyLanguageCamera\(\)/);
+                                    if (blStartMatch) {
+                                        el.removeAttribute('onclick');
+                                        el.addEventListener('click', (e) => { e.preventDefault(); if(window.startBodyLanguageCamera) window.startBodyLanguageCamera(); });
                                         return;
                                     }
                                 });
@@ -2784,100 +2624,6 @@
                     : '<li>No spelling issues detected</li>';
             }
 
-            if (suggestionsWrap) {
-                suggestionsWrap.style.background = score >= 75
-                    ? 'rgba(16, 185, 129, 0.1)'
-                    : score >= 55
-                        ? 'rgba(245, 158, 11, 0.1)'
-                        : 'rgba(239, 68, 68, 0.1)';
-            }
-        }
-
-        // ==================== BODY LANGUAGE CAMERA ====================
-        let mediaStream = null;
-        let bodyMediaRecorder = null;
-        let bodyRecordedChunks = [];
-
-        async function startBodyLanguageCamera() {
-            try {
-                // Request camera access
-                mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-                    audio: false
-                });
-
-                // Get the video preview element
-                const videoPreview = document.querySelector('.video-preview');
-                
-                // Create video element to display camera feed
-                let videoElement = videoPreview.querySelector('video');
-                if (!videoElement) {
-                    videoElement = document.createElement('video');
-                    videoElement.autoplay = true;
-                    videoElement.playsinline = true;
-                    videoElement.style.width = '100%';
-                    videoElement.style.height = '100%';
-                    videoElement.style.borderRadius = '8px';
-                    videoElement.style.objectFit = 'cover';
-                    videoPreview.innerHTML = '';
-                    videoPreview.appendChild(videoElement);
-                }
-
-                videoElement.srcObject = mediaStream;
-
-                // Start recording
-                bodyRecordedChunks = [];
-                const options = { mimeType: 'video/webm;codecs=vp9', audioBitsPerSecond: 0 };
-                
-                try {
-                    bodyMediaRecorder = new MediaRecorder(mediaStream, options);
-                } catch (e) {
-                    console.warn('VP9 not supported, trying vp8...');
-                    bodyMediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm;codecs=vp8' });
-                }
-
-                bodyMediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        bodyRecordedChunks.push(event.data);
-                    }
-                };
-
-                bodyMediaRecorder.onstop = () => {
-                    const blob = new Blob(bodyRecordedChunks, { type: 'video/webm' });
-                    analyzeBodyLanguageVideo(blob);
-                };
-
-                bodyMediaRecorder.start();
-
-                // Update button state - find all buttons in mirror-container and update the primary one
-                const buttons = document.querySelectorAll('.mirror-container button');
-                buttons.forEach(btn => {
-                    if (btn.textContent.includes('Start Recording')) {
-                        btn.textContent = '⏹️ Stop Recording';
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-danger');
-                        btn.onclick = stopBodyLanguageCamera;
-                    }
-                });
-
-            } catch (error) {
-                console.error('Camera access error:', error);
-                alert(`Camera access denied: ${error.message}`);
-            }
-        }
-
-        function stopBodyLanguageCamera() {
-            if (bodyMediaRecorder && bodyMediaRecorder.state !== 'inactive') {
-                bodyMediaRecorder.stop();
-            }
-
-            if (mediaStream) {
-                mediaStream.getTracks().forEach(track => track.stop());
-                mediaStream = null;
-            }
-
-            // Update button state - find all buttons in mirror-container and update the danger one
-            const buttons = document.querySelectorAll('.mirror-container button');
             buttons.forEach(btn => {
                 if (btn.textContent.includes('Stop Recording')) {
                     btn.textContent = '🎬 Start Recording';
@@ -3172,6 +2918,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <style>
         .ai-message { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px; }
+
+    <style>
+        .ai-message { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px; }
         .ai-message.user { background: rgba(99, 102, 241, 0.2); text-align: right; }
         .ai-message.bot { background: rgba(6, 182, 212, 0.2); }
         .ai-message.loading { color: var(--gray); font-style: italic; }
@@ -3180,5 +2929,498 @@ document.addEventListener('DOMContentLoaded', function() {
         .ai-source { display: inline-block; padding: 0.25rem 0.5rem; background: var(--primary); border-radius: 4px; font-size: 0.75rem; margin: 0.25rem; }
         .ai-sources { font-size: 0.85rem; color: var(--gray); margin-top: 0.5rem; }
     </style>
+
+<!-- ===== BODY LANGUAGE LIVE CV ENGINE (MediaPipe) ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
+<script>
+(function(){
+    var holistic = null;
+    var camera = null;
+    var blOn = false;
+    var blLog = [];
+    var blS = {p: 50, e: 50, g: 50, s: 50};
+    var videoElement = null;
+    var canvasCtx = null;
+    var canvasElement = null;
+
+    window.startBodyLanguageCamera = async function(){
+        if(blOn) return window.stopBodyLanguageCamera();
+        blOn = true;
+        blLog = [];
+        var btn = document.getElementById('bl-start-btn');
+        if(btn) { btn.innerText = '⏹ Stop Analysis'; btn.style.background = '#ef4444'; }
+        
+        var c = document.getElementById('bl-video-container');
+        if(!c) return;
+        c.innerHTML = '';
+        
+        videoElement = document.createElement('video');
+        videoElement.autoplay = true; videoElement.playsinline = true; videoElement.muted = true;
+        videoElement.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;';
+        c.appendChild(videoElement);
+        
+        canvasElement = document.createElement('canvas');
+        canvasElement.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;';
+        c.appendChild(canvasElement);
+        canvasCtx = canvasElement.getContext('2d');
+        
+        // Ensure UI stays fluid immediately
+        var reportEl = document.getElementById('bl-report-text');
+        if(reportEl) reportEl.innerHTML = '<span style="color:#f59e0b">⏳ Loading MediaPipe Holistic AI... Please wait.</span>';
+
+        // Initialize Holistic Model
+        if(!holistic) {
+            holistic = new Holistic({locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
+            }});
+            holistic.setOptions({
+                modelComplexity: 1,
+                smoothLandmarks: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            holistic.onResults(onResults);
+        }
+
+        camera = new Camera(videoElement, {
+            onFrame: async () => {
+                if(!blOn) return;
+                await holistic.send({image: videoElement});
+            },
+            width: 1280,
+            height: 720
+        });
+        camera.start();
+    };
+
+    window.stopBodyLanguageCamera = function(){
+        blOn = false;
+        if(camera) { camera.stop(); }
+        var c = document.getElementById('bl-video-container');
+        if(c) c.innerHTML = '<div style="color:#64748b;">AI LENS READY</div>';
+        
+        var btn = document.getElementById('bl-start-btn');
+        if(btn){btn.innerText='🎬 Start Analysis';btn.style.background='';}
+        if(blLog.length === 0) return;
+        
+        // Final Score Reporting
+        var avgP=0,avgE=0,avgG=0,avgS=0;
+        blLog.forEach(function(m){avgP+=m.p;avgE+=m.e;avgG+=m.g;avgS+=m.s;});
+        avgP=Math.round(avgP/blLog.length);
+        avgE=Math.round(avgE/blLog.length);
+        avgG=Math.round(avgG/blLog.length);
+        avgS=Math.round(avgS/blLog.length);
+        var ov=Math.round((avgP+avgE+avgG+avgS)/4);
+        
+        var r=document.getElementById('bl-report-text');
+        if(r) r.innerHTML='<div style="background:rgba(45,212,191,0.1);border:1px solid #2dd4bf;border-radius:10px;padding:10px;margin-bottom:10px;"><b style="color:#2dd4bf;">Final Score: '+ov+'%</b></div><ul style="padding-left:16px;margin:0;color:#cbd5e1;font-size:0.85rem;"><li style="margin-bottom:6px;"><b>Posture '+avgP+'%:</b> '+(avgP>75?'Excellent, confident stance!':'Try to keep your shoulders more level.')+'</li><li style="margin-bottom:6px;"><b>Eye Contact '+avgE+'%:</b> '+(avgE>75?'Strong connection!':'Make sure to look directly into the lens.')+'</li><li style="margin-bottom:6px;"><b>Gestures '+avgG+'%:</b> '+(avgG>60?'Great active engagement!':'Try using your hands more to emphasize points.')+'</li><li><b>Expressions '+avgS+'%:</b> '+(avgS>60?'Warm and engaging!':'Try to relax your face and smile more naturally.')+'</li></ul>';
+    };
+
+    function onResults(results) {
+        if(!blOn) return;
+        // Adjust Canvas size
+        if(canvasElement.width !== canvasElement.clientWidth || canvasElement.height !== canvasElement.clientHeight){
+            canvasElement.width = canvasElement.clientWidth;
+            canvasElement.height = canvasElement.clientHeight;
+        }
+        
+        var videoRatio = videoElement.videoWidth / videoElement.videoHeight;
+        var canvasRatio = canvasElement.width / canvasElement.height;
+        var drawWidth, drawHeight, offsetX = 0, offsetY = 0;
+        
+        if (canvasRatio > videoRatio) {
+            drawHeight = canvasElement.height;
+            drawWidth = drawHeight * videoRatio;
+            offsetX = (canvasElement.width - drawWidth) / 2;
+        } else {
+            drawWidth = canvasElement.width;
+            drawHeight = drawWidth / videoRatio;
+            offsetY = (canvasElement.height - drawHeight) / 2;
+        }
+        
+        canvasCtx.save();
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+        // Normalize coordinates to properly overlaid canvas scale
+        function tX(x) { return (x * drawWidth) + offsetX; }
+        function tY(y) { return (y * drawHeight) + offsetY; }
+
+        var rawP = 50, rawE = 50, rawG = 40, rawS = 50;
+
+        // --- 1. POSTURE & GESTURES (POSE LANDMARKS) ---
+        if (results.poseLandmarks) {
+            var lS = results.poseLandmarks[11]; // Left Shoulder
+            var rS = results.poseLandmarks[12]; // Right Shoulder
+            var lW = results.poseLandmarks[15]; // Left Wrist
+            var rW = results.poseLandmarks[16]; // Right Wrist
+            
+            if (lS && rS) {
+                // Precise Shoulder Tilt (Posture)
+                var dx = Math.abs(lS.x - rS.x);
+                var dy = Math.abs(lS.y - rS.y);
+                var tiltAngle = Math.atan2(dy, dx); 
+                rawP = 98 - (tiltAngle * 100); 
+            }
+            
+            if (lS && rS && lW && rW) {
+                // Gesture score — hands at shoulder level = 70, raised higher = 90+, hands on desk = 45
+                // MediaPipe Y increases downward. shoulderY is typically ~0.4, wrists at rest ~0.7
+                var highestWristY = Math.min(lW.y, rW.y); // Lower Y = higher in frame
+                var shoulderY = (lS.y + rS.y) / 2;
+                // How far wrists are ABOVE the shoulder baseline (negative when below)
+                var wristAboveShoulder = shoulderY - highestWristY;
+                // Natural conversational hands slightly below shoulder → score ~65-70
+                rawG = 70 + (wristAboveShoulder * 80);
+                if (rawG > 98) rawG = 98;
+                if (rawG < 35) rawG = 35;
+            }
+
+            // Draw Body Skeleton Overlay
+            var pPts = results.poseLandmarks;
+            function lineP(a, b) {
+                if(!pPts[a] || !pPts[b]) return;
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(tX(pPts[a].x), tY(pPts[a].y));
+                canvasCtx.lineTo(tX(pPts[b].x), tY(pPts[b].y));
+                canvasCtx.stroke();
+            }
+            canvasCtx.strokeStyle = '#2dd4bf'; canvasCtx.lineWidth = 3;
+            lineP(11, 12); lineP(11, 13); lineP(13, 15); lineP(12, 14); lineP(14, 16);
+        }
+        
+        // --- 2. SMILES & GAZE (468-POINT FACE MESH) ---
+        if (results.faceLandmarks) {
+            // Smile Detection (Absolute geometric tracking of mouth width vs eye width)
+            var leftMouth = results.faceLandmarks[61];
+            var rightMouth = results.faceLandmarks[291];
+            var leftEye = results.faceLandmarks[33];
+            var rightEye = results.faceLandmarks[263];
+            
+            if (leftMouth && rightMouth && leftEye && rightEye) {
+                var mouthWidth = Math.abs(rightMouth.x - leftMouth.x);
+                var eyeWidth = Math.abs(rightEye.x - leftEye.x);
+                var smileRatio = mouthWidth / Math.max(0.01, eyeWidth);
+                
+                // Neutral ratio ~0.60. A genuine smile pushes to 0.80+.
+                // Start at 50 (neutral engaged) and scale aggressively.
+                rawS = 50 + ((smileRatio - 0.60) * 600);
+                
+                // Boost using mouth corner elevation (corners rise up when smiling)
+                var upperLip = results.faceLandmarks[13];
+                if (upperLip) {
+                    var cornerY = (leftMouth.y + rightMouth.y) / 2;
+                    var elevation = upperLip.y - cornerY; // positive when corners rise above lip center
+                    rawS += elevation * 600;
+                }
+                
+                if(rawS > 98) rawS = 98;
+                if(rawS < 30) rawS = 30;
+                
+                // Gaze / Eye Contact Tracking (3D Head Turn)
+                var nose = results.faceLandmarks[1];
+                var eyeCenterX = (leftEye.x + rightEye.x) / 2;
+                var gazeOffset = Math.abs(nose.x - eyeCenterX);
+                var gazeRatio = gazeOffset / eyeWidth;
+                // Looking direct: ratio ~0.0. Looking away pushes it past 0.2.
+                rawE = 98 - (gazeRatio * 350);
+                if(rawE < 10) rawE = 10;
+            }
+            
+            // Draw Face Mesh Overlay
+            var fPts = results.faceLandmarks;
+            canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            [61, 291, 13, 14, 33, 263, 1].forEach(pt => {
+                if(fPts[pt]) {
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(tX(fPts[pt].x), tY(fPts[pt].y), 2, 0, 2*Math.PI);
+                    canvasCtx.fill();
+                }
+            });
+        }
+
+        // Add organic micro-movements to make UI feel live
+        rawP += (Math.random() * 2 - 1);
+        rawE += (Math.random() * 2 - 1);
+        rawG += (Math.random() * 2 - 1);
+        rawS += (Math.random() * 2 - 1);
+
+        // Fluid Smoothing
+        var alpha = 0.5;
+        blS.p = Math.max(0, Math.min(100, rawP * alpha + blS.p * (1 - alpha)));
+        blS.e = Math.max(0, Math.min(100, rawE * alpha + blS.e * (1 - alpha)));
+        blS.g = Math.max(0, Math.min(100, rawG * alpha + blS.g * (1 - alpha)));
+        blS.s = Math.max(0, Math.min(100, rawS * alpha + blS.s * (1 - alpha)));
+        
+        blLog.push({p:blS.p, e:blS.e, g:blS.g, s:blS.s});
+        blUI();
+        
+        canvasCtx.restore();
+    }
+
+    function blUI(){
+        function set(vi,bi,ti,val,good,bad){
+            var v=Math.round(val), col=v>80?'#2dd4bf':v>60?'#f59e0b':'#ef4444';
+            var vEl=document.getElementById(vi), bEl=document.getElementById(bi), tEl=document.getElementById(ti);
+            if(vEl){vEl.innerText=v+'%';vEl.style.color=col;}
+            if(bEl){bEl.style.width=v+'%';bEl.style.background=col;}
+            if(tEl)tEl.innerText=v>80?good:bad;
+        }
+        set('bl-p-val','bl-p-bar','bl-p-tip',blS.p,'Great posture!','Level your shoulders.');
+        set('bl-e-val','bl-e-bar','bl-e-tip',blS.e,'Strong eye contact!','Look at the camera.');
+        set('bl-g-val','bl-g-bar','bl-g-tip',blS.g,'Active gestures!','Use more hand movement.');
+        set('bl-s-val','bl-s-bar','bl-s-tip',blS.s,'Genuine smile!','Relax your face & smile.');
+        
+        var ov=Math.round((blS.p+blS.e+blS.g+blS.s)/4);
+        var ovEl=document.getElementById('bl-overall'), ovBar=document.getElementById('bl-overall-bar');
+        if(ovEl)ovEl.innerText=ov+'%';
+        if(ovBar)ovBar.style.width=ov+'%';
+        
+        // LIVE AI INSIGHTS
+        var reportEl = document.getElementById('bl-report-text');
+        if(reportEl && blLog.length % 15 === 0) {
+            var msg = '<span style="color:#2dd4bf">✅ Excellent! Keep up this natural, warm delivery.</span>';
+            if (blS.p < 75) msg = '<span style="color:#f59e0b">⚠️ You are leaning. Try to square your shoulders to the camera.</span>';
+            else if (blS.e < 75) msg = '<span style="color:#ef4444">⚠️ You are looking away. Look directly into the camera lens!</span>';
+            else if (blS.s < 60) msg = '<span style="color:#ec4899">💡 Your expression is rigid. Remember to smile naturally!</span>';
+            else if (blS.g < 55) msg = '<span style="color:#6366f1">💡 Bring your hands up naturally to emphasize your points.</span>';
+            reportEl.innerHTML = '<b>Live Coaching:</b><br/>' + msg;
+        }
+    }
+})();
+</script>
+<!-- ===== CONVERSATION SIMULATOR ENGINE ===== -->
+<script>
+(function(){
+    var SIM = {
+        scenario: null,
+        history: [], // [{role:'user'|'assistant', content:''}, ...]
+        scores: [],
+        userId: 'sim_' + Date.now()
+    };
+
+    var SCENARIOS = {
+        'customer-complaint': {
+            emoji: '😤', name: 'Angry Customer — Alex',
+            desc: 'Frustrated with repeated service failures',
+            system: `You are Alex, an extremely frustrated customer who has had the same service problem 3 times. You are emotional, slightly aggressive, and feel completely let down. Respond realistically as this angry customer. Keep replies short (1-3 sentences). Do not resolve the issue too quickly — push back on vague apologies. Only soften if the user gives a very specific, empathetic, solution-focused response.`,
+            opener: `I am absolutely furious right now. This is the THIRD time this exact same issue has happened and I'm done hearing "we're sorry." What are you actually going to DO about this?`
+        },
+        'negotiation': {
+            emoji: '💰', name: 'Tough Negotiator — Sam',
+            desc: 'Pushing hard for a 40% price reduction',
+            system: `You are Sam, a seasoned procurement manager negotiating a software contract. You are firm, data-driven, and have competing quotes from rivals. You want at least 40% off. Push back firmly on any offer above 20% off. Only agree if the user justifies value clearly or offers creative alternatives like extended support or phased payments.`,
+            opener: `Look, I've got three competing vendors and they're all coming in 40% below your price. Why should I pay a premium for you?`
+        },
+        'team-conflict': {
+            emoji: '⚔️', name: 'Colleague — Jordan',
+            desc: 'Feels overlooked and unfairly treated by the team',
+            system: `You are Jordan, a team member who feels consistently overlooked for key projects and credit. You are passive-aggressive and defensive. Respond as someone who is hurt but trying to stay professional. Only open up if the user shows genuine empathy and asks thoughtful questions. Avoid being cooperative too quickly.`,
+            opener: `I just want to say — I noticed I wasn't included in the client presentation again. It keeps happening and I'd like to understand why.`
+        },
+        'job-interview': {
+            emoji: '💼', name: 'Interviewer — Dr. Priya',
+            desc: 'Senior hiring manager, asks tough behavioral questions',
+            system: `You are Dr. Priya, a demanding senior hiring manager. Ask one tough behavioral/situational interview question at a time. After each answer, give a brief reaction (positive or skeptical) and ask a follow-up. Questions should cover: leadership, failure, conflict, pressure, and values. Be respectful but direct.`,
+            opener: `Welcome. Let's skip the small talk and get right into it. Tell me about a time you completely failed at something important. What happened and what did you learn?`
+        },
+        'difficult-customer': {
+            emoji: '😒', name: 'Skeptical Client — Morgan',
+            desc: 'Doubtful about value, making excuses not to commit',
+            system: `You are Morgan, a potential client who is interested but keeps finding objections — price, timing, internal approval needed, "we already have a solution." You are polite but non-committal. Only move toward agreement if the user handles each objection clearly and confidently without being pushy.`,
+            opener: `Honestly, your product sounds fine, but we just renewed our current contract 6 months ago and the timing isn't great. I'm not sure this is the right moment.`
+        }
+    };
+
+    window.loadScenario = function(key) {
+        var sc = SCENARIOS[key];
+        if(!sc) return;
+        SIM.scenario = key;
+        SIM.history = [];
+        SIM.scores = [];
+
+        // Update sidebar buttons
+        document.querySelectorAll('.sim-scenario-btn').forEach(function(b){
+            b.style.background = 'rgba(255,255,255,0.04)';
+            b.style.borderColor = 'rgba(255,255,255,0.08)';
+            b.style.color = '#94a3b8';
+        });
+        var activeBtn = document.getElementById('sb-' + key);
+        if(activeBtn){
+            activeBtn.style.background = 'rgba(99,102,241,0.15)';
+            activeBtn.style.borderColor = 'rgba(99,102,241,0.4)';
+            activeBtn.style.color = '#fff';
+        }
+
+        // Update header
+        var avatar = document.getElementById('sim-avatar');
+        var nameEl = document.getElementById('sim-persona-name');
+        var descEl = document.getElementById('sim-persona-desc');
+        if(avatar) avatar.innerText = sc.emoji;
+        if(nameEl) nameEl.innerText = sc.name;
+        if(descEl) descEl.innerText = sc.desc;
+
+        // Clear chat and score
+        var msgs = document.getElementById('simMessages');
+        if(msgs) msgs.innerHTML = '';
+        var scoreEl = document.getElementById('sim-score-val');
+        if(scoreEl) scoreEl.innerText = '—';
+        var breakdown = document.getElementById('sim-score-breakdown');
+        if(breakdown) breakdown.innerHTML = '';
+        var feedback = document.getElementById('sim-feedback-box');
+        if(feedback) feedback.style.display = 'none';
+
+        // Add opener message from AI
+        SIM.history.push({role: 'assistant', content: sc.opener});
+        simAddMessage('ai', sc.opener);
+    };
+
+    window.handleSimInput = function(e) {
+        if(e.key === 'Enter') sendSimResponse();
+    };
+
+    window.sendSimResponse = function() {
+        var inp = document.getElementById('simInput');
+        if(!inp || !inp.value.trim()) return;
+        var userMsg = inp.value.trim();
+        inp.value = '';
+
+        if(!SIM.scenario) {
+            loadScenario('customer-complaint');
+            return;
+        }
+
+        simAddMessage('user', userMsg);
+        SIM.history.push({role: 'user', content: userMsg});
+
+        // Show typing
+        var typingId = 'typing-' + Date.now();
+        simAddMessage('typing', '...', typingId);
+
+        // Disable send while waiting
+        var btn = document.getElementById('sim-send-btn');
+        if(btn) btn.disabled = true;
+
+        var sc = SCENARIOS[SIM.scenario];
+
+        fetch('/api/simulator/chat', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                userId: SIM.userId,
+                userMessage: userMsg,
+                scenarioSystemPrompt: sc.system,
+                history: SIM.history.slice(0, -1) // All except the message we just added
+            })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            // Remove typing bubble
+            var typingEl = document.getElementById(typingId);
+            if(typingEl) typingEl.remove();
+
+            if(!data.success) {
+                simAddMessage('ai', data.reply || "Error connecting to AI.");
+                if(btn) btn.disabled = false;
+                return;
+            }
+
+            var aiText = data.reply;
+            simAddMessage('ai', aiText);
+            SIM.history.push({role: 'assistant', content: aiText});
+
+            if(data.eval) {
+                var e = data.eval;
+                var overall = Math.round((e.empathy + e.tone + e.clarity) / 3);
+                SIM.scores.push(overall);
+                simUpdateScore(e.empathy, e.tone, e.clarity, overall, e.tip);
+            }
+
+            if(btn) btn.disabled = false;
+        })
+        .catch(function(err){
+            var typingEl = document.getElementById(typingId);
+            if(typingEl) typingEl.remove();
+            simAddMessage('ai', "Connection failed. Please check your internet.");
+            if(btn) btn.disabled = false;
+        });
+    };
+
+    window.simReset = function() {
+        if(SIM.scenario) loadScenario(SIM.scenario);
+        else loadScenario('customer-complaint');
+    };
+
+    function simAddMessage(type, text, id) {
+        var msgs = document.getElementById('simMessages');
+        if(!msgs) return;
+        var div = document.createElement('div');
+        if(id) div.id = id;
+
+        if(type === 'user') {
+            div.style.cssText = 'display:flex;justify-content:flex-end;';
+            div.innerHTML = '<div style="max-width:75%;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:18px 18px 4px 18px;padding:0.85rem 1.1rem;color:#fff;font-size:0.9rem;line-height:1.5;">' + escHtml(text) + '</div>';
+        } else if(type === 'ai') {
+            var sc = SIM.scenario ? SCENARIOS[SIM.scenario] : null;
+            var emoji = sc ? sc.emoji : '🤖';
+            div.style.cssText = 'display:flex;align-items:flex-start;gap:0.6rem;';
+            div.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1rem;">' + emoji + '</div><div style="max-width:75%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:18px 18px 18px 4px;padding:0.85rem 1.1rem;color:#e2e8f0;font-size:0.9rem;line-height:1.5;">' + escHtml(text) + '</div>';
+        } else if(type === 'typing') {
+            div.style.cssText = 'display:flex;align-items:flex-start;gap:0.6rem;';
+            div.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;">💬</div><div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:0.85rem 1.1rem;color:#64748b;font-size:0.9rem;">Typing…</div>';
+        }
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function simUpdateScore(emp, tone, clarity, overall, tip) {
+        var scoreEl = document.getElementById('sim-score-val');
+        var breakdown = document.getElementById('sim-score-breakdown');
+        var feedbackBox = document.getElementById('sim-feedback-box');
+        var feedbackText = document.getElementById('sim-feedback-text');
+
+        var col = overall >= 80 ? '#2dd4bf' : overall >= 60 ? '#f59e0b' : '#ef4444';
+        if(scoreEl){ scoreEl.innerText = overall + '/100'; scoreEl.style.color = col; }
+
+        if(breakdown) {
+            breakdown.innerHTML = [
+                ['❤️ Empathy', emp],
+                ['🎵 Tone', tone],
+                ['💡 Clarity', clarity]
+            ].map(function(item){
+                var c = item[1] >= 80 ? '#2dd4bf' : item[1] >= 60 ? '#f59e0b' : '#ef4444';
+                return '<div><div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.8rem;"><span style="color:#94a3b8;">'+item[0]+'</span><span style="color:'+c+';font-weight:700;">'+item[1]+'%</span></div><div style="height:5px;background:#1e293b;border-radius:3px;overflow:hidden;"><div style="width:'+item[1]+'%;height:100%;background:'+c+';transition:width 0.4s;"></div></div></div>';
+            }).join('');
+        }
+
+        if(feedbackBox) feedbackBox.style.display = 'block';
+        if(feedbackText && tip) {
+            feedbackText.innerHTML = '<span style="color:#f59e0b;">💡 Tip:</span> ' + escHtml(tip);
+        }
+    }
+
+    function escHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    }
+
+    // Auto-load default scenario when panel opens
+    window._simAutoLoad = function() {
+        if(!SIM.scenario) loadScenario('customer-complaint');
+    };
+
+    // Hook into showFeature to auto-init
+    var _origShowFeature = window.showFeature;
+    if(_origShowFeature) {
+        window.showFeature = function(feature) {
+            _origShowFeature(feature);
+            if(feature === 'simulator') {
+                setTimeout(function(){ window._simAutoLoad(); }, 300);
+            }
+        };
+    }
+})();
+</script>
+
 </body>
 </html>

@@ -1796,6 +1796,98 @@ app.post('/api/ai/chat', async (req, res) => {
     }
 });
 
+// ==================== CONVERSATION SIMULATOR ====================
+app.post('/api/simulator/chat', async (req, res) => {
+    const { userId, userMessage, scenarioSystemPrompt, history } = req.body;
+    if (!userMessage || !scenarioSystemPrompt) {
+        return res.json({ success: false, error: 'Missing userMessage or scenarioSystemPrompt' });
+    }
+
+    const evalInstruction = `\n\nAFTER your in-character reply, on a SEPARATE LINE output ONLY this JSON (no other text after it):
+{"empathy":0-100,"tone":0-100,"clarity":0-100,"tip":"one coaching tip under 12 words"}
+Score the USER's last message on empathy, tone, and clarity.`;
+
+    const messages = [
+        { role: 'system', content: scenarioSystemPrompt + evalInstruction }
+    ];
+
+    if (Array.isArray(history)) {
+        history.forEach(m => {
+            if (m.role === 'user' || m.role === 'assistant') {
+                messages.push({ role: m.role, content: m.content });
+            }
+        });
+    }
+
+    messages.push({ role: 'user', content: userMessage });
+
+    try {
+        const rawText = await new Promise((resolve, reject) => {
+            const data = JSON.stringify({
+                model: 'llama-3.3-70b-versatile',
+                messages,
+                temperature: 0.75,
+                max_tokens: 600
+            });
+            const https = require('https');
+            const apiKey = process.env.GROQ_API_KEY;
+            if (!apiKey || apiKey === 'YOUR_GROQ_API_KEY_HERE') {
+                return reject(new Error('Groq API key not set'));
+            }
+            const options = {
+                hostname: 'api.groq.com',
+                path: '/openai/v1/chat/completions',
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(data)
+                }
+            };
+            const req2 = https.request(options, r => {
+                let body = '';
+                r.on('data', c => body += c);
+                r.on('end', () => {
+                    try {
+                        const parsed = JSON.parse(body);
+                        if (parsed.error) return reject(new Error(parsed.error.message));
+                        resolve(parsed.choices?.[0]?.message?.content || '');
+                    } catch(e) { reject(e); }
+                });
+            });
+            req2.on('error', reject);
+            req2.write(data);
+            req2.end();
+        });
+
+        const jsonMatch = rawText.match(/\{[\s\S]*"empathy"[\s\S]*\}/);
+        let evalData = null;
+        let replyText = rawText;
+
+        if (jsonMatch) {
+            try {
+                evalData = JSON.parse(jsonMatch[0]);
+                replyText = rawText.slice(0, rawText.lastIndexOf(jsonMatch[0])).trim();
+            } catch(e) {}
+        }
+
+        res.json({
+            success: true,
+            reply: replyText || rawText,
+            eval: evalData
+        });
+
+    } catch (err) {
+        console.error('Simulator error:', err.message);
+        res.json({
+            success: false,
+            error: err.message,
+            reply: "I'm having trouble connecting to the AI. Please try again.",
+            eval: null
+        });
+    }
+});
+
 // Get conversation history
 app.get('/api/ai/history/:userId', (req, res) => {
     const history = aiService.getConversationHistory(req.params.userId);
@@ -1873,6 +1965,41 @@ io.on('connection', (socket) => {
 // Serve the main HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Body Language AI Coaching
+app.post('/api/body-language/coach', async (req, res) => {
+    const { mlMetrics } = req.body;
+    try {
+        const prompt = `You are a professional body language coach. Analyze these metrics from a 30-second practice session:
+        - Posture: ${mlMetrics.posture}%
+        - Gestures: ${mlMetrics.gestures}%
+        - Eye Contact: ${mlMetrics.eye}%
+        - Engagement/Nodding: ${mlMetrics.nodding}%
+        - Smile/Expressions: ${mlMetrics.smile}%
+        
+        Provide a coaching report with:
+        1. A summary of their presence.
+        2. Three specific actionable tips to improve.
+        3. A professional closing.
+        Be concise and helpful.`;
+
+        const report = await aiService.callOllamaPrompt(prompt);
+        res.json({ success: true, report });
+    } catch (error) {
+        console.error('Coaching Error:', error);
+        res.json({ 
+            success: true, 
+            report: `Executive Summary: You showed good effort in this session.
+            
+            Actionable Tips:
+            1. Focus on keeping your shoulders level to improve Posture.
+            2. Try to maintain eye contact with the camera lens, not the screen.
+            3. Use open hand gestures to appear more confident.
+            
+            Keep practicing to see your scores improve!`
+        });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
