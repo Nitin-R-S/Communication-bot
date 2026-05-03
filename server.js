@@ -389,22 +389,19 @@ app.get('/api/voice-coach/model/status', (req, res) => {
 });
 
 app.post('/api/voice-coach/model/predict', (req, res) => {
-    const { transcript, scenario } = req.body;
+    const { transcript, scenario, durationSeconds } = req.body;
     if (!transcript) return res.json({ success: false, message: 'No transcript provided' });
-    const analysis = analyzeVoicePerformance(transcript, scenario);
-    const modelPred = predictWithModel(analysis);
-    // If model not trained, fallback to simple aggregate score so frontend shows live feedback
-    let finalScore = null;
-    if (modelPred !== null) {
-        finalScore = modelPred;
-    } else {
-        // average of core metrics as fallback
-        finalScore = Math.round((analysis.clarityScore + analysis.paceScore + analysis.confidenceScore + analysis.toneScore) / 4);
-    }
-    res.json({ success: true, analysis, modelScore: finalScore, modelUsed: modelPred !== null });
+    
+    const analysis = analyzeVoicePerformance(transcript, scenario, durationSeconds || 60);
+    
+    // Average of core metrics as the real-time aggregate score
+    const finalScore = Math.round((analysis.clarityScore + analysis.paceScore + analysis.confidenceScore + analysis.toneScore) / 4);
+    
+    res.json({ success: true, analysis, modelScore: finalScore });
 });
 
-function analyzeVoicePerformance(transcript, scenario) {
+
+function analyzeVoicePerformance(transcript, scenario, durationSeconds = 60) {
     const words = transcript.split(/\s+/).filter(w => w.length > 0);
     const sentences = transcript.split(/[.!?]+/).filter(s => s.trim().length > 0);
     
@@ -420,77 +417,74 @@ function analyzeVoicePerformance(transcript, scenario) {
     
     // Calculate clarity score based on word variety and structure
     const uniqueWords = new Set(words.map(w => w.toLowerCase()));
-    const vocabularyScore = (uniqueWords.size / words.length) * 100;
+    const vocabularyScore = (uniqueWords.size / Math.max(words.length, 1)) * 100;
     const sentenceLength = words.length / Math.max(sentences.length, 1);
+    
+    // Penalize if it looks like the user is just repeating simple words (lethargic)
+    const lethargyPenalty = vocabularyScore < 40 ? (40 - vocabularyScore) : 0;
+    
     const clarityScore = Math.round(
-        (Math.min(vocabularyScore, 100) * 0.4) +
-        (Math.min((sentenceLength / 25) * 100, 100) * 0.6)
+        Math.max(0, (Math.min(vocabularyScore, 100) * 0.4) + (Math.min((sentenceLength / 25) * 100, 100) * 0.6) - lethargyPenalty)
     );
     
-    // Pace calculation (assuming 1-2 minutes of speech, estimate WPM)
-    const estimatedWPM = words.length > 50 ? words.length : words.length * 2;
+    // Pace calculation (WPM)
+    const minutes = Math.max(durationSeconds / 60, 0.1);
+    const wpm = words.length / minutes;
     const optimalWPM = 150;
-    let paceScore = 100 - Math.abs(estimatedWPM - optimalWPM) / optimalWPM * 50;
-    paceScore = Math.max(60, Math.min(100, paceScore));
+    
+    // Lethargy detection via WPM: Normal is 130-170. Below 100 is lethargic.
+    let paceScore = 100 - (Math.abs(wpm - optimalWPM) / optimalWPM) * 100;
+    if (wpm < 100) paceScore -= (100 - wpm) / 2; // Extra penalty for being slow
+    paceScore = Math.max(0, Math.min(100, Math.round(paceScore)));
     
     // Tone analysis based on punctuation and word choice
     const questionMarks = (transcript.match(/\?/g) || []).length;
     const exclamations = (transcript.match(/!/g) || []).length;
     const positiveWords = ['great', 'excellent', 'amazing', 'wonderful', 'fantastic', 'love', 'perfect', 'confident', 'professional'];
+    const negativeWords = ['boring', 'slow', 'whatever', 'maybe', 'not sure', 'i guess'];
+    
     let positiveCount = 0;
+    let negativeCount = 0;
     words.forEach(word => {
         const lower = word.toLowerCase().replace(/[,.:;!?]/g, '');
-        if (positiveWords.includes(lower)) {
-            positiveCount++;
-        }
+        if (positiveWords.includes(lower)) positiveCount++;
+        if (negativeWords.includes(lower)) negativeCount++;
     });
     
-    const toneScore = Math.round(
-        (positiveCount / words.length) * 50 +
-        ((questionMarks + exclamations) / sentences.length) * 30 +
-        50
+    let toneScore = Math.round(
+        (positiveCount / Math.max(words.length, 1)) * 100 - (negativeCount / Math.max(words.length, 1)) * 100 + 70
     );
+    // Penalize tone if too many filler words (indicates lack of energy/focus)
+    toneScore -= (fillerCount / Math.max(words.length, 1)) * 50;
+    toneScore = Math.max(0, Math.min(100, toneScore));
     
     // Confidence score
     const confidenceMarkers = ['confident', 'professional', 'definitely', 'absolutely', 'certainly'];
-    let confidenceMarkerCount = 0;
+    const hesitationMarkers = ['um', 'uh', 'i think', 'maybe', 'possibly', 'i guess'];
+    
+    let confidenceCount = 0;
+    let hesitationCount = 0;
     words.forEach(word => {
         const lower = word.toLowerCase().replace(/[,.:;!?]/g, '');
-        if (confidenceMarkers.includes(lower)) {
-            confidenceMarkerCount++;
-        }
+        if (confidenceMarkers.includes(lower)) confidenceCount++;
+        if (hesitationMarkers.includes(lower)) hesitationCount++;
     });
     
     let confidenceScore = Math.round(
-        (1 - (fillerCount / words.length)) * 50 + 
-        (confidenceMarkerCount / words.length) * 30 +
-        (vocabularyScore / 100) * 20
+        (confidenceCount / Math.max(words.length, 1)) * 100 - (hesitationCount / Math.max(words.length, 1)) * 100 + 75
     );
-    confidenceScore = Math.max(60, Math.min(100, confidenceScore));
-    
-    // Scenario-specific scoring adjustments
-    const scenarioBonus = getScenarioBonus(transcript, scenario);
+    confidenceScore = Math.max(0, Math.min(100, confidenceScore));
     
     return {
-        wordCount: words.length,
-        sentenceCount: sentences.length,
-        clarityScore: Math.max(65, Math.min(100, clarityScore + scenarioBonus.clarity)),
-        paceScore: Math.max(60, Math.min(100, paceScore)),
-        toneScore: Math.max(70, Math.min(100, toneScore)),
-        confidenceScore: Math.max(65, Math.min(100, confidenceScore)),
+        clarityScore,
+        paceScore,
+        toneScore,
+        confidenceScore,
         fillerWordCount: fillerCount,
-        estimatedWPM: estimatedWPM,
-        uniqueWords: uniqueWords.size,
-        suggestions: generateDetailedSuggestions(
-            transcript,
-            fillerCount,
-            words.length,
-            clarityScore,
-            paceScore,
-            scenario
-        )
+        wpm: Math.round(wpm)
     };
 }
+
 
 function getScenarioBonus(transcript, scenario) {
     const lowerTranscript = transcript.toLowerCase();
@@ -1408,44 +1402,45 @@ app.post('/api/email-tone/analyze', async (req, res) => {
         return res.json({ success: true, analysis: buildFallbackAnalysis(userId, '', recipient, purpose) });
     }
 
-    // Try Gemma AI first, fallback to rule-based
+    // Use Groq Cloud AI exclusively
     try {
-        const gemmaAnalysis = await analyzeEmailWithGemma(content, recipient, purpose);
-        if (gemmaAnalysis) {
+        const groqAnalysis = await analyzeEmailWithGroq(content, recipient, purpose);
+        if (groqAnalysis) {
             const analysis = {
                 id: uuidv4(),
                 userId,
                 emailContent: content,
                 recipient,
                 purpose,
-                toneAnalysis: gemmaAnalysis.toneAnalysis || analyzeEmailTone(content),
-                suggestions: gemmaAnalysis.suggestions || [],
-                changesToMake: gemmaAnalysis.changesToMake || [],
-                grammarIssues: gemmaAnalysis.grammarIssues || [],
-                grammarIssueCount: (gemmaAnalysis.grammarIssues || []).length,
-                spellingIssues: gemmaAnalysis.spellingIssues || [],
-                spellingIssueCount: (gemmaAnalysis.spellingIssues || []).length,
-                correctedDraft: gemmaAnalysis.correctedDraft || content,
-                rewrittenDraft: gemmaAnalysis.rewrittenDraft || content,
-                score: gemmaAnalysis.score != null ? Math.max(0, Math.min(100, Math.round(gemmaAnalysis.score))) : 70,
-                poweredBy: 'Gemma AI',
+                toneAnalysis: groqAnalysis.toneAnalysis || {},
+                suggestions: groqAnalysis.suggestions || [],
+                changesToMake: groqAnalysis.changesToMake || [],
+                grammarIssues: groqAnalysis.grammarIssues || [],
+                grammarIssueCount: (groqAnalysis.grammarIssues || []).length,
+                spellingIssues: groqAnalysis.spellingIssues || [],
+                spellingIssueCount: (groqAnalysis.spellingIssues || []).length,
+                correctedDraft: groqAnalysis.correctedDraft || content,
+                rewrittenDraft: groqAnalysis.rewrittenDraft || content,
+                score: groqAnalysis.score != null ? Math.max(0, Math.min(100, Math.round(groqAnalysis.score))) : 85,
+                poweredBy: groqAnalysis.provider || 'Groq Cloud AI',
                 createdAt: new Date()
             };
             emailAnalysis.set(analysis.id, analysis);
             return res.json({ success: true, analysis });
         }
     } catch (e) {
-        console.warn('Gemma email analysis failed, using fallback:', e.message);
+        console.warn('Groq Cloud AI analysis failed:', e.message);
     }
 
-    // Fallback to rule-based analysis
+    // Basic rule-based fallback ONLY if cloud is completely unreachable
     const analysis = buildFallbackAnalysis(userId, content, recipient, purpose);
+    analysis.poweredBy = 'Local Engine (Cloud AI Offline)';
     emailAnalysis.set(analysis.id, analysis);
     res.json({ success: true, analysis });
 });
 
-// Gemma-powered email analysis
-async function analyzeEmailWithGemma(emailContent, recipient, purpose) {
+// Groq-powered email analysis
+async function analyzeEmailWithGroq(emailContent, recipient, purpose) {
     const prompt = `You are a professional writing assistant. Fix all errors in the email.
 
 EXAMPLE:
@@ -1469,40 +1464,14 @@ ${purpose ? `Purpose: ${purpose}` : ''}
 
 JSON:`;
 
-    const rawResponse = await aiService.callOllamaPrompt(prompt);
+    const { response: rawResponse, provider } = await aiService.callOllamaPrompt(prompt);
     
     // Attempt to extract and repair JSON
-    let parsed = null;
-    let jsonString = rawResponse;
-
-    // 1. Try to find JSON block in markdown
-    const jsonMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
-    if (jsonMatch) jsonString = jsonMatch[1].trim();
-    else {
-        // 2. Try to find the first '{' and last '}'
-        const firstBrace = rawResponse.indexOf('{');
-        const lastBrace = rawResponse.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1) {
-            jsonString = rawResponse.substring(firstBrace, lastBrace + 1);
-        }
-    }
-
-    parsed = aiService.parseJSONSafe(jsonString);
+    let parsed = aiService.parseJSONSafe(rawResponse);
 
     if (!parsed) {
-        // 3. Try to repair common JSON errors (unescaped quotes)
-        try {
-            const repaired = jsonString.replace(/":\s*"([\s\S]*?)"\s*([,}])/g, (match, p1, p2) => {
-                const escaped = p1.replace(/(?<!\\)"/g, '\\"');
-                return `": "${escaped}"${p2}`;
-            });
-            parsed = aiService.parseJSONSafe(repaired);
-        } catch (e) {}
-    }
-
-    if (!parsed) {
-        console.warn('Gemma Response:', rawResponse);
-        console.warn('Could not parse Gemma response for email analysis after repair attempts');
+        console.warn('AI Response:', rawResponse);
+        console.warn('Could not parse Groq response for email analysis');
         return null;
     }
 
@@ -1512,14 +1481,15 @@ JSON:`;
     };
 
     return {
-        spellingIssues: normalizeArray(parsed.spellingIssues).filter(s => !s.toLowerCase().includes('recieve')), // Filter common hallucination
+        spellingIssues: normalizeArray(parsed.spellingIssues),
         grammarIssues: normalizeArray(parsed.grammarIssues),
         toneAnalysis: parsed.toneAnalysis || {},
-        score: Number(parsed.score) || 70,
+        score: Number(parsed.score) || 85,
         changesToMake: normalizeArray(parsed.changesToMake),
         suggestions: normalizeArray(parsed.suggestions),
         correctedDraft: String(parsed.correctedDraft || ''),
-        rewrittenDraft: String(parsed.rewrittenDraft || '')
+        rewrittenDraft: String(parsed.rewrittenDraft || ''),
+        provider: provider
     };
 }
 
@@ -1959,7 +1929,59 @@ app.get('/api/ai/status', async (req, res) => {
     });
 });
 
-// Send message to AI
+// Analyze Voice Session Transcript
+app.post('/api/voice/analyze', async (req, res) => {
+    const { userId, transcript, scenario } = req.body;
+    
+    if (!transcript) {
+        return res.json({ success: false, message: 'Transcript required' });
+    }
+
+    try {
+        const analysis = await analyzeVoiceTranscript(transcript, scenario);
+        res.json({ success: true, analysis });
+    } catch (error) {
+        console.error("Voice Analysis Error:", error.message);
+        res.json({ 
+            success: false, 
+            message: 'AI Analysis failed',
+            fallback: {
+                confidenceScore: 70,
+                tone: 'Informative',
+                tips: ['Try to vary your pitch for more engagement.']
+            }
+        });
+    }
+});
+
+async function analyzeVoiceTranscript(transcript, scenario) {
+    const prompt = `You are a world-class professional communication and voice coach. Analyze the following transcript from a "${scenario || 'general speech'}" scenario.
+    
+    Provide your analysis in JSON format:
+    {
+        "tone": "Brief description of the speaker's emotional tone (e.g., Confident, Nervous, Empathetic)",
+        "confidenceScore": 0-100,
+        "clarityScore": 0-100,
+        "paceScore": 0-100,
+        "fillerWordsFound": ["list", "of", "filler", "words", "used"],
+        "scoreRationale": "A clear explanation of why the user received these scores and where points were deducted (e.g., 'Score reduced due to repetitive filler words and lack of structured pausing').",
+        "impactAnalysis": "Detailed analysis of how this communication impacts the listener.",
+        "grammarCorrections": [
+            { "original": "wrong phrase", "correction": "correct professional phrase", "reason": "why it was wrong" }
+        ],
+        "coachingTips": ["Highly specific, actionable improvement steps"],
+        "betterPhrasing": "A one-paragraph professional rewrite of their key points, demonstrating perfect formation."
+    }
+
+    Transcript: "${transcript}"
+
+    JSON:`;
+
+    const result = await aiService.callOllamaPrompt(prompt);
+    return aiService.parseJSONSafe(result.response);
+}
+
+// Send message to AI assistant
 app.post('/api/ai/chat', async (req, res) => {
     const { userId, message } = req.body;
     
@@ -1973,7 +1995,8 @@ app.post('/api/ai/chat', async (req, res) => {
         res.json({
             success: true,
             response: result.response,
-            sources: result.sources
+            sources: result.sources,
+            provider: result.provider
         });
     } else {
         res.json({

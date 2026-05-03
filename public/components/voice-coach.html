@@ -49,6 +49,10 @@
                         <h4 id="scenario-title">🎤 Recording Session</h4>
                         <p id="scenario-desc" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;"></p>
                         
+                        <!-- Training Guide / Scripts -->
+                        <div id="scenario-guide" style="padding: 1rem; background: rgba(99, 102, 241, 0.05); border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.2); margin-bottom: 1.5rem; color: var(--light); font-size: 0.9rem; line-height: 1.5; display: none;">
+                        </div>
+
                         <!-- Recording Status -->
                         <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
                             <div style="display: flex; align-items: center; gap: 1rem;">
@@ -134,6 +138,44 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- 🧬 Communication DNA Visualization -->
+                <div id="voice-dna-section" style="display: none; margin-top: 1.5rem; background: var(--glass); padding: 1.5rem; border-radius: 16px; border: 1px solid var(--glass-border);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="color: var(--secondary); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🧬</span> Your Communication DNA
+                        </h4>
+                        <span style="font-size: 0.75rem; color: var(--gray);">AI-Generated Performance Map</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; align-items: end; height: 150px; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 12px; position: relative;">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; padding: 1rem; pointer-events: none;">
+                            <div style="border-top: 1px dashed rgba(255,255,255,0.05); width: 100%;"></div>
+                            <div style="border-top: 1px dashed rgba(255,255,255,0.05); width: 100%;"></div>
+                            <div style="border-top: 1px dashed rgba(255,255,255,0.05); width: 100%;"></div>
+                        </div>
+                        <div class="dna-bar-wrap" style="text-align: center;">
+                            <div id="dna-clarity" style="height: 0%; background: var(--gradient-1); border-radius: 4px 4px 0 0; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            <span style="font-size: 0.65rem; color: var(--gray); margin-top: 0.5rem; display: block;">CLARITY</span>
+                        </div>
+                        <div class="dna-bar-wrap" style="text-align: center;">
+                            <div id="dna-pace" style="height: 0%; background: var(--gradient-2); border-radius: 4px 4px 0 0; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); transition-delay: 0.1s;"></div>
+                            <span style="font-size: 0.65rem; color: var(--gray); margin-top: 0.5rem; display: block;">PACE</span>
+                        </div>
+                        <div class="dna-bar-wrap" style="text-align: center;">
+                            <div id="dna-tone" style="height: 0%; background: var(--gradient-3); border-radius: 4px 4px 0 0; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); transition-delay: 0.2s;"></div>
+                            <span style="font-size: 0.65rem; color: var(--gray); margin-top: 0.5rem; display: block;">TONE</span>
+                        </div>
+                        <div class="dna-bar-wrap" style="text-align: center;">
+                            <div id="dna-conf" style="height: 0%; background: var(--gradient-4); border-radius: 4px 4px 0 0; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); transition-delay: 0.3s;"></div>
+                            <span style="font-size: 0.65rem; color: var(--gray); margin-top: 0.5rem; display: block;">CONFIDENCE</span>
+                        </div>
+                        <div class="dna-bar-wrap" style="text-align: center;">
+                            <div id="dna-impact" style="height: 0%; background: linear-gradient(135deg, #f59e0b, #ef4444); border-radius: 4px 4px 0 0; transition: height 1s cubic-bezier(0.4, 0, 0.2, 1); transition-delay: 0.4s;"></div>
+                            <span style="font-size: 0.65rem; color: var(--gray); margin-top: 0.5rem; display: block;">IMPACT</span>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Action Buttons -->
                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
