@@ -1,56 +1,75 @@
     <div class="feature-panels" id="simulator-panel">
         <div class="panel-header">
             <div>
-                <h2 class="panel-title">💬 Message Conversation Simulator</h2>
-                <p style="color: var(--gray);">Practice difficult conversations with AI</p>
+                <h2 class="panel-title">💬 Conversation Simulator</h2>
+                <p style="color: var(--gray);">Practice difficult conversations with a live AI opponent</p>
             </div>
             <button class="close-panel" onclick="closePanel()">×</button>
         </div>
         <div class="panel-content">
-            <div class="simulator-container">
-                <div class="chat-window">
-                    <div class="chat-messages" id="simMessages">
-                        <div class="chat-message incoming">
-                            <p>I'm very disappointed with the service I received. This is the third time this has happened!</p>
+            <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;height:calc(100vh - 200px);">
+
+                <!-- Chat Window -->
+                <div style="display:flex;flex-direction:column;background:rgba(15,23,42,0.8);border-radius:16px;border:1px solid rgba(255,255,255,0.07);overflow:hidden;">
+                    <!-- Scenario Header -->
+                    <div id="sim-scenario-header" style="padding:1rem 1.25rem;background:rgba(99,102,241,0.15);border-bottom:1px solid rgba(99,102,241,0.3);display:flex;align-items:center;gap:0.75rem;">
+                        <div id="sim-avatar" style="width:40px;height:40px;border-radius:50%;background:var(--gradient-1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">😤</div>
+                        <div>
+                            <div id="sim-persona-name" style="font-weight:700;color:#fff;">Angry Customer — Alex</div>
+                            <div id="sim-persona-desc" style="font-size:0.78rem;color:#94a3b8;">Frustrated with repeated service failures</div>
+                        </div>
+                        <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
+                            <div id="sim-status-dot" style="width:8px;height:8px;border-radius:50%;background:#10b981;"></div>
+                            <span style="font-size:0.8rem;color:#94a3b8;" id="sim-status-text">Active</span>
                         </div>
                     </div>
-                    <div class="chat-input">
-                        <input type="text" id="simInput" placeholder="Type your response..." onkeypress="handleSimInput(event)">
-                        <button class="btn btn-primary" onclick="sendSimResponse()">Send</button>
+
+                    <!-- Messages -->
+                    <div id="simMessages" style="flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:1rem;scroll-behavior:smooth;"></div>
+
+                    <!-- Input -->
+                    <div style="padding:1rem;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:0.75rem;">
+                        <input id="simInput" type="text" placeholder="Type your response and press Enter..."
+                            style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:0.75rem 1rem;color:#fff;font-size:0.9rem;outline:none;"
+                            onkeypress="handleSimInput(event)">
+                        <button onclick="sendSimResponse()" id="sim-send-btn"
+                            style="background:var(--gradient-1);border:none;border-radius:10px;padding:0.75rem 1.25rem;color:#fff;font-weight:600;cursor:pointer;white-space:nowrap;">Send ↵</button>
                     </div>
                 </div>
-                <div class="simulator-sidebar">
-                    <div class="scenario-info">
-                        <div class="scenario-badge">Active Scenario</div>
-                        <h3>Customer Complaint</h3>
-                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Difficulty: Hard</p>
+
+                <!-- Sidebar -->
+                <div style="display:flex;flex-direction:column;gap:1rem;overflow-y:auto;">
+                    <!-- Score Card -->
+                    <div style="background:rgba(15,23,42,0.8);border-radius:16px;border:1px solid rgba(255,255,255,0.07);padding:1.25rem;">
+                        <div style="font-size:0.8rem;font-weight:700;color:#818cf8;margin-bottom:0.75rem;letter-spacing:.05em;">📊 LIVE SCORE</div>
+                        <div style="text-align:center;margin-bottom:1rem;">
+                            <div id="sim-score-val" style="font-size:3rem;font-weight:800;color:#2dd4bf;">—</div>
+                            <div style="font-size:0.8rem;color:#64748b;">Communication Score</div>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:0.6rem;" id="sim-score-breakdown"></div>
                     </div>
-                    <div>
-                        <h4 style="margin-bottom: 1rem;">🎯 Available Scenarios</h4>
-                        <div style="display: grid; gap: 0.75rem;">
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);" onclick="loadScenario('customer-complaint')">
-                                <strong>Customer Complaint</strong>
-                            </div>
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('negotiation')">
-                                <strong>Price Negotiation</strong>
-                            </div>
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('team-conflict')">
-                                <strong>Team Conflict</strong>
-                            </div>
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('difficult-customer')">
-                                <strong>Difficult Customer</strong>
-                            </div>
+
+                    <!-- Feedback -->
+                    <div id="sim-feedback-box" style="background:rgba(15,23,42,0.8);border-radius:16px;border:1px solid rgba(255,255,255,0.07);padding:1.25rem;display:none;">
+                        <div style="font-size:0.8rem;font-weight:700;color:#818cf8;margin-bottom:0.75rem;letter-spacing:.05em;">💡 AI COACHING</div>
+                        <div id="sim-feedback-text" style="font-size:0.85rem;color:#cbd5e1;line-height:1.6;"></div>
+                    </div>
+
+                    <!-- Scenarios -->
+                    <div style="background:rgba(15,23,42,0.8);border-radius:16px;border:1px solid rgba(255,255,255,0.07);padding:1.25rem;">
+                        <div style="font-size:0.8rem;font-weight:700;color:#818cf8;margin-bottom:0.75rem;letter-spacing:.05em;">🎯 SCENARIOS</div>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+                            <button onclick="loadScenario('customer-complaint')" class="sim-scenario-btn" id="sb-customer-complaint" style="text-align:left;padding:0.75rem;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.4);border-radius:10px;color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600;">😤 Angry Customer</button>
+                            <button onclick="loadScenario('negotiation')" class="sim-scenario-btn" id="sb-negotiation" style="text-align:left;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#94a3b8;cursor:pointer;font-size:0.85rem;font-weight:600;">💰 Price Negotiation</button>
+                            <button onclick="loadScenario('team-conflict')" class="sim-scenario-btn" id="sb-team-conflict" style="text-align:left;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#94a3b8;cursor:pointer;font-size:0.85rem;font-weight:600;">⚔️ Team Conflict</button>
+                            <button onclick="loadScenario('job-interview')" class="sim-scenario-btn" id="sb-job-interview" style="text-align:left;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#94a3b8;cursor:pointer;font-size:0.85rem;font-weight:600;">💼 Job Interview</button>
+                            <button onclick="loadScenario('difficult-customer')" class="sim-scenario-btn" id="sb-difficult-customer" style="text-align:left;padding:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#94a3b8;cursor:pointer;font-size:0.85rem;font-weight:600;">😒 Difficult Client</button>
                         </div>
                     </div>
-                    <div class="response-feedback" id="simFeedback" style="display: none;">
-                        <h4>📝 Response Feedback</h4>
-                        <p id="feedbackText" style="margin-top: 0.5rem;"></p>
-                        <div style="margin-top: 1rem;">
-                            <span style="font-size: 1.5rem; font-weight: 700;" id="feedbackScore">85</span>
-                            <span style="color: var(--gray);">/100</span>
-                        </div>
-                    </div>
+
+                    <!-- Reset -->
+                    <button onclick="simReset()" style="padding:0.75rem;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;color:#ef4444;cursor:pointer;font-size:0.85rem;font-weight:600;width:100%;">🔄 Reset Conversation</button>
                 </div>
             </div>
         </div>
-    </div>
+    </div>

@@ -1,14 +1,20 @@
 /**
- * AI Service - Groq Cloud (Llama 3.3 70B)
- * High-speed, high-intelligence free cloud AI.
+ * AI Service - Unified Hub (Groq Cloud & Local Ollama/Gemma)
+ * Uses high-speed Groq (Llama 3.3 70B) as primary, falls back to local Gemma 2B.
  */
 
 require('dotenv').config();
 const https = require('https');
+const http = require('http');
 
 // ==================== CONFIG ====================
-let GROQ_API_KEY = process.env.GROQ_API_KEY || 'YOUR_GROQ_API_KEY_HERE';
+let GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
+
+const OLLAMA_HOST = 'localhost';
+const OLLAMA_PORT = 11434;
+const OLLAMA_MODEL = 'gemma:2b'; 
+
 const FALLBACK_AI_ENABLED = true;
 
 // ==================== MEMORY ====================
@@ -28,7 +34,7 @@ const companyDocs = [
 function callGroq(messages) {
     return new Promise((resolve, reject) => {
         if (!GROQ_API_KEY || GROQ_API_KEY === 'YOUR_GROQ_API_KEY_HERE') {
-            return reject(new Error('Groq API Key missing. Please add it in .env'));
+            return reject(new Error('Groq API Key missing'));
         }
 
         const data = JSON.stringify({
@@ -70,73 +76,119 @@ function callGroq(messages) {
     });
 }
 
+// ==================== OLLAMA API CALL ====================
+function callOllama(messages) {
+    return new Promise((resolve, reject) => {
+        const data = JSON.stringify({
+            model: OLLAMA_MODEL,
+            messages: messages,
+            stream: false
+        });
+
+        const options = {
+            hostname: OLLAMA_HOST,
+            port: OLLAMA_PORT,
+            path: '/api/chat',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(data)
+            }
+        };
+
+        const req = http.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try {
+                    const result = JSON.parse(body);
+                    const text = result.message?.content || "No response";
+                    resolve(text);
+                } catch (e) {
+                    reject(new Error('Invalid Ollama response'));
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.write(data);
+        req.end();
+    });
+}
+
 // ==================== MAIN AI FUNCTION ====================
 async function generateAIResponse(userId, userMessage) {
     const history = conversationHistory.get(userId) || [];
-    
     const messages = [
-        { role: "system", content: "You are VDart AI Assistant, a professional communication coach. Be concise and helpful." },
+        { role: "system", content: "You are VDart AI Assistant, a professional communication coach." },
         ...history,
         { role: "user", content: userMessage }
     ];
 
     try {
-        const response = await callGroq(messages);
-
-        // Save history
-        const newHistory = [
-            ...history,
-            { role: 'user', content: userMessage },
-            { role: 'assistant', content: response }
-        ];
-        conversationHistory.set(userId, newHistory);
-
-        return {
-            success: true,
-            response: response,
-            sources: []
-        };
-
-    } catch (error) {
-        console.error("Groq error:", error.message);
-
-        if (FALLBACK_AI_ENABLED) {
-            const fallbackResponse = generateFallbackResponse(userMessage);
-            return {
-                success: true,
-                response: fallbackResponse,
-                fallback: true,
-                error: error.message
-            };
+        // Try Groq first
+        if (GROQ_API_KEY) {
+            const response = await callGroq(messages);
+            saveToHistory(userId, userMessage, response);
+            return { success: true, response, sources: [], provider: 'Groq' };
         }
-
-        return { success: false, error: error.message };
+        throw new Error('No Groq API Key');
+    } catch (error) {
+        console.log("Switching to local Ollama/Gemma...");
+        try {
+            // Fallback to local Ollama
+            const response = await callOllama(messages);
+            saveToHistory(userId, userMessage, response);
+            return { success: true, response, sources: [], provider: 'Ollama' };
+        } catch (ollamaError) {
+            if (FALLBACK_AI_ENABLED) {
+                return { success: true, response: generateFallbackResponse(userMessage), fallback: true, provider: 'Static' };
+            }
+            return { success: false, error: ollamaError.message };
+        }
     }
+}
+
+function saveToHistory(userId, userMessage, aiResponse) {
+    const history = conversationHistory.get(userId) || [];
+    const newHistory = [...history, { role: 'user', content: userMessage }, { role: 'assistant', content: aiResponse }];
+    conversationHistory.set(userId, newHistory.slice(-10)); // Keep last 10 messages
 }
 
 function generateFallbackResponse(userMessage) {
     const msg = (userMessage || '').toLowerCase();
-    
     const patterns = [
-        { test: ['hello', 'hi'], reply: "Hello! I'm your VDart assistant. How can I help with your communication today?" },
-        { test: ['bad', 'poor'], reply: "Don't worry! Communication is a skill that improves with practice. Try focusing on your pace first." },
-        { test: ['accent'], reply: "Focus on 'Vowel Clarity'. Record yourself and listen to how you pronounce vowels." }
+        { test: ['hello', 'hi'], reply: "Hello! I'm your VDart assistant. How can I help?" },
+        { test: ['accent'], reply: "Focus on 'Vowel Clarity'. Practice recording your speech." }
     ];
-
     for (const pattern of patterns) {
         if (pattern.test.some(t => msg.includes(t))) return pattern.reply;
     }
-
-    return "I'm currently in local mode, but I can still help. What specific communication skill would you like to improve?";
+    return "I'm in local fallback mode. Please check if your Groq API Key or local Ollama is active.";
 }
 
 // ==================== STATUS & HELPER ====================
 async function checkOllamaStatus() {
-    return { available: GROQ_API_KEY !== 'YOUR_GROQ_API_KEY_HERE', cloud: true };
+    if (GROQ_API_KEY) return { available: true, cloud: true, provider: 'Groq' };
+    
+    // Check local Ollama
+    return new Promise((resolve) => {
+        const req = http.request({ hostname: OLLAMA_HOST, port: OLLAMA_PORT, path: '/api/tags', method: 'GET' }, (res) => {
+            resolve({ available: true, cloud: false, provider: 'Ollama' });
+        });
+        req.on('error', () => resolve({ available: false, provider: 'None' }));
+        req.end();
+    });
 }
 
 async function callOllamaPrompt(prompt) {
-    return callGroq([{ role: 'user', content: prompt }]);
+    const messages = [{ role: 'user', content: prompt }];
+    try {
+        if (GROQ_API_KEY) return await callGroq(messages);
+        return await callOllama(messages);
+    } catch (e) {
+        return await callOllama(messages);
+    }
 }
 
 function parseJSONSafe(text) {
@@ -148,10 +200,8 @@ module.exports = {
     checkOllamaStatus,
     callOllamaPrompt,
     parseJSONSafe,
-    getModelName: () => GROQ_MODEL,
+    getModelName: () => GROQ_API_KEY ? GROQ_MODEL : OLLAMA_MODEL,
     getConversationHistory: (userId) => conversationHistory.get(userId) || [],
     clearConversationHistory: (userId) => conversationHistory.delete(userId),
     vectorStore: { documents: companyDocs }
 };
-
-

@@ -1,89 +1,94 @@
-    <div class="feature-panels" id="body-language-panel">
-        <div class="panel-header">
+<div class="feature-panels" id="body-language-panel">
+    <div class="panel-header">
+        <div>
+            <h2 class="panel-title">🪞 Body Language Mirror</h2>
+            <p style="color: var(--gray); font-size: 0.9rem;">Professional AI-Powered Communication Analysis</p>
+        </div>
+        <button class="close-panel" onclick="closePanel()">×</button>
+    </div>
+    <div class="panel-content" style="padding: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem;">
+
+            <!-- LEFT: CAMERA -->
             <div>
-                <h2 class="panel-title">🪞 Body Language Mirror</h2>
-                <p style="color: var(--gray);">AI-powered body language analysis</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="mirror-container">
-                <div>
-                    <div class="video-preview">
-                        <div style="text-align: center;">
-                            <div style="font-size: 4rem; margin-bottom: 1rem;">📹</div>
-                            <p>Camera Preview</p>
-                            <p style="color: var(--gray); font-size: 0.9rem;">Click to start analysis</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary" style="flex: 1;" onclick="startBodyLanguageCamera()">🎬 Start Recording</button>
-                        <button class="btn btn-secondary" style="flex: 1;">📤 Upload Video</button>
+                <div id="bl-video-container" style="position: relative; background: #111; border-radius: 16px; overflow: hidden; height: 420px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="text-align: center; color: #64748b;">
+                        <div style="font-size: 4rem;">📹</div>
+                        <p style="font-weight: 600; margin-top: 10px;">AI LENS READY</p>
                     </div>
                 </div>
-                <div class="body-analysis">
-                    <h4 style="margin-bottom: 1rem;">Analysis Results</h4>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Posture</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Upright and confident</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>92%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 92%"></div></div>
-                        </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button id="bl-start-btn" class="btn btn-primary" style="flex: 1; padding: 0.9rem; font-weight: 700; font-size: 1rem; border-radius: 12px;" onclick="startBodyLanguageCamera()">🎬 Start Analysis</button>
+                    <button class="btn btn-secondary" style="flex: 1; border-radius: 12px;">📤 Upload Video</button>
+                </div>
+            </div>
+
+            <!-- RIGHT: METRICS -->
+            <div style="display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: 520px; padding-right: 5px;">
+
+                <!-- OVERALL -->
+                <div style="background: linear-gradient(135deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9)); border: 1px solid rgba(99,102,241,0.4); border-radius: 16px; padding: 1.2rem;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #818cf8; letter-spacing: 1px; margin-bottom: 8px;">🎯 OVERALL SCORE</div>
+                    <div style="font-size: 3rem; font-weight: 900; color: #fff;" id="bl-overall">--%</div>
+                    <div style="height: 5px; background: #1e293b; border-radius: 3px; margin-top: 8px; overflow: hidden;">
+                        <div id="bl-overall-bar" style="width: 0%; height: 100%; background: linear-gradient(to right, #6366f1, #2dd4bf); transition: width 0.4s ease;"></div>
                     </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Gestures</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Natural and expressive</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>85%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 85%"></div></div>
-                        </div>
+                </div>
+
+                <!-- POSTURE -->
+                <div style="background: rgba(15,23,42,0.7); border-radius: 14px; padding: 1rem; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-weight: 700; color: #fff;">Posture</span>
+                        <span id="bl-p-val" style="font-weight: 800; color: #2dd4bf;">--%</span>
                     </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Eye Contact</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Appropriate and engaging</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>88%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 88%"></div></div>
-                        </div>
+                    <div id="bl-p-tip" style="font-size: 0.75rem; color: #64748b; margin-bottom: 8px;">Waiting for data...</div>
+                    <div style="height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden;">
+                        <div id="bl-p-bar" style="width: 0%; height: 100%; background: #2dd4bf; transition: width 0.4s ease;"></div>
                     </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Facial Expressions</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Warm and approachable</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>90%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 90%"></div></div>
-                        </div>
+                </div>
+
+                <!-- EYE CONTACT -->
+                <div style="background: rgba(15,23,42,0.7); border-radius: 14px; padding: 1rem; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-weight: 700; color: #fff;">Eye Contact</span>
+                        <span id="bl-e-val" style="font-weight: 800; color: #2dd4bf;">--%</span>
                     </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Smile</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Genuine and consistent</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>87%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 87%"></div></div>
-                        </div>
+                    <div id="bl-e-tip" style="font-size: 0.75rem; color: #64748b; margin-bottom: 8px;">Waiting for data...</div>
+                    <div style="height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden;">
+                        <div id="bl-e-bar" style="width: 0%; height: 100%; background: #2dd4bf; transition: width 0.4s ease;"></div>
                     </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Nodding</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Shows active listening</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>82%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 82%"></div></div>
-                        </div>
+                </div>
+
+                <!-- GESTURES -->
+                <div style="background: rgba(15,23,42,0.7); border-radius: 14px; padding: 1rem; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-weight: 700; color: #fff;">Gestures</span>
+                        <span id="bl-g-val" style="font-weight: 800; color: #2dd4bf;">--%</span>
                     </div>
+                    <div id="bl-g-tip" style="font-size: 0.75rem; color: #64748b; margin-bottom: 8px;">Waiting for data...</div>
+                    <div style="height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden;">
+                        <div id="bl-g-bar" style="width: 0%; height: 100%; background: #2dd4bf; transition: width 0.4s ease;"></div>
+                    </div>
+                </div>
+                
+                <!-- EXPRESSIONS (SMILES) -->
+                <div style="background: rgba(15,23,42,0.7); border-radius: 14px; padding: 1rem; border: 1px solid rgba(255,255,255,0.06);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <span style="font-weight: 700; color: #fff;">Expressions & Smiles</span>
+                        <span id="bl-s-val" style="font-weight: 800; color: #2dd4bf;">--%</span>
+                    </div>
+                    <div id="bl-s-tip" style="font-size: 0.75rem; color: #64748b; margin-bottom: 8px;">Waiting for data...</div>
+                    <div style="height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden;">
+                        <div id="bl-s-bar" style="width: 0%; height: 100%; background: #2dd4bf; transition: width 0.4s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- REPORT AREA -->
+                <div id="bl-report" style="background: rgba(99,102,241,0.05); border-radius: 14px; padding: 1rem; border: 1px solid rgba(99,102,241,0.2);">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #818cf8; margin-bottom: 8px;">🌟 AI Insights</div>
+                    <div id="bl-report-text" style="font-size: 0.82rem; color: #94a3b8; line-height: 1.5;">Start the analysis to receive live coaching feedback.</div>
                 </div>
             </div>
         </div>
-    </div>
+    </div>
+</div>
