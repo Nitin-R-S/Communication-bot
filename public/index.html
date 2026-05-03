@@ -1846,14 +1846,94 @@
         }
         
         // Feature Panel Management
-        function showFeature(feature) {
+        async function showFeature(feature) {
             // Hide all panels
             document.querySelectorAll('.feature-panels').forEach(panel => {
                 panel.classList.remove('active');
             });
             
+            // Check if panel already exists
+            let panel = document.getElementById(`${feature}-panel`);
+            
+            // If it doesn't exist, fetch it dynamically
+            if (!panel) {
+                const placeholder = document.getElementById(`${feature}-panel-placeholder`);
+                if (placeholder) {
+                    try {
+                        const res = await fetch(`/components/${feature}.html`);
+                        if (res.ok) {
+                            const html = await res.text();
+                            const temp = document.createElement('div');
+                            temp.innerHTML = html;
+                            const newPanel = temp.firstElementChild;
+                            
+                            if (newPanel && newPanel.classList.contains('feature-panels')) {
+                                placeholder.parentNode.replaceChild(newPanel, placeholder);
+                                panel = newPanel;
+                            } else {
+                                placeholder.innerHTML = html;
+                                panel = placeholder.querySelector('.feature-panels');
+                            }
+                            
+                            // Bind event listeners to new elements
+                            if (panel) {
+                                panel.querySelectorAll('[onclick]').forEach(el => {
+                                    const attr = el.getAttribute('onclick');
+                                    if (!attr) return;
+                                    
+                                    const showMatch = attr.match(/showFeature\('([^']+)'\)/);
+                                    if (showMatch) {
+                                        const featureName = showMatch[1];
+                                        el.dataset.feature = featureName;
+                                        el.removeAttribute('onclick');
+                                        el.addEventListener('click', (e) => { e.preventDefault(); showFeature(featureName); });
+                                        return;
+                                    }
+                                    const startMatch = attr.match(/startVoiceSession\('([^']+)'\)/);
+                                    if (startMatch) {
+                                        const scenario = startMatch[1];
+                                        el.dataset.scenario = scenario;
+                                        el.removeAttribute('onclick');
+                                        el.addEventListener('click', (e) => { e.preventDefault(); startVoiceSession(scenario); });
+                                        return;
+                                    }
+                                    const closeMatch = attr.match(/closePanel\(\)/);
+                                    if (closeMatch) {
+                                        el.removeAttribute('onclick');
+                                        el.addEventListener('click', (e) => { e.preventDefault(); closePanel(); });
+                                        return;
+                                    }
+                                });
+                                
+                                panel.querySelectorAll('[data-feature]').forEach(el => {
+                                    const featureName = el.dataset.feature;
+                                    if (!featureName) return;
+                                    el.addEventListener('click', (e) => {
+                                        e.preventDefault();
+                                        if (featureName === 'dashboard') showDashboard();
+                                        else showFeature(featureName);
+                                    });
+                                });
+                                
+                                panel.querySelectorAll('[data-scenario]').forEach(el => {
+                                    const scenario = el.dataset.scenario;
+                                    if (!scenario) return;
+                                    el.addEventListener('click', (e) => {
+                                        e.preventDefault();
+                                        startVoiceSession(scenario);
+                                    });
+                                });
+                            }
+                        } else {
+                            console.error(`Failed to load component: ${feature}`);
+                        }
+                    } catch (e) {
+                        console.error(`Error fetching component ${feature}:`, e);
+                    }
+                }
+            }
+
             // Show selected panel
-            const panel = document.getElementById(`${feature}-panel`);
             if (panel) {
                 panel.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -1861,13 +1941,12 @@
                 const main = document.getElementById('mainDashboard');
                 if (main) main.style.display = 'none';
 
-                // Update nav link active state (uses data-feature populated when wiring handlers)
+                // Update nav link active state
                 document.querySelectorAll('.nav-links a').forEach(a => {
                     a.classList.toggle('active', a.dataset.feature === feature);
                 });
-                // If opening voice coach, initialize default scenario and start recording
+                
                 if (feature === 'voice-coach') {
-                    // Use a short timeout to ensure DOM is visible
                     setTimeout(() => {
                         try {
                             startVoiceSession('sales');
@@ -1953,11 +2032,11 @@
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    bodyMediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder = new MediaRecorder(stream);
                     
-                    bodyMediaRecorder.ondataavailable = (event) => {
+                    mediaRecorder.ondataavailable = (event) => {
                         if (event.data.size > 0) {
-                            bodyRecordedChunks.push(event.data);
+                            recordedChunks.push(event.data);
                         }
                     };
                     
@@ -2036,7 +2115,7 @@
             recordedChunks = [];
             startTime = Date.now();
             
-            bodyMediaRecorder.start();
+            mediaRecorder.start();
             window.recognition.start();
             
             document.getElementById('start-record-btn').style.display = 'none';
@@ -2059,7 +2138,7 @@
         function stopRecording() {
             if (!mediaRecorder || !window.recognition) return;
             
-            bodyMediaRecorder.stop();
+            mediaRecorder.stop();
             window.recognition.stop();
             
             clearInterval(timerInterval);
