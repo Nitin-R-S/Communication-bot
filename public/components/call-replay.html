@@ -1,0 +1,82 @@
+    <div class="feature-panels" id="call-replay-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">📞 Call Replay Room</h2>
+                <p style="color: var(--gray);">Analyze and learn from your calls</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="replay-container">
+                <div class="call-player">
+                    <h4 style="margin-bottom: 1rem;">Call Recording - Sales Demo</h4>
+                    <div class="waveform"></div>
+                    <div class="call-controls">
+                        <button class="control-btn">⏮</button>
+                        <button class="control-btn play">▶</button>
+                        <button class="control-btn">⏭</button>
+                        <button class="control-btn">🔊</button>
+                        <button class="control-btn">1x</button>
+                    </div>
+                    <div class="call-transcript" style="margin-top: 1.5rem;">
+                        <h5 style="margin-bottom: 1rem;">Transcript</h5>
+                        <div class="transcript-item speaker">
+                            <div>
+                                <div class="speaker-label">Agent</div>
+                                <p>Good morning, thank you for calling VDart. How may I assist you today?</p>
+                            </div>
+                        </div>
+                        <div class="transcript-item user">
+                            <div>
+                                <div class="speaker-label">Customer</div>
+                                <p>Hi, I'm interested in learning more about your communication solutions.</p>
+                            </div>
+                        </div>
+                        <div class="transcript-item speaker">
+                            <div>
+                                <div class="speaker-label">Agent</div>
+                                <p>Absolutely! I'd be happy to help. What specific area are you interested in?</p>
+                            </div>
+                        </div>
+                        <div class="transcript-item user">
+                            <div>
+                                <div class="speaker-label">Customer</div>
+                                <p>Well, we're looking to upgrade our current system.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="call-metrics">
+                    <h4 style="margin-bottom: 1rem;">📊 Call Analytics</h4>
+                    <div class="metric-card">
+                        <h5>Talk Time Ratio</h5>
+                        <div class="metric-value" style="color: var(--primary);">60/40</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">You spoke 60% of the call</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Interruptions</h5>
+                        <div class="metric-value" style="color: var(--warning);">2</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Below average (5)</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Questions Asked</h5>
+                        <div class="metric-value" style="color: var(--success);">8</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Excellent discovery</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Active Listening</h5>
+                        <div class="metric-value" style="color: var(--success);">92%</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">+12% vs last call</p>
+                    </div>
+                    <div class="metric-card">
+                        <h5>Emotional Tone</h5>
+                        <div class="metric-value" style="color: var(--secondary);">Confident</div>
+                        <p style="color: var(--gray); font-size: 0.85rem;">Consistent throughout</p>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-primary" style="width: 100%;">📝 Add Note</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

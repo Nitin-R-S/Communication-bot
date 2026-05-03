@@ -1,0 +1,89 @@
+    <div class="feature-panels" id="body-language-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🪞 Body Language Mirror</h2>
+                <p style="color: var(--gray);">AI-powered body language analysis</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="mirror-container">
+                <div>
+                    <div class="video-preview">
+                        <div style="text-align: center;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📹</div>
+                            <p>Camera Preview</p>
+                            <p style="color: var(--gray); font-size: 0.9rem;">Click to start analysis</p>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="startBodyLanguageCamera()">🎬 Start Recording</button>
+                        <button class="btn btn-secondary" style="flex: 1;">📤 Upload Video</button>
+                    </div>
+                </div>
+                <div class="body-analysis">
+                    <h4 style="margin-bottom: 1rem;">Analysis Results</h4>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Posture</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Upright and confident</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>92%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 92%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Gestures</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Natural and expressive</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>85%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 85%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Eye Contact</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Appropriate and engaging</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>88%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 88%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Facial Expressions</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Warm and approachable</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>90%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 90%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Smile</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Genuine and consistent</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>87%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 87%"></div></div>
+                        </div>
+                    </div>
+                    <div class="analysis-item">
+                        <div>
+                            <div>Nodding</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Shows active listening</p>
+                        </div>
+                        <div class="analysis-score">
+                            <span>82%</span>
+                            <div class="score-bar"><div class="score-fill" style="width: 82%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

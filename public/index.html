@@ -1566,151 +1566,7 @@
     </div>
 
     <!-- Voice Coach Panel -->
-    <div class="feature-panels" id="voice-coach-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">🎤 Live Voice Coach</h2>
-                <p style="color: var(--gray);">Real-time voice analysis and coaching</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div id="voice-coach-selection" class="voice-coach-grid">
-                <div class="coach-card">
-                    <h4>🎯 Select Scenario</h4>
-                    <div style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('sales')" style="border: 1px solid var(--glass-border);">
-                            <strong>💼 Sales Pitch</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Practice your elevator pitch and sales techniques</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('support')" style="border: 1px solid var(--glass-border);">
-                            <strong>🎧 Customer Support</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Handle customer inquiries professionally</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('meeting')" style="border: 1px solid var(--glass-border);">
-                            <strong>👤 Meeting Introduction</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Introduce yourself professionally</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('presentation')" style="border: 1px solid var(--glass-border);">
-                            <strong>📊 Presentation Delivery</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Present with confidence and clarity</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>📈 Session History</h4>
-                    <div id="session-history-container" style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>No sessions yet</span>
-                            </div>
-                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">Start a session to see history</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="voice-coach-recording" style="display: none;">
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
-                    <!-- Recording Section -->
-                    <div class="coach-card">
-                        <h4 id="scenario-title">🎤 Recording Session</h4>
-                        <p id="scenario-desc" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;"></p>
-                        
-                        <!-- Recording Status -->
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
-                            <div style="display: flex; align-items: center; gap: 1rem;">
-                                <div id="recording-indicator" style="width: 15px; height: 15px; background: #ef4444; border-radius: 50%; animation: pulse 1s infinite; display: none;"></div>
-                                <span id="recording-status">Ready to record</span>
-                                <span id="recording-timer" style="margin-left: auto; color: var(--primary); font-weight: bold;">00:00</span>
-                            </div>
-                        </div>
-
-                        <!-- Recording Controls -->
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
-                            <button id="start-record-btn" class="btn btn-primary" onclick="startRecording()" style="padding: 0.75rem; font-size: 0.9rem;">
-                                🔴 Start
-                            </button>
-                            <button id="stop-record-btn" class="btn btn-secondary" onclick="stopRecording()" style="padding: 0.75rem; font-size: 0.9rem; display: none;">
-                                ⏹ Stop
-                            </button>
-                            <button id="reset-record-btn" class="btn btn-secondary" onclick="resetRecording()" style="padding: 0.75rem; font-size: 0.9rem;">
-                                🔄 Reset
-                            </button>
-                        </div>
-
-                        <!-- Transcript -->
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
-                            <h5 style="margin-bottom: 0.75rem; color: var(--secondary);">📝 Your Transcript</h5>
-                            <p id="transcript-text" style="color: var(--light); line-height: 1.6; min-height: 80px; max-height: 150px; overflow-y: auto;">
-                                <em style="color: var(--gray);">Waiting for speech...</em>
-                            </p>
-                        </div>
-
-                        <!-- Confidence -->
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>Speech Confidence:</span>
-                                <span id="confidence-score" style="color: var(--secondary); font-weight: bold;">0%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metrics & Feedback Section -->
-                    <div>
-                        <div class="coach-card">
-                            <h4>📊 Real-Time Metrics</h4>
-                            <div class="metric-item">
-                                <span>Clarity</span>
-                                <div class="metric-bar"><div id="clarity-bar" class="metric-fill high" style="width: 0%"></div></div>
-                                <span id="clarity-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
-                            </div>
-                            <div class="metric-item">
-                                <span>Pace (WPM)</span>
-                                <div class="metric-bar"><div id="pace-bar" class="metric-fill high" style="width: 0%"></div></div>
-                                <span id="pace-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
-                            </div>
-                            <div class="metric-item">
-                                <span>Confidence</span>
-                                <div class="metric-bar"><div id="confidence-bar" class="metric-fill high" style="width: 0%"></div></div>
-                                <span id="confidence-metric" style="font-size: 0.85rem; color: var(--gray);">--</span>
-                            </div>
-                            <div class="metric-item">
-                                <span>Tone</span>
-                                <div class="metric-bar"><div id="tone-bar" class="metric-fill high" style="width: 0%"></div></div>
-                                <span id="tone-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
-                            </div>
-                            <div class="metric-item">
-                                <span>Filler Words</span>
-                                <div class="metric-bar"><div id="filler-bar" class="metric-fill low" style="width: 0%"></div></div>
-                                <span id="filler-score" style="font-size: 0.85rem; color: var(--gray);">0</span>
-                            </div>
-                            <div class="metric-item">
-                                <span>AI Score</span>
-                                <div class="metric-bar"><div id="model-bar" class="metric-fill high" style="width: 0%"></div></div>
-                                <span id="model-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
-                            </div>
-                        </div>
-
-                        <div class="coach-card" style="margin-top: 1rem;">
-                            <h4>💬 Live Feedback</h4>
-                            <div id="feedback-container" style="max-height: 250px; overflow-y: auto;">
-                                <p style="color: var(--gray); text-align: center; padding: 1rem;">
-                                    <em>Feedback will appear here</em>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                    <button class="btn btn-secondary" onclick="backToScenarios()" style="flex: 1;">← Back to Scenarios</button>
-                    <button class="btn btn-primary" id="finish-session-btn" onclick="finishVoiceSession()" style="flex: 1; display: none;">✓ Finish Session</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="voice-coach-panel-placeholder"></div>
 
     <style>
         @keyframes pulse {
@@ -1768,842 +1624,34 @@
     </style>
 
     <!-- Call Replay Panel -->
-    <div class="feature-panels" id="call-replay-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">📞 Call Replay Room</h2>
-                <p style="color: var(--gray);">Analyze and learn from your calls</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="replay-container">
-                <div class="call-player">
-                    <h4 style="margin-bottom: 1rem;">Call Recording - Sales Demo</h4>
-                    <div class="waveform"></div>
-                    <div class="call-controls">
-                        <button class="control-btn">⏮</button>
-                        <button class="control-btn play">▶</button>
-                        <button class="control-btn">⏭</button>
-                        <button class="control-btn">🔊</button>
-                        <button class="control-btn">1x</button>
-                    </div>
-                    <div class="call-transcript" style="margin-top: 1.5rem;">
-                        <h5 style="margin-bottom: 1rem;">Transcript</h5>
-                        <div class="transcript-item speaker">
-                            <div>
-                                <div class="speaker-label">Agent</div>
-                                <p>Good morning, thank you for calling VDart. How may I assist you today?</p>
-                            </div>
-                        </div>
-                        <div class="transcript-item user">
-                            <div>
-                                <div class="speaker-label">Customer</div>
-                                <p>Hi, I'm interested in learning more about your communication solutions.</p>
-                            </div>
-                        </div>
-                        <div class="transcript-item speaker">
-                            <div>
-                                <div class="speaker-label">Agent</div>
-                                <p>Absolutely! I'd be happy to help. What specific area are you interested in?</p>
-                            </div>
-                        </div>
-                        <div class="transcript-item user">
-                            <div>
-                                <div class="speaker-label">Customer</div>
-                                <p>Well, we're looking to upgrade our current system.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="call-metrics">
-                    <h4 style="margin-bottom: 1rem;">📊 Call Analytics</h4>
-                    <div class="metric-card">
-                        <h5>Talk Time Ratio</h5>
-                        <div class="metric-value" style="color: var(--primary);">60/40</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">You spoke 60% of the call</p>
-                    </div>
-                    <div class="metric-card">
-                        <h5>Interruptions</h5>
-                        <div class="metric-value" style="color: var(--warning);">2</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Below average (5)</p>
-                    </div>
-                    <div class="metric-card">
-                        <h5>Questions Asked</h5>
-                        <div class="metric-value" style="color: var(--success);">8</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Excellent discovery</p>
-                    </div>
-                    <div class="metric-card">
-                        <h5>Active Listening</h5>
-                        <div class="metric-value" style="color: var(--success);">92%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">+12% vs last call</p>
-                    </div>
-                    <div class="metric-card">
-                        <h5>Emotional Tone</h5>
-                        <div class="metric-value" style="color: var(--secondary);">Confident</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Consistent throughout</p>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <button class="btn btn-primary" style="width: 100%;">📝 Add Note</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="call-replay-panel-placeholder"></div>
 
     <!-- Message Simulator Panel -->
-    <div class="feature-panels" id="simulator-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">💬 Message Conversation Simulator</h2>
-                <p style="color: var(--gray);">Practice difficult conversations with AI</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="simulator-container">
-                <div class="chat-window">
-                    <div class="chat-messages" id="simMessages">
-                        <div class="chat-message incoming">
-                            <p>I'm very disappointed with the service I received. This is the third time this has happened!</p>
-                        </div>
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" id="simInput" placeholder="Type your response..." onkeypress="handleSimInput(event)">
-                        <button class="btn btn-primary" onclick="sendSimResponse()">Send</button>
-                    </div>
-                </div>
-                <div class="simulator-sidebar">
-                    <div class="scenario-info">
-                        <div class="scenario-badge">Active Scenario</div>
-                        <h3>Customer Complaint</h3>
-                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Difficulty: Hard</p>
-                    </div>
-                    <div>
-                        <h4 style="margin-bottom: 1rem;">🎯 Available Scenarios</h4>
-                        <div style="display: grid; gap: 0.75rem;">
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);" onclick="loadScenario('customer-complaint')">
-                                <strong>Customer Complaint</strong>
-                            </div>
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('negotiation')">
-                                <strong>Price Negotiation</strong>
-                            </div>
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('team-conflict')">
-                                <strong>Team Conflict</strong>
-                            </div>
-                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('difficult-customer')">
-                                <strong>Difficult Customer</strong>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="response-feedback" id="simFeedback" style="display: none;">
-                        <h4>📝 Response Feedback</h4>
-                        <p id="feedbackText" style="margin-top: 0.5rem;"></p>
-                        <div style="margin-top: 1rem;">
-                            <span style="font-size: 1.5rem; font-weight: 700;" id="feedbackScore">85</span>
-                            <span style="color: var(--gray);">/100</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="simulator-panel-placeholder"></div>
 
     <!-- Communication DNA Panel -->
-    <div class="feature-panels" id="dna-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">🧬 Communication DNA Sequencer</h2>
-                <p style="color: var(--gray);">Discover your unique communication profile</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="dna-visualization">
-                <div class="dna-section">
-                    <h4>Verbal</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.2s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.4s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.6s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.8s;"></div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">88%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Vocabulary & Clarity</p>
-                    </div>
-                </div>
-                <div class="dna-section">
-                    <h4>Non-Verbal</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.1s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.3s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.5s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.7s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.9s;"></div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">82%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Body Language</p>
-                    </div>
-                </div>
-                <div class="dna-section">
-                    <h4>Paraverbal</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.15s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.35s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.55s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.75s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.95s;"></div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">85%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Tone & Pace</p>
-                    </div>
-                </div>
-                <div class="dna-section">
-                    <h4>Emotional</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.05s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.25s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.45s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.65s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.85s;"></div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">90%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Empathy & EQ</p>
-                    </div>
-                </div>
-            </div>
-            <div class="dna-profile">
-                <h4 style="margin-bottom: 1rem;">Your Communication Profile</h4>
-                <div class="profile-type">Intuitive Communicator</div>
-                <p style="color: var(--gray);">You excel at reading between the lines and adapting your message to your audience. Your natural empathy makes you excellent at building rapport.</p>
-                <div class="profile-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Primary Style</div>
-                        <div class="detail-value">Intuitive</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Secondary Style</div>
-                        <div class="detail-value">Direct</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Best Channel</div>
-                        <div class="detail-value">Video Call</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Peak Time</div>
-                        <div class="detail-value">Morning</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Stress Response</div>
-                        <div class="detail-value">More Analytical</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Motivation</div>
-                        <div class="detail-value">Achievement</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="dna-panel-placeholder"></div>
 
     <!-- Body Language Panel -->
-    <div class="feature-panels" id="body-language-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">🪞 Body Language Mirror</h2>
-                <p style="color: var(--gray);">AI-powered body language analysis</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="mirror-container">
-                <div>
-                    <div class="video-preview">
-                        <div style="text-align: center;">
-                            <div style="font-size: 4rem; margin-bottom: 1rem;">📹</div>
-                            <p>Camera Preview</p>
-                            <p style="color: var(--gray); font-size: 0.9rem;">Click to start analysis</p>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary" style="flex: 1;" onclick="startBodyLanguageCamera()">🎬 Start Recording</button>
-                        <button class="btn btn-secondary" style="flex: 1;">📤 Upload Video</button>
-                    </div>
-                </div>
-                <div class="body-analysis">
-                    <h4 style="margin-bottom: 1rem;">Analysis Results</h4>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Posture</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Upright and confident</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>92%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 92%"></div></div>
-                        </div>
-                    </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Gestures</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Natural and expressive</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>85%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 85%"></div></div>
-                        </div>
-                    </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Eye Contact</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Appropriate and engaging</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>88%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 88%"></div></div>
-                        </div>
-                    </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Facial Expressions</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Warm and approachable</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>90%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 90%"></div></div>
-                        </div>
-                    </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Smile</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Genuine and consistent</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>87%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 87%"></div></div>
-                        </div>
-                    </div>
-                    <div class="analysis-item">
-                        <div>
-                            <div>Nodding</div>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Shows active listening</p>
-                        </div>
-                        <div class="analysis-score">
-                            <span>82%</span>
-                            <div class="score-bar"><div class="score-fill" style="width: 82%"></div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="body-language-panel-placeholder"></div>
 
     <!-- Email Tone Panel -->
-    <div class="feature-panels" id="email-tone-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">📧 Email Tone Dialer</h2>
-                <p style="color: var(--gray);">Optimize your email tone for maximum impact</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="tone-dialer">
-                <div class="email-editor">
-                    <h4 style="margin-bottom: 1rem;">Compose Your Email</h4>
-                    <input id="emailRecipient" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Recipient or audience (e.g. client, manager, team)" oninput="analyzeEmailTone()" />
-                    <input id="emailPurpose" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Purpose (e.g. update, apology, follow-up)" oninput="analyzeEmailTone()" />
-                    <textarea class="email-input" id="emailInput" placeholder="Start typing your email here..." oninput="analyzeEmailTone()"></textarea>
-                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary" style="flex: 1;" onclick="analyzeEmailTone(true)">✨ Analyze Tone</button>
-                        <button class="btn btn-secondary" onclick="copyEmailContent()">📋 Copy</button>
-                    </div>
-                </div>
-                <div class="tone-analysis">
-                    <h4 style="margin-bottom: 1rem;">Tone Analysis</h4>
-                    <div class="tone-gauge">
-                        <div class="tone-needle" id="email-tone-needle" style="transform: rotate(-30deg);"></div>
-                    </div>
-                    <div style="text-align: center; margin-top: 1rem;">
-                        <div id="email-tone-label" style="font-size: 1.5rem; font-weight: 700;">Professional</div>
-                        <p id="email-tone-score" style="color: var(--gray);">Score: 85/100</p>
-                    </div>
-                    <div style="margin-top: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
-                            <span>Formality</span>
-                            <span id="email-tone-formality" style="color: var(--success);">High</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
-                            <span>Friendly</span>
-                            <span id="email-tone-friendliness" style="color: var(--success);">Warm</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
-                            <span>Urgency</span>
-                            <span id="email-tone-urgency" style="color: var(--warning);">Normal</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
-                            <span>Confidence</span>
-                            <span id="email-tone-confidence" style="color: var(--success);">Confident</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
-                            <span>Empathy</span>
-                            <span id="email-tone-empathy" style="color: var(--success);">Empathetic</span>
-                        </div>
-                    </div>
-                    <div id="email-tone-suggestions-wrap" style="margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
-                        <h5 style="color: var(--success);">✓ Changes to make</h5>
-                        <ul id="email-tone-suggestions" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
-                            <li>Great use of professional language</li>
-                            <li>Consider adding a clear call-to-action</li>
-                        </ul>
-                    </div>
-                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
-                        <h5 style="color: #3b82f6;">Suggested rewrite</h5>
-                        <div id="email-tone-rewrite" style="margin-top: 0.5rem; white-space: pre-wrap; color: var(--gray); font-size: 0.9rem;">Type your email to see a rewritten version.</div>
-                    </div>
-                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
-                        <h5 style="color: var(--warning);">Grammar fixes</h5>
-                        <ul id="email-tone-grammar" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
-                            <li>No grammar issues detected yet</li>
-                        </ul>
-                    </div>
-                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
-                        <h5 style="color: #ef4444;">Spelling fixes</h5>
-                        <ul id="email-tone-spelling" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
-                            <li>No spelling issues detected yet</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="email-tone-panel-placeholder"></div>
 
     <!-- Presentation Q&A Panel -->
-    <div class="feature-panels" id="presentation-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">📊 Presentation Q&A Prep</h2>
-                <p style="color: var(--gray);">Prepare for any question with AI</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="presentation-container">
-                <div>
-                    <div class="slide-preview">
-                        <div class="slide-title">Communication Excellence</div>
-                        <div class="slide-content">
-                            <p>Transform how you connect with others</p>
-                            <p style="color: var(--gray); margin-top: 0.5rem;">Key Takeaways:</p>
-                            <ul style="text-align: left; margin-top: 1rem;">
-                                <li>Real-time voice analysis</li>
-                                <li>AI-powered feedback</li>
-                                <li>Personalized improvement plans</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <button class="btn btn-primary" style="width: 100%;">🎤 Practice Mode</button>
-                    </div>
-                </div>
-                <div class="qa-prep">
-                    <h4 style="margin-bottom: 1rem;">Q&A Preparation</h4>
-                    <div class="question-card">
-                        <div class="question-text">How long will implementation take?</div>
-                        <span class="difficulty-badge medium">Medium</span>
-                    </div>
-                    <div class="question-card">
-                        <div class="question-text">What is the ROI?</div>
-                        <span class="difficulty-badge high">High</span>
-                    </div>
-                    <div class="question-card">
-                        <div class="question-text">How does this compare to alternatives?</div>
-                        <span class="difficulty-badge medium">Medium</span>
-                    </div>
-                    <div class="question-card">
-                        <div class="question-text">What are the risks?</div>
-                        <span class="difficulty-badge high">High</span>
-                    </div>
-                    <div class="question-card">
-                        <div class="question-text">Can you provide references?</div>
-                        <span class="difficulty-badge low">Low</span>
-                    </div>
-                    <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">🎯 Generate More Questions</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="presentation-panel-placeholder"></div>
 
     <!-- Suggestion Engine Panel -->
-    <div class="feature-panels" id="suggestions-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">💡 AI Suggestion Engine</h2>
-                <p style="color: var(--gray);">Smart, context-aware communication suggestions</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="suggestions-grid">
-                <div class="suggestion-card">
-                    <div class="suggestion-icon" style="background: var(--gradient-1);">🎯</div>
-                    <div class="suggestion-content">
-                        <h4>Tone Optimization</h4>
-                        <p>Consider softening your language for better reception with senior stakeholders.</p>
-                        <span class="impact-badge high">High Impact</span>
-                    </div>
-                </div>
-                <div class="suggestion-card">
-                    <div class="suggestion-icon" style="background: var(--gradient-2);">⏰</div>
-                    <div class="suggestion-content">
-                        <h4>Timing Insight</h4>
-                        <p>Best time to send follow-up: Tuesday 10am-12pm (23% higher response rate)</p>
-                        <span class="impact-badge medium">Medium Impact</span>
-                    </div>
-                </div>
-                <div class="suggestion-card">
-                    <div class="suggestion-icon" style="background: var(--gradient-3);">📝</div>
-                    <div class="suggestion-content">
-                        <h4>Clarity Enhancement</h4>
-                        <p>Break down complex points into bullet points for faster comprehension.</p>
-                        <span class="impact-badge high">High Impact</span>
-                    </div>
-                </div>
-                <div class="suggestion-card">
-                    <div class="suggestion-icon" style="background: var(--gradient-4);">💬</div>
-                    <div class="suggestion-content">
-                        <h4>Engagement Boost</h4>
-                        <p>Ask more open-ended questions to encourage dialogue in meetings.</p>
-                        <span class="impact-badge high">High Impact</span>
-                    </div>
-                </div>
-                <div class="suggestion-card">
-                    <div class="suggestion-icon" style="background: var(--gradient-1);">💪</div>
-                    <div class="suggestion-content">
-                        <h4>Confidence Builder</h4>
-                        <p>Remove hedge words: "I think" → "I believe" for stronger impact.</p>
-                        <span class="impact-badge high">High Impact</span>
-                    </div>
-                </div>
-                <div class="suggestion-card">
-                    <div class="suggestion-icon" style="background: var(--gradient-2);">👂</div>
-                    <div class="suggestion-content">
-                        <h4>Active Listening</h4>
-                        <p>Paraphrase before responding to show understanding and build rapport.</p>
-                        <span class="impact-badge high">High Impact</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="suggestions-panel-placeholder"></div>
 
     <!-- Role-Based Panel -->
-    <div class="feature-panels" id="roles-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">👔 Role-Based Dashboard</h2>
-                <p style="color: var(--gray);">Personalized tools for your role</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="role-dashboard">
-                <div class="role-card">
-                    <div class="role-header">
-                        <div class="role-icon" style="background: var(--gradient-1);">💼</div>
-                        <div>
-                            <h3>Sales Professional</h3>
-                            <p style="color: var(--gray); font-size: 0.9rem;">Close more deals with AI</p>
-                        </div>
-                    </div>
-                    <ul class="role-modules">
-                        <li>Voice Coach</li>
-                        <li>Accent Trainer</li>
-                        <li>Call Replay</li>
-                        <li>Negotiation Simulator</li>
-                        <li>Email Tone Dialer</li>
-                    </ul>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
-                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">32%</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Conversion</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">4.2min</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Avg Call</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">28%</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Close Rate</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="role-card">
-                    <div class="role-header">
-                        <div class="role-icon" style="background: var(--gradient-2);">🎧</div>
-                        <div>
-                            <h3>Customer Support</h3>
-                            <p style="color: var(--gray); font-size: 0.9rem;">Deliver exceptional support</p>
-                        </div>
-                    </div>
-                    <ul class="role-modules">
-                        <li>Voice Coach</li>
-                        <li>Call Replay</li>
-                        <li>Email Tone</li>
-                        <li>Empathy Trainer</li>
-                        <li>Problem Resolver</li>
-                    </ul>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
-                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">4.8★</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">CSAT</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">3.2min</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Resolution</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">78%</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">FCR</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="role-card">
-                    <div class="role-header">
-                        <div class="role-icon" style="background: var(--gradient-3);">👔</div>
-                        <div>
-                            <h3>Manager/Leader</h3>
-                            <p style="color: var(--gray); font-size: 0.9rem;">Lead your team to success</p>
-                        </div>
-                    </div>
-                    <ul class="role-modules">
-                        <li>Communication DNA</li>
-                        <li>Body Language</li>
-                        <li>Presentation Coach</li>
-                        <li>Team Dynamics</li>
-                        <li>Feedback Generator</li>
-                    </ul>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
-                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">92%</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Engagement</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">45min</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Meeting Avg</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">4.6★</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Feedback</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="role-card">
-                    <div class="role-header">
-                        <div class="role-icon" style="background: var(--gradient-4);">💻</div>
-                        <div>
-                            <h3>Technical Professional</h3>
-                            <p style="color: var(--gray); font-size: 0.9rem;">Communicate technical ideas</p>
-                        </div>
-                    </div>
-                    <ul class="role-modules">
-                        <li>Technical Communicator</li>
-                        <li>Documentation Helper</li>
-                        <li>Presentation Builder</li>
-                        <li>Code Commentator</li>
-                        <li>API Documenter</li>
-                    </ul>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-                        <p style="color: var(--gray); font-size: 0.85rem;">Key Metrics</p>
-                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">95%</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Doc Score</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">4.2★</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Code Review</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 1.25rem; font-weight: 700;">88%</div>
-                                <div style="color: var(--gray); font-size: 0.75rem;">Clarity</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="roles-panel-placeholder"></div>
 
     <!-- Innovative Features Panel -->
-    <div class="feature-panels" id="innovative-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">🚀 Additional Innovative Features</h2>
-                <p style="color: var(--gray);">Even more powerful communication tools</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="innovative-features">
-                <div class="innovative-card">
-                    <div class="feature-icon">🌐</div>
-                    <h4>Real-Time Translation Hub</h4>
-                    <p>Instantly translate your communications to 50+ languages with cultural context notes.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">📈</div>
-                    <h4>Meeting Intelligence</h4>
-                    <p>AI-powered meeting analysis with sentiment tracking, action item extraction, and engagement scores.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">🤖</div>
-                    <h4>Communication Coach AI</h4>
-                    <p>Your personal AI coach for instant advice on any communication challenge.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">🎯</div>
-                    <h4>Accent Clarity Trainer</h4>
-                    <p>Master pronunciation, intonation, and rhythm for different accents with targeted exercises.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">📊</div>
-                    <h4>Communication Analytics</h4>
-                    <p>Comprehensive dashboards tracking your communication growth over time.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">🎓</div>
-                    <h4>Learning Paths</h4>
-                    <p>Personalized learning journeys based on your DNA profile and goals.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">👥</div>
-                    <h4>Peer Practice Rooms</h4>
-                    <p>Connect with peers for real-time practice sessions and feedback.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">🏆</div>
-                    <h4>Achievements & Gamification</h4>
-                    <p>Earn badges, compete on leaderboards, and track your progress with gamified elements.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">📱</div>
-                    <h4>Mobile App</h4>
-                    <p>Practice anywhere with our mobile app for on-the-go training.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">🔗</div>
-                    <h4>Integration Hub</h4>
-                    <p>Connect with Slack, Teams, Zoom, and 100+ other tools.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">📋</div>
-                    <h4>Template Library</h4>
-                    <p>Access thousands of communication templates for emails, presentations, and more.</p>
-                </div>
-                <div class="innovative-card">
-                    <div class="feature-icon">🔔</div>
-                    <h4>Smart Reminders</h4>
-                    <p>AI-powered reminders to practice and follow up on communication goals.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="innovative-panel-placeholder"></div>
 
     <!-- Accent Trainer Panel -->
-    <div class="feature-panels" id="accent-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">🌍 Accent Clarity Trainer</h2>
-                <p style="color: var(--gray);">Master different accents with precision training</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content">
-            <div class="voice-coach-grid">
-                <div class="coach-card">
-                    <h4>🎯 Target Accents</h4>
-                    <div style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);">
-                            <strong>American English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Vowels, linking, reduction</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
-                            <strong>British English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: R sounds, t-glottal, intonation</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
-                            <strong>Australian English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Diphthongs, nasalization</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
-                            <strong>Neutral/Global English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Clarity, neutral pronunciation</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>📊 Your Progress</h4>
-                    <div class="metric-item">
-                        <span>Pronunciation</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 85%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Intonation</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 78%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Rhythm</span>
-                        <div class="metric-bar"><div class="metric-fill medium" style="width: 72%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Clarity</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 88%"></div></div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>📝 Exercises</h4>
-                    <div style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Vowel Sounds</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"The cat sat on the mat"</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Consonant Clusters</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"She sells seashells"</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Word Stress</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"develop", "development"</p>
-                        </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Linking Words</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"What are you going to do?"</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>🎤 Practice Sessions</h4>
-                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;">Start Exercise</button>
-                    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.75rem;">Record & Compare</button>
-                    <button class="btn btn-secondary" style="width: 100%;">Listen & Repeat</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="accent-panel-placeholder"></div>
 
     <!-- TensorFlow.js & MediaPipe for ML/DL Analysis -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
@@ -2905,11 +1953,11 @@
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    mediaRecorder = new MediaRecorder(stream);
+                    bodyMediaRecorder = new MediaRecorder(stream);
                     
-                    mediaRecorder.ondataavailable = (event) => {
+                    bodyMediaRecorder.ondataavailable = (event) => {
                         if (event.data.size > 0) {
-                            recordedChunks.push(event.data);
+                            bodyRecordedChunks.push(event.data);
                         }
                     };
                     
@@ -2988,7 +2036,7 @@
             recordedChunks = [];
             startTime = Date.now();
             
-            mediaRecorder.start();
+            bodyMediaRecorder.start();
             window.recognition.start();
             
             document.getElementById('start-record-btn').style.display = 'none';
@@ -3011,7 +2059,7 @@
         function stopRecording() {
             if (!mediaRecorder || !window.recognition) return;
             
-            mediaRecorder.stop();
+            bodyMediaRecorder.stop();
             window.recognition.stop();
             
             clearInterval(timerInterval);
@@ -3294,7 +2342,7 @@
         }
 
         function backToScenarios() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            if (bodyMediaRecorder && bodyMediaRecorder.state !== 'inactive') {
                 stopRecording();
             }
             
@@ -3644,8 +2692,8 @@
 
         // ==================== BODY LANGUAGE CAMERA ====================
         let mediaStream = null;
-        let mediaRecorder = null;
-        let recordedChunks = [];
+        let bodyMediaRecorder = null;
+        let bodyRecordedChunks = [];
 
         async function startBodyLanguageCamera() {
             try {
@@ -3675,28 +2723,28 @@
                 videoElement.srcObject = mediaStream;
 
                 // Start recording
-                recordedChunks = [];
+                bodyRecordedChunks = [];
                 const options = { mimeType: 'video/webm;codecs=vp9', audioBitsPerSecond: 0 };
                 
                 try {
-                    mediaRecorder = new MediaRecorder(mediaStream, options);
+                    bodyMediaRecorder = new MediaRecorder(mediaStream, options);
                 } catch (e) {
                     console.warn('VP9 not supported, trying vp8...');
-                    mediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm;codecs=vp8' });
+                    bodyMediaRecorder = new MediaRecorder(mediaStream, { mimeType: 'video/webm;codecs=vp8' });
                 }
 
-                mediaRecorder.ondataavailable = (event) => {
+                bodyMediaRecorder.ondataavailable = (event) => {
                     if (event.data.size > 0) {
-                        recordedChunks.push(event.data);
+                        bodyRecordedChunks.push(event.data);
                     }
                 };
 
-                mediaRecorder.onstop = () => {
-                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                bodyMediaRecorder.onstop = () => {
+                    const blob = new Blob(bodyRecordedChunks, { type: 'video/webm' });
                     analyzeBodyLanguageVideo(blob);
                 };
 
-                mediaRecorder.start();
+                bodyMediaRecorder.start();
 
                 // Update button state - find all buttons in mirror-container and update the primary one
                 const buttons = document.querySelectorAll('.mirror-container button');
@@ -3716,8 +2764,8 @@
         }
 
         function stopBodyLanguageCamera() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
+            if (bodyMediaRecorder && bodyMediaRecorder.state !== 'inactive') {
+                bodyMediaRecorder.stop();
             }
 
             if (mediaStream) {
@@ -4017,34 +3065,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
     <!-- AI Assistant Panel -->
-    <div class="feature-panels" id="ai-assistant-panel">
-        <div class="panel-header">
-            <div>
-                <h2 class="panel-title">🤖 AI Assistant</h2>
-                <p style="color: var(--gray);">Powered by Llama 3 with RAG & Memory</p>
-            </div>
-            <button class="close-panel" onclick="closePanel()">×</button>
-        </div>
-        <div class="panel-content" style="height: calc(100vh - 120px); display: flex; flex-direction: column;">
-            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span><strong>🤖 Ollama Status:</strong> <span id="ai-status">Checking...</span></span>
-                    <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="checkAIStatus()">↻ Refresh</button>
-                </div>
-                <p style="color: var(--gray); font-size: 0.85rem; margin-top: 0.5rem;">
-                    💡 Ask about VDart services, pricing, features, or any communication tips!
-                </p>
-            </div>
-            <div id="ai-messages" style="flex: 1; overflow-y: auto; padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
-                <div class="ai-message info">💬 Hi! I'm your VDart AI Assistant. Ask me anything about our services, pricing, or get communication tips!</div>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="ai-input" placeholder="Type your message..." style="flex: 1; padding: 1rem; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--light); font-size: 1rem;">
-                <button class="btn btn-primary" onclick="sendAIMessage()">Send</button>
-                <button class="btn btn-secondary" onclick="clearAIHistory()">Clear</button>
-            </div>
-        </div>
-    </div>
+    <div id="ai-assistant-panel-placeholder"></div>
 
     <style>
         .ai-message { padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 8px; }

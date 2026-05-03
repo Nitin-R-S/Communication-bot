@@ -1,0 +1,145 @@
+    <div class="feature-panels" id="voice-coach-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🎤 Live Voice Coach</h2>
+                <p style="color: var(--gray);">Real-time voice analysis and coaching</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div id="voice-coach-selection" class="voice-coach-grid">
+                <div class="coach-card">
+                    <h4>🎯 Select Scenario</h4>
+                    <div style="display: grid; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('sales')" style="border: 1px solid var(--glass-border);">
+                            <strong>💼 Sales Pitch</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Practice your elevator pitch and sales techniques</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('support')" style="border: 1px solid var(--glass-border);">
+                            <strong>🎧 Customer Support</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Handle customer inquiries professionally</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('meeting')" style="border: 1px solid var(--glass-border);">
+                            <strong>👤 Meeting Introduction</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Introduce yourself professionally</p>
+                        </div>
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; transition: all 0.3s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--glass-border)'" onclick="startVoiceSession('presentation')" style="border: 1px solid var(--glass-border);">
+                            <strong>📊 Presentation Delivery</strong>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Present with confidence and clarity</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="coach-card">
+                    <h4>📈 Session History</h4>
+                    <div id="session-history-container" style="display: grid; gap: 0.75rem;">
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>No sessions yet</span>
+                            </div>
+                            <p style="color: var(--gray); font-size: 0.8rem; margin-top: 0.5rem;">Start a session to see history</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="voice-coach-recording" style="display: none;">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                    <!-- Recording Section -->
+                    <div class="coach-card">
+                        <h4 id="scenario-title">🎤 Recording Session</h4>
+                        <p id="scenario-desc" style="color: var(--gray); font-size: 0.9rem; margin-bottom: 1rem;"></p>
+                        
+                        <!-- Recording Status -->
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div id="recording-indicator" style="width: 15px; height: 15px; background: #ef4444; border-radius: 50%; animation: pulse 1s infinite; display: none;"></div>
+                                <span id="recording-status">Ready to record</span>
+                                <span id="recording-timer" style="margin-left: auto; color: var(--primary); font-weight: bold;">00:00</span>
+                            </div>
+                        </div>
+
+                        <!-- Recording Controls -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+                            <button id="start-record-btn" class="btn btn-primary" onclick="startRecording()" style="padding: 0.75rem; font-size: 0.9rem;">
+                                🔴 Start
+                            </button>
+                            <button id="stop-record-btn" class="btn btn-secondary" onclick="stopRecording()" style="padding: 0.75rem; font-size: 0.9rem; display: none;">
+                                ⏹ Stop
+                            </button>
+                            <button id="reset-record-btn" class="btn btn-secondary" onclick="resetRecording()" style="padding: 0.75rem; font-size: 0.9rem;">
+                                🔄 Reset
+                            </button>
+                        </div>
+
+                        <!-- Transcript -->
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; margin-bottom: 1rem;">
+                            <h5 style="margin-bottom: 0.75rem; color: var(--secondary);">📝 Your Transcript</h5>
+                            <p id="transcript-text" style="color: var(--light); line-height: 1.6; min-height: 80px; max-height: 150px; overflow-y: auto;">
+                                <em style="color: var(--gray);">Waiting for speech...</em>
+                            </p>
+                        </div>
+
+                        <!-- Confidence -->
+                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>Speech Confidence:</span>
+                                <span id="confidence-score" style="color: var(--secondary); font-weight: bold;">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics & Feedback Section -->
+                    <div>
+                        <div class="coach-card">
+                            <h4>📊 Real-Time Metrics</h4>
+                            <div class="metric-item">
+                                <span>Clarity</span>
+                                <div class="metric-bar"><div id="clarity-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="clarity-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Pace (WPM)</span>
+                                <div class="metric-bar"><div id="pace-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="pace-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Confidence</span>
+                                <div class="metric-bar"><div id="confidence-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="confidence-metric" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Tone</span>
+                                <div class="metric-bar"><div id="tone-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="tone-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>Filler Words</span>
+                                <div class="metric-bar"><div id="filler-bar" class="metric-fill low" style="width: 0%"></div></div>
+                                <span id="filler-score" style="font-size: 0.85rem; color: var(--gray);">0</span>
+                            </div>
+                            <div class="metric-item">
+                                <span>AI Score</span>
+                                <div class="metric-bar"><div id="model-bar" class="metric-fill high" style="width: 0%"></div></div>
+                                <span id="model-score" style="font-size: 0.85rem; color: var(--gray);">--</span>
+                            </div>
+                        </div>
+
+                        <div class="coach-card" style="margin-top: 1rem;">
+                            <h4>💬 Live Feedback</h4>
+                            <div id="feedback-container" style="max-height: 250px; overflow-y: auto;">
+                                <p style="color: var(--gray); text-align: center; padding: 1rem;">
+                                    <em>Feedback will appear here</em>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="backToScenarios()" style="flex: 1;">← Back to Scenarios</button>
+                    <button class="btn btn-primary" id="finish-session-btn" onclick="finishVoiceSession()" style="flex: 1; display: none;">✓ Finish Session</button>
+                </div>
+            </div>
+        </div>
+    </div>

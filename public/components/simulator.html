@@ -1,0 +1,56 @@
+    <div class="feature-panels" id="simulator-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">💬 Message Conversation Simulator</h2>
+                <p style="color: var(--gray);">Practice difficult conversations with AI</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="simulator-container">
+                <div class="chat-window">
+                    <div class="chat-messages" id="simMessages">
+                        <div class="chat-message incoming">
+                            <p>I'm very disappointed with the service I received. This is the third time this has happened!</p>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" id="simInput" placeholder="Type your response..." onkeypress="handleSimInput(event)">
+                        <button class="btn btn-primary" onclick="sendSimResponse()">Send</button>
+                    </div>
+                </div>
+                <div class="simulator-sidebar">
+                    <div class="scenario-info">
+                        <div class="scenario-badge">Active Scenario</div>
+                        <h3>Customer Complaint</h3>
+                        <p style="color: var(--gray); font-size: 0.9rem; margin-top: 0.5rem;">Difficulty: Hard</p>
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 1rem;">🎯 Available Scenarios</h4>
+                        <div style="display: grid; gap: 0.75rem;">
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);" onclick="loadScenario('customer-complaint')">
+                                <strong>Customer Complaint</strong>
+                            </div>
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('negotiation')">
+                                <strong>Price Negotiation</strong>
+                            </div>
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('team-conflict')">
+                                <strong>Team Conflict</strong>
+                            </div>
+                            <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;" onclick="loadScenario('difficult-customer')">
+                                <strong>Difficult Customer</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="response-feedback" id="simFeedback" style="display: none;">
+                        <h4>📝 Response Feedback</h4>
+                        <p id="feedbackText" style="margin-top: 0.5rem;"></p>
+                        <div style="margin-top: 1rem;">
+                            <span style="font-size: 1.5rem; font-weight: 700;" id="feedbackScore">85</span>
+                            <span style="color: var(--gray);">/100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

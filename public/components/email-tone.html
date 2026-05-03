@@ -1,0 +1,78 @@
+    <div class="feature-panels" id="email-tone-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">📧 Email Tone Dialer</h2>
+                <p style="color: var(--gray);">Optimize your email tone for maximum impact</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="tone-dialer">
+                <div class="email-editor">
+                    <h4 style="margin-bottom: 1rem;">Compose Your Email</h4>
+                    <input id="emailRecipient" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Recipient or audience (e.g. client, manager, team)" oninput="analyzeEmailTone()" />
+                    <input id="emailPurpose" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Purpose (e.g. update, apology, follow-up)" oninput="analyzeEmailTone()" />
+                    <textarea class="email-input" id="emailInput" placeholder="Start typing your email here..." oninput="analyzeEmailTone()"></textarea>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn btn-primary" style="flex: 1;" onclick="analyzeEmailTone(true)">✨ Analyze Tone</button>
+                        <button class="btn btn-secondary" onclick="copyEmailContent()">📋 Copy</button>
+                    </div>
+                </div>
+                <div class="tone-analysis">
+                    <h4 style="margin-bottom: 1rem;">Tone Analysis</h4>
+                    <div class="tone-gauge">
+                        <div class="tone-needle" id="email-tone-needle" style="transform: rotate(-30deg);"></div>
+                    </div>
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <div id="email-tone-label" style="font-size: 1.5rem; font-weight: 700;">Professional</div>
+                        <p id="email-tone-score" style="color: var(--gray);">Score: 85/100</p>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Formality</span>
+                            <span id="email-tone-formality" style="color: var(--success);">High</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Friendly</span>
+                            <span id="email-tone-friendliness" style="color: var(--success);">Warm</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Urgency</span>
+                            <span id="email-tone-urgency" style="color: var(--warning);">Normal</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border);">
+                            <span>Confidence</span>
+                            <span id="email-tone-confidence" style="color: var(--success);">Confident</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                            <span>Empathy</span>
+                            <span id="email-tone-empathy" style="color: var(--success);">Empathetic</span>
+                        </div>
+                    </div>
+                    <div id="email-tone-suggestions-wrap" style="margin-top: 1.5rem; padding: 1rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                        <h5 style="color: var(--success);">✓ Changes to make</h5>
+                        <ul id="email-tone-suggestions" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            <li>Great use of professional language</li>
+                            <li>Consider adding a clear call-to-action</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+                        <h5 style="color: #3b82f6;">Suggested rewrite</h5>
+                        <div id="email-tone-rewrite" style="margin-top: 0.5rem; white-space: pre-wrap; color: var(--gray); font-size: 0.9rem;">Type your email to see a rewritten version.</div>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
+                        <h5 style="color: var(--warning);">Grammar fixes</h5>
+                        <ul id="email-tone-grammar" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            <li>No grammar issues detected yet</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
+                        <h5 style="color: #ef4444;">Spelling fixes</h5>
+                        <ul id="email-tone-spelling" style="margin-top: 0.5rem; padding-left: 1rem; color: var(--gray); font-size: 0.9rem;">
+                            <li>No spelling issues detected yet</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
