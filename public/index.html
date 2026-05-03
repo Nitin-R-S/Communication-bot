@@ -1298,6 +1298,11 @@
             from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
+    
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -2632,11 +2637,18 @@
 
             if (!force) {
                 if (emailToneTimeout) clearTimeout(emailToneTimeout);
-                emailToneTimeout = setTimeout(() => analyzeEmailTone(true), 500);
+                emailToneTimeout = setTimeout(() => analyzeEmailTone(true), 800);
                 return;
             }
 
             const requestId = ++lastEmailToneRequest;
+
+            // Show loading indicator
+            const loadingEl = document.getElementById('email-loading');
+            const analyzeBtn = document.getElementById('analyzeEmailBtn');
+            if (loadingEl) loadingEl.style.display = 'block';
+            if (analyzeBtn) { analyzeBtn.disabled = true; analyzeBtn.textContent = '⏳ Analyzing...'; }
+
             fetch('/api/email-tone/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -2652,9 +2664,21 @@
                     if (requestId !== lastEmailToneRequest) return;
                     if (!data || !data.success || !data.analysis) return;
                     renderEmailToneAnalysis(data.analysis);
+
+                    // Show powered-by badge
+                    const badge = document.getElementById('email-powered-by');
+                    if (badge && data.analysis.poweredBy) {
+                        badge.textContent = data.analysis.poweredBy;
+                        badge.style.display = 'inline-block';
+                    }
                 })
                 .catch(err => {
                     console.warn('Email tone analysis failed', err);
+                })
+                .finally(() => {
+                    // Hide loading indicator
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    if (analyzeBtn) { analyzeBtn.disabled = false; analyzeBtn.textContent = '✨ Analyze with Gemma AI'; }
                 });
         }
 

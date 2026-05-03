@@ -1213,6 +1213,131 @@ function generateSmartSuggestions(context, recentCommunications) {
 
 app.post('/api/email-tone/analyze', async (req, res) => {
     const { userId, emailContent, recipient, purpose } = req.body;
+    const content = String(emailContent || '').trim();
+
+    if (!content) {
+        return res.json({ success: true, analysis: buildFallbackAnalysis(userId, '', recipient, purpose) });
+    }
+
+    // Try Gemma AI first, fallback to rule-based
+    try {
+        const gemmaAnalysis = await analyzeEmailWithGemma(content, recipient, purpose);
+        if (gemmaAnalysis) {
+            const analysis = {
+                id: uuidv4(),
+                userId,
+                emailContent: content,
+                recipient,
+                purpose,
+                toneAnalysis: gemmaAnalysis.toneAnalysis || analyzeEmailTone(content),
+                suggestions: gemmaAnalysis.suggestions || [],
+                changesToMake: gemmaAnalysis.changesToMake || [],
+                grammarIssues: gemmaAnalysis.grammarIssues || [],
+                grammarIssueCount: (gemmaAnalysis.grammarIssues || []).length,
+                spellingIssues: gemmaAnalysis.spellingIssues || [],
+                spellingIssueCount: (gemmaAnalysis.spellingIssues || []).length,
+                correctedDraft: gemmaAnalysis.correctedDraft || content,
+                rewrittenDraft: gemmaAnalysis.rewrittenDraft || content,
+                score: gemmaAnalysis.score != null ? Math.max(0, Math.min(100, Math.round(gemmaAnalysis.score))) : 70,
+                poweredBy: 'Gemma AI',
+                createdAt: new Date()
+            };
+            emailAnalysis.set(analysis.id, analysis);
+            return res.json({ success: true, analysis });
+        }
+    } catch (e) {
+        console.warn('Gemma email analysis failed, using fallback:', e.message);
+    }
+
+    // Fallback to rule-based analysis
+    const analysis = buildFallbackAnalysis(userId, content, recipient, purpose);
+    emailAnalysis.set(analysis.id, analysis);
+    res.json({ success: true, analysis });
+});
+
+// Gemma-powered email analysis
+async function analyzeEmailWithGemma(emailContent, recipient, purpose) {
+    const prompt = `You are an expert email editor and communication coach. Analyze the following email and return a JSON object with these exact fields:
+
+EMAIL:
+"""
+${emailContent}
+"""
+${recipient ? `RECIPIENT: ${recipient}` : ''}
+${purpose ? `PURPOSE: ${purpose}` : ''}
+
+Return ONLY a valid JSON object (no markdown, no explanation) with these fields:
+{
+  "spellingIssues": ["list of strings describing each spelling mistake and its correction, e.g. 'Change \"recieve\" to \"receive\"'"],
+  "grammarIssues": ["list of strings describing each grammar issue and fix, e.g. 'Capitalize \"i\" to \"I\" when referring to yourself'"],
+  "toneAnalysis": {
+    "formality": "formal or casual or semi-formal",
+    "friendliness": "warm or neutral or cold",
+    "urgency": "high or normal or low",
+    "confidence": "confident or tentative or assertive",
+    "empathy": "empathetic or neutral or detached"
+  },
+  "score": 75,
+  "changesToMake": ["list of specific actionable improvements"],
+  "suggestions": ["list of general tips to improve the email"],
+  "correctedDraft": "the email with all spelling and grammar errors fixed, keeping the original style",
+  "rewrittenDraft": "a professionally rewritten version of the email that is clear, concise, and well-structured"
+}
+
+Important rules:
+- Find ALL spelling mistakes, even subtle ones
+- Find ALL grammar issues including punctuation, capitalization, subject-verb agreement
+- The score should be 0-100 based on overall quality (spelling, grammar, tone, clarity, structure)
+- The correctedDraft should fix errors but keep the author's voice
+- The rewrittenDraft should be a polished, professional version
+- Return ONLY the JSON, no other text`;
+
+    const rawResponse = await aiService.callOllamaPrompt(prompt);
+
+    // Try to parse the JSON from the response
+    let parsed = aiService.parseJSONSafe(rawResponse);
+
+    if (!parsed) {
+        // Sometimes Gemma wraps in markdown code fences
+        const jsonMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+            parsed = aiService.parseJSONSafe(jsonMatch[1].trim());
+        }
+    }
+
+    if (!parsed) {
+        // Try to find a JSON object in the response
+        const braceMatch = rawResponse.match(/\{[\s\S]*\}/);
+        if (braceMatch) {
+            parsed = aiService.parseJSONSafe(braceMatch[0]);
+        }
+    }
+
+    if (!parsed) {
+        console.warn('Could not parse Gemma response for email analysis');
+        return null;
+    }
+
+    // Normalize arrays to be arrays of strings
+    const normalizeArray = (arr) => {
+        if (!Array.isArray(arr)) return [];
+        return arr.map(item => typeof item === 'string' ? item : (item.message || JSON.stringify(item)));
+    };
+
+    return {
+        spellingIssues: normalizeArray(parsed.spellingIssues),
+        grammarIssues: normalizeArray(parsed.grammarIssues),
+        toneAnalysis: parsed.toneAnalysis || {},
+        score: Number(parsed.score) || 70,
+        changesToMake: normalizeArray(parsed.changesToMake),
+        suggestions: normalizeArray(parsed.suggestions),
+        correctedDraft: String(parsed.correctedDraft || ''),
+        rewrittenDraft: String(parsed.rewrittenDraft || '')
+    };
+}
+
+// Rule-based fallback analysis (existing logic)
+function buildFallbackAnalysis(userId, emailContent, recipient, purpose) {
     const grammar = analyzeEmailGrammar(emailContent || '');
     const spelling = analyzeEmailSpelling(emailContent || '');
     const combinedIssues = [...(grammar.issues || []), ...(spelling.issues || [])];
@@ -1220,7 +1345,7 @@ app.post('/api/email-tone/analyze', async (req, res) => {
     const features = extractEmailToneFeatures(emailContent || '', recipient || '', purpose || '', {
         issues: combinedIssues
     });
-    const analysis = {
+    return {
         id: uuidv4(),
         userId,
         emailContent,
@@ -1236,11 +1361,10 @@ app.post('/api/email-tone/analyze', async (req, res) => {
         correctedDraft: correctedDraftText,
         rewrittenDraft: generateImprovedEmailDraft(emailContent, recipient, purpose, correctedDraftText),
         score: scoreEmailTone(features),
+        poweredBy: 'Rule-based (Gemma unavailable)',
         createdAt: new Date()
     };
-    emailAnalysis.set(analysis.id, analysis);
-    res.json({ success: true, analysis });
-});
+}
 
 function extractEmailToneFeatures(emailContent, recipient, purpose, grammar = { issues: [] }) {
     const content = String(emailContent || '');

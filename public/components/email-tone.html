@@ -14,12 +14,19 @@
                     <input id="emailPurpose" class="email-input" style="min-height: 44px; margin-bottom: 0.75rem;" placeholder="Purpose (e.g. update, apology, follow-up)" oninput="analyzeEmailTone()" />
                     <textarea class="email-input" id="emailInput" placeholder="Start typing your email here..." oninput="analyzeEmailTone()"></textarea>
                     <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                        <button class="btn btn-primary" style="flex: 1;" onclick="analyzeEmailTone(true)">✨ Analyze Tone</button>
+                        <button class="btn btn-primary" id="analyzeEmailBtn" style="flex: 1;" onclick="analyzeEmailTone(true)">✨ Analyze with Gemma AI</button>
                         <button class="btn btn-secondary" onclick="copyEmailContent()">📋 Copy</button>
+                    </div>
+                    <div id="email-loading" style="display: none; text-align: center; padding: 1rem; margin-top: 0.75rem; background: var(--glass); border-radius: 8px;">
+                        <div style="display: inline-block; width: 24px; height: 24px; border: 3px solid var(--glass-border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                        <p style="color: var(--gray); margin-top: 0.5rem; font-size: 0.85rem;">🤖 Gemma AI is analyzing your email...</p>
                     </div>
                 </div>
                 <div class="tone-analysis">
-                    <h4 style="margin-bottom: 1rem;">Tone Analysis</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4>Tone Analysis</h4>
+                        <span id="email-powered-by" style="font-size: 0.75rem; padding: 0.25rem 0.6rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border-radius: 12px; color: var(--secondary); display: none;">Powered by Gemma AI</span>
+                    </div>
                     <div class="tone-gauge">
                         <div class="tone-needle" id="email-tone-needle" style="transform: rotate(-30deg);"></div>
                     </div>
