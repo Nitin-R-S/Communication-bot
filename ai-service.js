@@ -1,13 +1,14 @@
 /**
- * AI Service - Gemma 2B with RAG and Memory
+ * AI Service - Groq Cloud (Llama 3.3 70B)
+ * High-speed, high-intelligence free cloud AI.
  */
 
-const http = require('http');
+require('dotenv').config();
+const https = require('https');
 
 // ==================== CONFIG ====================
-const OLLAMA_HOST = 'localhost';
-const OLLAMA_PORT = 11434;
-const OLLAMA_MODEL = 'gemma:2b'; // ✅ Using Gemma 2B
+let GROQ_API_KEY = process.env.GROQ_API_KEY || 'YOUR_GROQ_API_KEY_HERE';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const FALLBACK_AI_ENABLED = true;
 
 // ==================== MEMORY ====================
@@ -20,66 +21,45 @@ const companyDocs = [
         title: 'Welcome to VDart',
         content: `VDart Communication Hub provides AI-powered communication tools like voice coaching, accent training, and presentation analysis.`,
         category: 'company'
-    },
-    {
-        id: 'services',
-        title: 'Services',
-        content: `We offer Voice Coach, Accent Trainer, Body Language Analyzer, Presentation Coach, and Email Analyzer.`,
-        category: 'services'
-    },
-    {
-        id: 'pricing',
-        title: 'Pricing',
-        content: `Free tier available. Pro plan costs $29/month. Enterprise pricing is custom.`,
-        category: 'pricing'
     }
 ];
 
-// ==================== SIMPLE SEARCH ====================
-function getRelevantContext(query) {
-    return companyDocs
-        .filter(doc => query.toLowerCase().includes(doc.title.toLowerCase()))
-        .map(doc => `[${doc.title}]\n${doc.content}`)
-        .join('\n\n');
-}
-
-// ==================== OLLAMA CHAT ====================
-function callOllama(messages) {
+// ==================== GROQ API CALL ====================
+function callGroq(messages) {
     return new Promise((resolve, reject) => {
+        if (!GROQ_API_KEY || GROQ_API_KEY === 'YOUR_GROQ_API_KEY_HERE') {
+            return reject(new Error('Groq API Key missing. Please add it in .env'));
+        }
 
         const data = JSON.stringify({
-            model: OLLAMA_MODEL,
+            model: GROQ_MODEL,
             messages: messages,
-            stream: false
+            temperature: 0.7,
+            max_tokens: 1024
         });
 
         const options = {
-            hostname: OLLAMA_HOST,
-            port: OLLAMA_PORT,
-            path: '/api/chat',   // ✅ FIXED
+            hostname: 'api.groq.com',
+            path: '/openai/v1/chat/completions',
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${GROQ_API_KEY}`,
                 'Content-Type': 'application/json',
                 'Content-Length': Buffer.byteLength(data)
             }
         };
 
-        const req = http.request(options, (res) => {
+        const req = https.request(options, (res) => {
             let body = '';
-
             res.on('data', chunk => body += chunk);
-
             res.on('end', () => {
                 try {
                     const result = JSON.parse(body);
-
-                    // ✅ IMPORTANT FIX
-                    const text = result.message?.content || "No response";
-
+                    if (result.error) return reject(new Error(result.error.message));
+                    const text = result.choices?.[0]?.message?.content || "No response";
                     resolve(text);
-
                 } catch (e) {
-                    reject(new Error('Invalid Ollama response'));
+                    reject(new Error('Invalid Groq response'));
                 }
             });
         });
@@ -92,27 +72,16 @@ function callOllama(messages) {
 
 // ==================== MAIN AI FUNCTION ====================
 async function generateAIResponse(userId, userMessage) {
-
     const history = conversationHistory.get(userId) || [];
-
-    const context = getRelevantContext(userMessage);
-
-    const systemPrompt = `
-You are VDart AI Assistant.
-
-Use the context below to answer:
-
-${context}
-
-User: ${userMessage}
-Assistant:
-`;
+    
+    const messages = [
+        { role: "system", content: "You are VDart AI Assistant, a professional communication coach. Be concise and helpful." },
+        ...history,
+        { role: "user", content: userMessage }
+    ];
 
     try {
-
-        const response = await callOllama([
-            { role: "user", content: systemPrompt }
-        ]);
+        const response = await callGroq(messages);
 
         // Save history
         const newHistory = [
@@ -120,133 +89,68 @@ Assistant:
             { role: 'user', content: userMessage },
             { role: 'assistant', content: response }
         ];
-
         conversationHistory.set(userId, newHistory);
 
         return {
             success: true,
-            response: response,   // ✅ ALWAYS STRING
+            response: response,
             sources: []
         };
 
     } catch (error) {
-
-        console.error("Ollama error:", error.message);
+        console.error("Groq error:", error.message);
 
         if (FALLBACK_AI_ENABLED) {
-            const fallbackResponse = generateFallbackResponse(userMessage, context);
+            const fallbackResponse = generateFallbackResponse(userMessage);
             return {
                 success: true,
                 response: fallbackResponse,
-                sources: [],
                 fallback: true,
                 error: error.message
             };
         }
 
-        return {
-            success: false,
-            response: null,
-            error: error.message
-        };
+        return { success: false, error: error.message };
     }
 }
 
-function generateFallbackResponse(userMessage, context = '') {
-    const normalized = (userMessage || '').toLowerCase();
-    const general = `I cannot reach the Ollama AI backend right now, so I am answering from a local fallback mode. You asked: "${userMessage}".`;
+function generateFallbackResponse(userMessage) {
+    const msg = (userMessage || '').toLowerCase();
+    
+    const patterns = [
+        { test: ['hello', 'hi'], reply: "Hello! I'm your VDart assistant. How can I help with your communication today?" },
+        { test: ['bad', 'poor'], reply: "Don't worry! Communication is a skill that improves with practice. Try focusing on your pace first." },
+        { test: ['accent'], reply: "Focus on 'Vowel Clarity'. Record yourself and listen to how you pronounce vowels." }
+    ];
 
-    if (normalized.includes('hello') || normalized.includes('hi')) {
-        return `Hello! ${general}`;
+    for (const pattern of patterns) {
+        if (pattern.test.some(t => msg.includes(t))) return pattern.reply;
     }
 
-    if (normalized.includes('accent') || normalized.includes('pronunciation')) {
-        return `Accent training tip: speak slowly and exaggerate vowel sounds. ${general}`;
-    }
-
-    if (normalized.includes('presentation') || normalized.includes('slides')) {
-        return `Presentation advice: keep one main idea per slide and practice your transitions. ${general}`;
-    }
-
-    if (normalized.includes('email') || normalized.includes('subject')) {
-        return `Email best practice: use a clear subject line, short paragraphs, and a call to action. ${general}`;
-    }
-
-    return general + ' I am here to help with communication advice, coaching, and summaries.';
+    return "I'm currently in local mode, but I can still help. What specific communication skill would you like to improve?";
 }
 
-// ==================== STATUS ====================
+// ==================== STATUS & HELPER ====================
 async function checkOllamaStatus() {
-    return new Promise((resolve) => {
-
-        const req = http.request({
-            hostname: OLLAMA_HOST,
-            port: OLLAMA_PORT,
-            path: '/api/tags',
-            method: 'GET'
-        }, (res) => {
-
-            let body = '';
-            res.on('data', chunk => body += chunk);
-
-            res.on('end', () => {
-                try {
-                    const data = JSON.parse(body);
-
-                    const hasLlama3 = data.models?.some(m => m.name === OLLAMA_MODEL);
-
-                    resolve({
-                        available: true,
-                        hasLlama3
-                    });
-
-                } catch {
-                    resolve({ available: false, hasLlama3: false });
-                }
-            });
-        });
-
-        req.on('error', () => resolve({ available: false, hasLlama3: false }));
-        req.end();
-    });
+    return { available: GROQ_API_KEY !== 'YOUR_GROQ_API_KEY_HERE', cloud: true };
 }
 
 async function callOllamaPrompt(prompt) {
-    return callOllama([{ role: 'user', content: prompt }]);
+    return callGroq([{ role: 'user', content: prompt }]);
 }
 
 function parseJSONSafe(text) {
-    try {
-        return JSON.parse(text);
-    } catch {
-        return null;
-    }
+    try { return JSON.parse(text); } catch { return null; }
 }
 
-function getModelName() {
-    return OLLAMA_MODEL;
-}
-
-function getConversationHistory(userId) {
-    return conversationHistory.get(userId) || [];
-}
-
-function clearConversationHistory(userId) {
-    conversationHistory.delete(userId);
-}
-
-const vectorStore = {
-    documents: companyDocs
-};
-
-// ==================== EXPORT ====================
 module.exports = {
     generateAIResponse,
     checkOllamaStatus,
     callOllamaPrompt,
     parseJSONSafe,
-    getModelName,
-    getConversationHistory,
-    clearConversationHistory,
-    vectorStore
+    getModelName: () => GROQ_MODEL,
+    getConversationHistory: (userId) => conversationHistory.get(userId) || [],
+    clearConversationHistory: (userId) => conversationHistory.delete(userId),
+    vectorStore: { documents: companyDocs }
 };
+

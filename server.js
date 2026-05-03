@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -1742,10 +1743,23 @@ function extractTopics(transcript) {
 
 // ==================== AI CHAT ENDPOINTS (Llama 3 + RAG + Memory) ====================
 
-// Check Ollama status
+// Check AI status
 app.get('/api/ai/status', async (req, res) => {
     const status = await aiService.checkOllamaStatus();
     const modelName = aiService.getModelName();
+    
+    // Cloud AI logic
+    if (status.cloud) {
+        return res.json({
+            success: true,
+            ollamaAvailable: status.available,
+            llama3Installed: status.available, // Map cloud availability to "installed" for UI compatibility
+            model: modelName,
+            message: status.available ? `${modelName} (Cloud) Ready!` : 'Gemini API Key missing or invalid'
+        });
+    }
+
+    // Local Ollama logic (fallback)
     res.json({
         success: true,
         ollamaAvailable: status.available,
