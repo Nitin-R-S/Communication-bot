@@ -1967,6 +1967,14 @@
                             console.warn('Could not reset email tone panel:', e);
                         }
                     }, 0);
+                } else if (feature === 'dna') {
+                    setTimeout(() => {
+                        try {
+                            if (typeof startDNAAnalysis === 'function') startDNAAnalysis();
+                        } catch (e) {
+                            console.warn('Could not start DNA analysis:', e);
+                        }
+                    }, 0);
                 }
             }
         }
@@ -3165,6 +3173,471 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ==================== COMMUNICATION DNA SEQUENCER ====================
+async function startDNAAnalysis() {
+    try {
+        const userId = localStorage.getItem('vdart_user_id') || 'guest';
+        const res = await fetch('/api/dna/sequence', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, samples: [] })
+        });
+        const data = await res.json();
+        if (data.success) {
+            const dna = data.dna;
+            const verbalAvg = Math.round((dna.sequence.verbal.vocabulary + dna.sequence.verbal.complexity + dna.sequence.verbal.clarity + dna.sequence.verbal.flow) / 4);
+            const nonVerbalAvg = Math.round((dna.sequence.nonVerbal.eyeContact + dna.sequence.nonVerbal.gestures + dna.sequence.nonVerbal.posture + dna.sequence.nonVerbal.facialExpressions) / 4);
+            const paraverbalAvg = Math.round((dna.sequence.paraverbal.tone + dna.sequence.paraverbal.pace + dna.sequence.paraverbal.volume + dna.sequence.paraverbal.pitch) / 4);
+            const emotionalAvg = Math.round((dna.sequence.emotional.empathy + dna.sequence.emotional.selfAwareness + dna.sequence.emotional.selfRegulation + dna.sequence.emotional.socialSkills) / 4);
+            
+            const elVerbal = document.getElementById('dna-verbal');
+            if(elVerbal) elVerbal.textContent = verbalAvg + '%';
+            
+            const elNonVerbal = document.getElementById('dna-nonverbal');
+            if(elNonVerbal) elNonVerbal.textContent = nonVerbalAvg + '%';
+            
+            const elParaverbal = document.getElementById('dna-paraverbal');
+            if(elParaverbal) elParaverbal.textContent = paraverbalAvg + '%';
+            
+            const elEmotional = document.getElementById('dna-emotional');
+            if(elEmotional) elEmotional.textContent = emotionalAvg + '%';
+            
+            const elProfileType = document.getElementById('dna-profile-type');
+            if(elProfileType) elProfileType.textContent = dna.profile.communicationStyle;
+            
+            const elPrimary = document.getElementById('dna-primary-style');
+            if(elPrimary) elPrimary.textContent = dna.profile.primaryType;
+            
+            const elSecondary = document.getElementById('dna-secondary-style');
+            if(elSecondary) elSecondary.textContent = dna.profile.secondaryType;
+            
+            const elChannel = document.getElementById('dna-best-channel');
+            if(elChannel) elChannel.textContent = dna.profile.preferredChannels[0];
+            
+            const elPeak = document.getElementById('dna-peak-time');
+            if(elPeak) elPeak.textContent = dna.profile.bestTimeForCommunication;
+            
+            const elStress = document.getElementById('dna-stress-response');
+            if(elStress) elStress.textContent = dna.profile.stressResponse;
+            
+            const elMotiv = document.getElementById('dna-motivation');
+            if(elMotiv) elMotiv.textContent = dna.profile.motivationStyle;
+            
+            const descMap = {
+                'Analytical': 'You excel at logic and data. Your structured approach makes you excellent at solving complex problems.',
+                'Intuitive': 'You excel at reading between the lines and adapting your message to your audience. Your natural empathy makes you excellent at building rapport.',
+                'Functional': 'You focus on process and execution. You are reliable and detail-oriented.',
+                'Social': 'You thrive in group settings and are great at networking and building relationships.',
+                'Direct': 'You are straightforward and assertive. You value efficiency and clear outcomes.'
+            };
+            const elDesc = document.getElementById('dna-profile-desc');
+            if(elDesc) elDesc.textContent = descMap[dna.profile.primaryType] || 'You have a unique and versatile communication style.';
+        }
+    } catch (e) {
+        console.error('Error analyzing DNA:', e);
+    }
+}
+
+// ==================== PRESENTATIONS ====================
+let currentPresId = null;
+
+async function preparePresentation() {
+    const topic = document.getElementById('pres-topic').value;
+    const audience = document.getElementById('pres-audience').value;
+    const duration = document.getElementById('pres-duration').value;
+    
+    if (!topic || !audience || !duration) {
+        alert("Please fill in all setup fields.");
+        return;
+    }
+    
+    document.getElementById('pres-loading').style.display = 'block';
+    document.getElementById('pres-setup').style.display = 'none';
+    
+    try {
+        const res = await fetch('/api/presentation/prepare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: localStorage.getItem('vdart_user_id') || 'guest', topic, audience, duration })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentPresId = data.presentation.id;
+            const pres = data.presentation;
+            
+            // Render structure
+            let structHtml = `
+                <div class="slide-title">Opening</div>
+                <div class="slide-content">
+                    <p><strong>Hook:</strong> ${pres.structure.opening.hook}</p>
+                    <p><strong>Agenda:</strong> ${pres.structure.opening.agenda}</p>
+                    <p><strong>Objective:</strong> ${pres.structure.opening.objective}</p>
+                </div>
+                <div class="slide-title" style="margin-top: 1rem;">Body</div>
+                <div class="slide-content">
+                    <ul style="text-align: left; margin-top: 0.5rem;">
+                        ${pres.structure.body.map(b => `<li>${b.point} (${b.duration})</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="slide-title" style="margin-top: 1rem;">Closing</div>
+                <div class="slide-content">
+                    <p><strong>Summary:</strong> ${pres.structure.closing.summary}</p>
+                    <p><strong>Call to Action:</strong> ${pres.structure.closing.callToAction}</p>
+                </div>
+            `;
+            document.getElementById('pres-structure').innerHTML = structHtml;
+            
+            // Render Q&A
+            let qaHtml = pres.qaPrep.likelyQuestions.map(q => `
+                <div class="question-card">
+                    <div class="question-text">${q.question}</div>
+                    <span class="difficulty-badge ${q.difficulty}">${q.difficulty}</span>
+                </div>
+            `).join('');
+            document.getElementById('pres-qa-list').innerHTML = qaHtml;
+            
+            document.getElementById('pres-loading').style.display = 'none';
+            document.getElementById('pres-results').style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Error preparing presentation:', e);
+        document.getElementById('pres-loading').style.display = 'none';
+        document.getElementById('pres-setup').style.display = 'block';
+        alert('Failed to generate presentation prep.');
+    }
+}
+
+function showLivePracticeMode() {
+    document.getElementById('pres-results').style.display = 'none';
+    document.getElementById('pres-practice').style.display = 'flex';
+}
+
+let presStream = null;
+let presSpeechRec = null;
+let presInterval = null;
+let presPoseInterval = null;
+let currentPresTranscript = "";
+let fullPresTranscript = "";
+let latestPostureConfidence = 100;
+let latestHandActivity = 0;
+let isLivePresentationActive = false;
+
+async function startLivePresentation() {
+    document.getElementById('pres-start-btn').style.display = 'none';
+    document.getElementById('pres-stop-btn').style.display = 'block';
+    document.getElementById('pres-transcript').innerHTML = "";
+    document.getElementById('pres-interruption-box').style.display = 'none';
+    document.getElementById('pres-bl-advice-box').style.display = 'none';
+    document.getElementById('pres-final-feedback').style.display = 'none';
+    document.getElementById('pres-gesture-overlay').style.display = 'block';
+    currentPresTranscript = "";
+    fullPresTranscript = "";
+    isLivePresentationActive = true;
+
+    try {
+        presStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const videoEl = document.getElementById('pres-video');
+        videoEl.srcObject = presStream;
+        
+        // Start Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            presSpeechRec = new SpeechRecognition();
+            presSpeechRec.continuous = true;
+            presSpeechRec.interimResults = true;
+            
+            presSpeechRec.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                        currentPresTranscript += " " + event.results[i][0].transcript;
+                        fullPresTranscript += " " + event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                document.getElementById('pres-transcript').innerHTML = 
+                    `<span style="color: #fff;">${currentPresTranscript}</span>` +
+                    `<span style="color: #888;">${interimTranscript}</span>`;
+            };
+            
+            // Critical fix: Ensure mic auto-restarts if it shuts off randomly or during speech synthesis
+            presSpeechRec.onend = () => {
+                if (isLivePresentationActive) {
+                    try { presSpeechRec.start(); } catch(e) {}
+                }
+            };
+            
+            presSpeechRec.start();
+        } else {
+            document.getElementById('pres-transcript').innerHTML = "<em>Speech recognition not supported in this browser.</em>";
+        }
+        
+        // Start ML Pose tracking
+        if (!detector) {
+            await initPoseDetector();
+        }
+        presPoseInterval = setInterval(async () => {
+            if (detector && videoEl.readyState >= 2) {
+                const poses = await detector.estimateMultiplePoses(videoEl, { maxPoseDetections: 1 });
+                if (poses.length > 0) {
+                    const pose = poses[0];
+                    // Simple heuristics for posture and hands
+                    const nose = pose.keypoints.find(k => k.part === 'nose');
+                    const leftWrist = pose.keypoints.find(k => k.part === 'leftWrist');
+                    const rightWrist = pose.keypoints.find(k => k.part === 'rightWrist');
+                    
+                    if (nose && nose.score > 0.5) {
+                        latestPostureConfidence = nose.position.y > 300 ? 50 : 90; // mock heuristic
+                    }
+                    if ((leftWrist && leftWrist.score > 0.5) || (rightWrist && rightWrist.score > 0.5)) {
+                        latestHandActivity = 75; // Hand detected
+                        document.getElementById('pres-gesture-text').textContent = "Great hand gestures!";
+                        document.getElementById('pres-gesture-text').style.color = "#10b981";
+                    } else {
+                        latestHandActivity = 10;
+                        document.getElementById('pres-gesture-text').textContent = "Try using your hands more.";
+                        document.getElementById('pres-gesture-text').style.color = "#f59e0b";
+                    }
+                }
+            }
+        }, 1000);
+        
+        // Start Live Analysis Polling (every 15 seconds)
+        presInterval = setInterval(async () => {
+            if (currentPresTranscript.length > 20) {
+                try {
+                    const res = await fetch('/api/presentation/live-analysis', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            presId: currentPresId, 
+                            transcript: currentPresTranscript,
+                            lastQuestion: window.lastAskedQuestion || null,
+                            bodyLanguage: { postureConfidence: latestPostureConfidence, handActivity: latestHandActivity }
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success && data.result) {
+                        if (data.result.shouldInterrupt && data.result.question) {
+                            // Show interruption
+                            window.lastAskedQuestion = data.result.question;
+                            document.getElementById('pres-interruption-text').textContent = data.result.question;
+                            document.getElementById('pres-interruption-box').style.display = 'block';
+                            
+                            // Optional text-to-speech for the AI question
+                            if ('speechSynthesis' in window) {
+                                const utterance = new SpeechSynthesisUtterance(data.result.question);
+                                window.speechSynthesis.speak(utterance);
+                            }
+                            
+                            // Clear transcript to avoid repeated triggers on the same text
+                            currentPresTranscript = ""; 
+                        } else if (data.result.feedbackOnAnswer) {
+                            // The AI has listened to the answer and provided feedback
+                            window.lastAskedQuestion = null; // reset state
+                            document.getElementById('pres-interruption-box').style.display = 'none'; // hide the old question
+                            
+                            // Display feedback in the advice box
+                            document.getElementById('pres-bl-advice-text').textContent = "Coach: " + data.result.feedbackOnAnswer;
+                            document.getElementById('pres-bl-advice-box').style.display = 'block';
+                            setTimeout(() => { document.getElementById('pres-bl-advice-box').style.display = 'none'; }, 8000);
+                            
+                            currentPresTranscript = ""; 
+                        }
+                        
+                        if (data.result.bodyLanguageAdvice) {
+                            document.getElementById('pres-bl-advice-text').textContent = data.result.bodyLanguageAdvice;
+                            document.getElementById('pres-bl-advice-box').style.display = 'block';
+                            
+                            // Hide advice after 5 seconds
+                            setTimeout(() => {
+                                document.getElementById('pres-bl-advice-box').style.display = 'none';
+                            }, 5000);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Live analysis error", e);
+                }
+            }
+        }, 15000);
+        
+    } catch (e) {
+        console.error("Camera access denied", e);
+        alert("Please allow camera and microphone access.");
+        isLivePresentationActive = false;
+        stopLivePresentation();
+    }
+}
+
+async function stopLivePresentation() {
+    isLivePresentationActive = false;
+    document.getElementById('pres-start-btn').style.display = 'block';
+    document.getElementById('pres-stop-btn').style.display = 'none';
+    document.getElementById('pres-gesture-overlay').style.display = 'none';
+    document.getElementById('pres-start-btn').textContent = "▶️ Restart Presentation";
+    
+    if (presStream) {
+        presStream.getTracks().forEach(track => track.stop());
+        presStream = null;
+    }
+    if (presSpeechRec) {
+        presSpeechRec.stop();
+        presSpeechRec = null;
+    }
+    if (presInterval) clearInterval(presInterval);
+    if (presPoseInterval) clearInterval(presPoseInterval);
+    
+    // Fetch final feedback
+    if (fullPresTranscript.length > 20) {
+        document.getElementById('pres-loading').style.display = 'block';
+        document.getElementById('pres-practice').style.display = 'none';
+        
+        try {
+            const res = await fetch('/api/presentation/finish-live', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ presId: currentPresId, transcript: fullPresTranscript })
+            });
+            const data = await res.json();
+            
+            document.getElementById('pres-loading').style.display = 'none';
+            document.getElementById('pres-practice').style.display = 'flex';
+            
+            if (data.success && data.result) {
+                document.getElementById('pres-final-score').textContent = data.result.overallScore;
+                document.getElementById('pres-final-strengths').innerHTML = data.result.strengths.map(s => `<li>${s}</li>`).join('');
+                document.getElementById('pres-final-improvements').innerHTML = data.result.improvements.map(i => `<li>${i}</li>`).join('');
+                document.getElementById('pres-final-feedback').style.display = 'block';
+                
+                // Scroll to feedback
+                setTimeout(() => {
+                    document.getElementById('pres-final-feedback').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+        } catch (e) {
+            console.error("Error finalizing presentation:", e);
+            document.getElementById('pres-loading').style.display = 'none';
+            document.getElementById('pres-practice').style.display = 'flex';
+        }
+    }
+}
+
+
+// ==================== COMMUNICATION DNA ====================
+
+function animateDNAValue(elementId, targetValue, suffix = '%') {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    let current = 0;
+    const step = Math.ceil(targetValue / 40);
+    const interval = setInterval(() => {
+        current = Math.min(current + step, targetValue);
+        el.textContent = current + suffix;
+        if (current >= targetValue) clearInterval(interval);
+    }, 30);
+}
+
+async function startDNAAnalysis() {
+    const userId = localStorage.getItem('vdart_userId');
+    if (!userId) {
+        alert('Please log in first to use the DNA Sequencer.');
+        return;
+    }
+
+    const quizDone = localStorage.getItem('dna_quiz_done_' + userId);
+    
+    // Show quiz if not completed yet
+    if (!quizDone) {
+        document.getElementById('dna-quiz-section').style.display = 'block';
+        document.getElementById('dna-loading-section').style.display = 'none';
+        document.getElementById('dna-results-section').style.display = 'none';
+    } else {
+        // Already took quiz, go straight to analysis
+        await runDNAAnalysis(userId);
+    }
+}
+
+async function submitDNAQuiz() {
+    const userId = localStorage.getItem('vdart_userId');
+    if (!userId) return;
+
+    const answers = {};
+    ['q1','q2','q3','q4','q5'].forEach(q => {
+        const selected = document.querySelector(`input[name="${q}"]:checked`);
+        if (selected) answers[q] = selected.value;
+    });
+
+    if (Object.keys(answers).length < 5) {
+        alert('Please answer all 5 questions before submitting.');
+        return;
+    }
+
+    // Save quiz answers to backend
+    try {
+        await fetch('/api/dna/submit-quiz', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, answers })
+        });
+        localStorage.setItem('dna_quiz_done_' + userId, '1');
+    } catch (e) { console.error('Quiz submit error', e); }
+
+    await runDNAAnalysis(userId);
+}
+
+async function runDNAAnalysis(userId) {
+    document.getElementById('dna-quiz-section').style.display = 'none';
+    document.getElementById('dna-loading-section').style.display = 'block';
+    document.getElementById('dna-results-section').style.display = 'none';
+
+    try {
+        const res = await fetch('/api/dna/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId })
+        });
+        const data = await res.json();
+
+        document.getElementById('dna-loading-section').style.display = 'none';
+        document.getElementById('dna-results-section').style.display = 'block';
+
+        if (data.success && data.profile) {
+            const p = data.profile;
+            animateDNAValue('dna-verbal', p.verbal || 78);
+            animateDNAValue('dna-nonverbal', p.nonVerbal || 72);
+            animateDNAValue('dna-paraverbal', p.paraverbal || 80);
+            animateDNAValue('dna-emotional', p.emotional || 75);
+            document.getElementById('dna-profile-type').textContent = p.profileType || '—';
+            document.getElementById('dna-profile-desc').textContent = p.profileDesc || '—';
+            document.getElementById('dna-primary-style').textContent = p.primaryStyle || '—';
+            document.getElementById('dna-secondary-style').textContent = p.secondaryStyle || '—';
+            document.getElementById('dna-best-channel').textContent = p.bestChannel || '—';
+            document.getElementById('dna-peak-time').textContent = p.peakTime || '—';
+            document.getElementById('dna-stress-response').textContent = p.stressResponse || '—';
+            document.getElementById('dna-motivation').textContent = p.motivation || '—';
+        }
+    } catch (e) {
+        console.error('DNA analysis error', e);
+        document.getElementById('dna-loading-section').style.display = 'none';
+        document.getElementById('dna-results-section').style.display = 'block';
+    }
+}
+
+function retakeDNAQuiz() {
+    const userId = localStorage.getItem('vdart_userId');
+    if (userId) localStorage.removeItem('dna_quiz_done_' + userId);
+    document.getElementById('dna-results-section').style.display = 'none';
+    document.getElementById('dna-quiz-section').style.display = 'block';
+    // Reset radio buttons
+    document.querySelectorAll('input[type="radio"][name^="q"]').forEach(r => r.checked = false);
+}
+
+// Auto-trigger DNA Analysis when panel opens
+document.getElementById('dna-panel-toggle')?.addEventListener('click', startDNAAnalysis);
 </script>
 
     <!-- AI Assistant Panel -->

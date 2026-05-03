@@ -35,6 +35,16 @@ const presentationData = new Map();
 const accentScores = new Map();
 const voiceCoaching = new Map();
 
+// DNA history: userId -> { quiz, voiceSessions[], presentationSessions[] }
+const dnaHistory = new Map();
+
+function getDnaRecord(userId) {
+    if (!dnaHistory.has(userId)) {
+        dnaHistory.set(userId, { quiz: null, voiceSessions: [], presentationSessions: [] });
+    }
+    return dnaHistory.get(userId);
+}
+
 // Simple linear regression model for voice scoring (persisted to disk)
 const MODEL_PATH = path.join(__dirname, 'voice_model.json');
 let voiceModel = {
@@ -248,7 +258,7 @@ function parseJSONSafe(text) {
 
 async function aiAnalyzePrompt(prompt, fallback) {
     try {
-        const timeoutMs = 2500;
+        const timeoutMs = 15000;
         const result = await Promise.race([
             aiService.callOllamaPrompt(prompt),
             new Promise((_, reject) => setTimeout(() => reject(new Error('AI timeout')), timeoutMs))
@@ -957,6 +967,184 @@ app.post('/api/presentation/practice', async (req, res) => {
     } else {
         res.json({ success: false, message: 'Presentation not found' });
     }
+});
+
+app.post('/api/presentation/submit-script', async (req, res) => {
+    const { presId, script } = req.body;
+    const pres = presentationData.get(presId);
+    if (pres) {
+        const fallback = {
+            improvements: [
+                "Consider adding a stronger hook at the beginning.",
+                "Provide more concrete examples in your body paragraphs.",
+                "Your closing could have a clearer call to action."
+            ],
+            followUpQuestions: [
+                "Can you elaborate on your second point?",
+                "How would you address the primary risk mentioned?"
+            ],
+            overallScore: 85
+        };
+        const prompt = `You are an elite presentation coach. Evaluate this exact presentation script for topic "${pres.topic}" and audience "${pres.audience}":
+
+"${script}"
+
+Return ONLY a valid JSON object with EXACTLY the following structure:
+{
+  "improvements": ["Highly specific suggestion 1 referencing exact words from the script", "Highly specific suggestion 2", "Highly specific suggestion 3"],
+  "followUpQuestions": ["A challenging question that directly quotes or challenges a specific claim made in the script", "A question asking for clarification on a specific point mentioned"],
+  "overallScore": 85
+}
+Do NOT return generic advice. Every improvement and follow-up question MUST directly reference or quote the provided script.`;
+        const result = await aiAnalyzePrompt(prompt, fallback);
+        res.json({ success: true, result });
+    } else {
+        res.json({ success: false, message: 'Presentation not found' });
+    }
+});
+
+app.post('/api/presentation/live-analysis', async (req, res) => {
+    const { presId, transcript, bodyLanguage } = req.body;
+    const pres = presentationData.get(presId);
+    
+    if (pres) {
+        console.log(`Live analysis triggered. Transcript length: ${transcript.split(' ').length} words.`);
+        // If transcript is too short or empty, just return no interruption
+        if (!transcript || transcript.split(' ').length < 5) {
+            return res.json({ success: true, result: { shouldInterrupt: false } });
+        }
+        
+        const fallback = {
+            shouldInterrupt: false,
+            question: null,
+            feedbackOnAnswer: null,
+            bodyLanguageAdvice: null
+        };
+        
+        const prompt = `You are a supportive, friendly live presentation coach monitoring a presentation about "${pres.topic}".
+Recent speech from speaker: "${transcript}"
+${req.body.lastQuestion ? `The speaker is currently answering your previous question: "${req.body.lastQuestion}"` : ''}
+Current body language metrics: Posture Confidence: ${bodyLanguage.postureConfidence}%, Hand Activity: ${bodyLanguage.handActivity}%.
+
+Your goal is to help the speaker succeed. 
+If they are answering your previous question, evaluate their answer. Give brief, encouraging feedback (feedbackOnAnswer) and let them continue (shouldInterrupt: false).
+If they are NOT answering a previous question, you may occasionally interrupt them with a very gentle, easy, clarifying question (shouldInterrupt: true) to help them expand on a point they just made. Do not ask difficult or out-of-scope questions. Match their level.
+
+Return ONLY a valid JSON object with EXACTLY the following structure:
+{
+  "shouldInterrupt": boolean,
+  "question": "A gentle, clarifying question (if interrupting, else null)",
+  "feedbackOnAnswer": "Brief, encouraging feedback on their answer (if they were answering a question, else null)",
+  "bodyLanguageAdvice": "Brief advice like 'Try using more hand gestures!' or 'Stand up straighter!' if metrics demand it, otherwise null"
+}`;
+        const result = await aiAnalyzePrompt(prompt, fallback);
+        console.log(`Live analysis AI response:`, result);
+        res.json({ success: true, result });
+    } else {
+        res.json({ success: false, message: 'Presentation not found' });
+    }
+});
+
+app.post('/api/presentation/finish-live', async (req, res) => {
+    const { presId, transcript } = req.body;
+    const pres = presentationData.get(presId);
+    if (pres) {
+        const fallback = {
+            overallScore: 80,
+            strengths: ["Clear pronunciation", "Good pace"],
+            improvements: ["Use more varied vocabulary", "Expand on key points"]
+        };
+        const prompt = `You are a presentation coach. Evaluate this complete spoken transcript of a live presentation on topic "${pres.topic}": "${transcript}".
+Return ONLY a valid JSON object with EXACTLY the following structure:
+{
+  "overallScore": 85,
+  "strengths": ["Strength 1", "Strength 2"],
+  "improvements": ["Area for improvement 1", "Area for improvement 2"]
+}`;
+        const result = await aiAnalyzePrompt(prompt, fallback);
+        
+        // Save to DNA history
+        if (pres.userId) {
+            const record = getDnaRecord(pres.userId);
+            record.presentationSessions.push({
+                topic: pres.topic,
+                audience: pres.audience,
+                overallScore: result.overallScore,
+                transcriptLength: (transcript || '').split(' ').length
+            });
+        }
+        
+        res.json({ success: true, result });
+    } else {
+        res.json({ success: false, message: 'Presentation not found' });
+    }
+});
+
+// ==================== COMMUNICATION DNA ====================
+
+app.post('/api/dna/submit-quiz', (req, res) => {
+    const { userId, answers } = req.body;
+    if (!userId || !answers) return res.json({ success: false, message: 'Missing userId or answers' });
+    const record = getDnaRecord(userId);
+    record.quiz = answers;
+    res.json({ success: true });
+});
+
+app.post('/api/dna/analyze', async (req, res) => {
+    const { userId } = req.body;
+    if (!userId) return res.json({ success: false, message: 'Missing userId' });
+
+    const record = getDnaRecord(userId);
+
+    const fallback = {
+        verbal: 78, nonVerbal: 72, paraverbal: 80, emotional: 75,
+        profileType: 'Developing Communicator',
+        profileDesc: 'You are building your communication skills across multiple dimensions. Keep practicing!',
+        primaryStyle: 'Analytical', secondaryStyle: 'Direct',
+        bestChannel: 'Video Call', peakTime: 'Morning',
+        stressResponse: 'More Focused', motivation: 'Growth'
+    };
+
+    const quizSummary = record.quiz
+        ? `Quiz Answers: ${JSON.stringify(record.quiz)}`
+        : 'No quiz taken yet.';
+
+    const voiceSummary = record.voiceSessions.length > 0
+        ? `Voice Sessions (${record.voiceSessions.length} total): Avg Clarity=${Math.round(record.voiceSessions.reduce((s, v) => s + (v.clarityScore || 75), 0) / record.voiceSessions.length)}%, Avg Filler Words=${Math.round(record.voiceSessions.reduce((s, v) => s + (v.fillerWordCount || 0), 0) / record.voiceSessions.length)} per session, Avg Confidence=${Math.round(record.voiceSessions.reduce((s, v) => s + (v.confidenceScore || 75), 0) / record.voiceSessions.length)}%`
+        : 'No voice coaching sessions recorded yet.';
+
+    const presSummary = record.presentationSessions.length > 0
+        ? `Presentation Sessions (${record.presentationSessions.length} total): Topics covered: ${record.presentationSessions.map(p => p.topic).join(', ')}`
+        : 'No presentation sessions recorded yet.';
+
+    const prompt = `You are an expert communication psychologist. Analyze the following data about a user's communication performance and generate their unique Communication DNA profile.
+
+${quizSummary}
+
+${voiceSummary}
+
+${presSummary}
+
+Based on this data, generate a Communication DNA profile. If data is limited, make reasonable inferences from what you have.
+
+Return ONLY a valid JSON object with EXACTLY this structure:
+{
+  "verbal": <number 0-100: vocabulary richness, clarity, word choice>,
+  "nonVerbal": <number 0-100: body language awareness based on presentation data>,
+  "paraverbal": <number 0-100: tone, pace, filler words based on voice data>,
+  "emotional": <number 0-100: empathy, EQ, emotional awareness from quiz and tone>,
+  "profileType": "<2-3 word profile name e.g. Intuitive Connector>",
+  "profileDesc": "<2 sentence description of their unique communication style>",
+  "primaryStyle": "<one word: e.g. Analytical / Intuitive / Direct / Empathetic / Expressive>",
+  "secondaryStyle": "<one word>",
+  "bestChannel": "<e.g. Video Call / Email / In-Person / Messaging>",
+  "peakTime": "<e.g. Morning / Afternoon / Evening>",
+  "stressResponse": "<e.g. More Analytical / More Verbose / More Quiet / More Direct>",
+  "motivation": "<e.g. Achievement / Collaboration / Recognition / Mastery>"
+}`;
+
+    const result = await aiAnalyzePrompt(prompt, fallback);
+    res.json({ success: true, profile: result });
 });
 
 function generatePresentationStructure(topic, audience) {
@@ -1878,4 +2066,11 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`VDart Communication Hub running on http://localhost:${PORT}`);
+    // Auto-launch Microsoft Edge
+    const { exec } = require('child_process');
+    exec(`start msedge http://localhost:${PORT}`, (error) => {
+        if (error) {
+            console.error('Failed to open Microsoft Edge automatically:', error);
+        }
+    });
 });

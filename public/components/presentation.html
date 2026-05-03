@@ -6,48 +6,110 @@
             </div>
             <button class="close-panel" onclick="closePanel()">×</button>
         </div>
-        <div class="panel-content">
-            <div class="presentation-container">
+        <div class="panel-content" style="overflow-y: auto; max-height: calc(100vh - 100px);">
+            <!-- Setup Form -->
+            <div id="pres-setup" class="presentation-container" style="display: block; margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 1rem;">Setup Your Presentation</h4>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--gray);">Topic</label>
+                    <input type="text" id="pres-topic" placeholder="e.g., AI in Healthcare" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--gray);">Audience</label>
+                    <input type="text" id="pres-audience" placeholder="e.g., Medical Professionals" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--gray);">Duration (minutes)</label>
+                    <input type="number" id="pres-duration" placeholder="e.g., 15" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #333; background: #1a1a1a; color: white;">
+                </div>
+                <button class="btn btn-primary" onclick="preparePresentation()" style="width: 100%;">🚀 Generate Preparation</button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="pres-loading" style="display: none; text-align: center; padding: 2rem;">
+                <p style="color: var(--primary);">🤖 Analyzing and generating preparation materials...</p>
+            </div>
+
+            <!-- Results View -->
+            <div id="pres-results" class="presentation-container" style="display: none;">
                 <div>
-                    <div class="slide-preview">
-                        <div class="slide-title">Communication Excellence</div>
-                        <div class="slide-content">
-                            <p>Transform how you connect with others</p>
-                            <p style="color: var(--gray); margin-top: 0.5rem;">Key Takeaways:</p>
-                            <ul style="text-align: left; margin-top: 1rem;">
-                                <li>Real-time voice analysis</li>
-                                <li>AI-powered feedback</li>
-                                <li>Personalized improvement plans</li>
-                            </ul>
-                        </div>
+                    <h4 style="margin-bottom: 1rem;">Recommended Structure</h4>
+                    <div id="pres-structure" class="slide-preview" style="margin-bottom: 1rem; font-size: 0.9rem;">
+                        <!-- Generated structure will go here -->
                     </div>
                     <div style="margin-top: 1rem;">
-                        <button class="btn btn-primary" style="width: 100%;">🎤 Practice Mode</button>
+                        <button class="btn btn-primary" onclick="showLivePracticeMode()" style="width: 100%;">🎤 Enter Live Practice Mode</button>
                     </div>
                 </div>
                 <div class="qa-prep">
-                    <h4 style="margin-bottom: 1rem;">Q&A Preparation</h4>
-                    <div class="question-card">
-                        <div class="question-text">How long will implementation take?</div>
-                        <span class="difficulty-badge medium">Medium</span>
+                    <h4 style="margin-bottom: 1rem;">Initial Q&A Preparation</h4>
+                    <div id="pres-qa-list">
+                        <!-- Generated Q&A will go here -->
                     </div>
-                    <div class="question-card">
-                        <div class="question-text">What is the ROI?</div>
-                        <span class="difficulty-badge high">High</span>
+                </div>
+            </div>
+
+            <!-- Live Practice Mode View -->
+            <div id="pres-practice" class="presentation-container" style="display: none; flex-direction: column;">
+                <h4 style="margin-bottom: 1rem;">Live Practice Mode</h4>
+                <p style="color: var(--gray); margin-bottom: 1rem;">Deliver your presentation. The AI will analyze your speech and body language in real-time, and may interrupt you with questions.</p>
+                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <!-- Video Section -->
+                    <div style="flex: 1; min-width: 300px; position: relative;">
+                        <video id="pres-video" autoplay playsinline muted style="width: 100%; border-radius: 8px; border: 2px solid #333; background: #000;"></video>
+                        <div id="pres-gesture-overlay" style="position: absolute; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 0.5rem; border-radius: 4px; font-size: 0.8rem; display: none;">
+                            <span id="pres-gesture-text">Detecting posture...</span>
+                        </div>
                     </div>
-                    <div class="question-card">
-                        <div class="question-text">How does this compare to alternatives?</div>
-                        <span class="difficulty-badge medium">Medium</span>
+                    
+                    <!-- Transcript & Interruption Section -->
+                    <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column;">
+                        <div style="flex: 1; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; overflow-y: auto; max-height: 250px; margin-bottom: 1rem;">
+                            <h5 style="color: var(--gray); margin-bottom: 0.5rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem;">Live Transcript</h5>
+                            <div id="pres-transcript" style="font-size: 0.9rem; line-height: 1.5; color: #ddd;">
+                                <em>Waiting for speech...</em>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Interruption Box -->
+                        <div id="pres-interruption-box" style="display: none; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                            <h5 style="color: #ef4444; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                ⚠️ AI Follow-up Question
+                            </h5>
+                            <p id="pres-interruption-text" style="font-size: 0.95rem; margin-bottom: 1rem; font-weight: bold;"></p>
+                            <p style="font-size: 0.8rem; color: var(--gray);">Just answer it naturally and continue!</p>
+                        </div>
+                        
+                        <!-- Body Language Advice Box -->
+                        <div id="pres-bl-advice-box" style="display: none; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                            <h5 style="color: #3b82f6; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                👁️ Coach Advice
+                            </h5>
+                            <p id="pres-bl-advice-text" style="font-size: 0.95rem;"></p>
+                        </div>
                     </div>
-                    <div class="question-card">
-                        <div class="question-text">What are the risks?</div>
-                        <span class="difficulty-badge high">High</span>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <button id="pres-start-btn" class="btn btn-primary" onclick="startLivePresentation()" style="flex: 1;">▶️ Start Presentation</button>
+                    <button id="pres-stop-btn" class="btn btn-secondary" onclick="stopLivePresentation()" style="flex: 1; display: none;">✅ End & Get Feedback</button>
+                </div>
+                
+                <!-- Final Feedback Report -->
+                <div id="pres-final-feedback" style="display: none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #333;">
+                    <h3 style="margin-bottom: 1rem; color: var(--primary);">Presentation Feedback Report</h3>
+                    <div style="background: #1a1a1a; padding: 1.5rem; border-radius: 8px; border: 1px solid #333;">
+                        <h4 style="color: #10b981; margin-bottom: 0.5rem;">Overall Score: <span id="pres-final-score">0</span>/100</h4>
+                        <div style="margin-top: 1rem;">
+                            <h5 style="color: #fff; margin-bottom: 0.5rem;">Strengths</h5>
+                            <ul id="pres-final-strengths" style="margin-left: 1.5rem; color: #ddd; font-size: 0.9rem;"></ul>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <h5 style="color: #fff; margin-bottom: 0.5rem;">Areas for Improvement</h5>
+                            <ul id="pres-final-improvements" style="margin-left: 1.5rem; color: #ddd; font-size: 0.9rem;"></ul>
+                        </div>
                     </div>
-                    <div class="question-card">
-                        <div class="question-text">Can you provide references?</div>
-                        <span class="difficulty-badge low">Low</span>
-                    </div>
-                    <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">🎯 Generate More Questions</button>
                 </div>
             </div>
         </div>

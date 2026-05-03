@@ -222,6 +222,14 @@
                             console.warn('Could not reset email tone panel:', e);
                         }
                     }, 0);
+                } else if (feature === 'dna') {
+                    setTimeout(() => {
+                        try {
+                            startDNAAnalysis();
+                        } catch (e) {
+                            console.warn('Could not start DNA analysis:', e);
+                        }
+                    }, 0);
                 }
             }
         }
@@ -1401,3 +1409,151 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// ==================== PRESENTATIONS ====================
+let currentPresId = null;
+
+async function preparePresentation() {
+    const topic = document.getElementById('pres-topic').value;
+    const audience = document.getElementById('pres-audience').value;
+    const duration = document.getElementById('pres-duration').value;
+    
+    if (!topic || !audience || !duration) {
+        alert("Please fill in all setup fields.");
+        return;
+    }
+    
+    document.getElementById('pres-loading').style.display = 'block';
+    document.getElementById('pres-setup').style.display = 'none';
+    
+    try {
+        const res = await fetch('/api/presentation/prepare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: localStorage.getItem('vdart_user_id') || 'guest', topic, audience, duration })
+        });
+        const data = await res.json();
+        if (data.success) {
+            currentPresId = data.presentation.id;
+            const pres = data.presentation;
+            
+            // Render structure
+            let structHtml = `
+                <div class="slide-title">Opening</div>
+                <div class="slide-content">
+                    <p><strong>Hook:</strong> ${pres.structure.opening.hook}</p>
+                    <p><strong>Agenda:</strong> ${pres.structure.opening.agenda}</p>
+                    <p><strong>Objective:</strong> ${pres.structure.opening.objective}</p>
+                </div>
+                <div class="slide-title" style="margin-top: 1rem;">Body</div>
+                <div class="slide-content">
+                    <ul style="text-align: left; margin-top: 0.5rem;">
+                        ${pres.structure.body.map(b => `<li>${b.point} (${b.duration})</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="slide-title" style="margin-top: 1rem;">Closing</div>
+                <div class="slide-content">
+                    <p><strong>Summary:</strong> ${pres.structure.closing.summary}</p>
+                    <p><strong>Call to Action:</strong> ${pres.structure.closing.callToAction}</p>
+                </div>
+            `;
+            document.getElementById('pres-structure').innerHTML = structHtml;
+            
+            // Render Q&A
+            let qaHtml = pres.qaPrep.likelyQuestions.map(q => `
+                <div class="question-card">
+                    <div class="question-text">${q.question}</div>
+                    <span class="difficulty-badge ${q.difficulty}">${q.difficulty}</span>
+                </div>
+            `).join('');
+            document.getElementById('pres-qa-list').innerHTML = qaHtml;
+            
+            document.getElementById('pres-loading').style.display = 'none';
+            document.getElementById('pres-results').style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Error preparing presentation:', e);
+        document.getElementById('pres-loading').style.display = 'none';
+        document.getElementById('pres-setup').style.display = 'block';
+        alert('Failed to generate presentation prep.');
+    }
+}
+
+function showPracticeMode() {
+    document.getElementById('pres-results').style.display = 'none';
+    document.getElementById('pres-practice').style.display = 'flex';
+}
+
+async function submitPresentationScript() {
+    const script = document.getElementById('pres-script').value;
+    if (!script) {
+        alert("Please enter a presentation script.");
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/presentation/submit-script', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ presId: currentPresId, script })
+        });
+        const data = await res.json();
+        if (data.success) {
+            const result = data.result;
+            
+            // Render improvements
+            document.getElementById('pres-score').textContent = result.overallScore;
+            document.getElementById('pres-improvements').innerHTML = result.improvements.map(i => `<li>${i}</li>`).join('');
+            
+            // Render follow up questions
+            document.getElementById('pres-followup-list').innerHTML = result.followUpQuestions.map(q => `
+                <div style="background: rgba(255, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span>${q}</span>
+                    <button class="btn btn-secondary" onclick="practiceQuestion('${q.replace(/'/g, "\\'")}')">Answer</button>
+                </div>
+            `).join('');
+            
+            document.getElementById('pres-feedback-area').style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Error submitting script:', e);
+        alert('Failed to submit script.');
+    }
+}
+
+function practiceQuestion(question) {
+    document.getElementById('pres-answer-area').style.display = 'block';
+    document.getElementById('pres-current-question').textContent = question;
+    document.getElementById('pres-answer').value = '';
+    document.getElementById('pres-answer-feedback').style.display = 'none';
+}
+
+async function submitPracticeAnswer() {
+    const question = document.getElementById('pres-current-question').textContent;
+    const answer = document.getElementById('pres-answer').value;
+    
+    if (!answer) {
+        alert("Please enter an answer.");
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/presentation/practice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ presId: currentPresId, question, answer })
+        });
+        const data = await res.json();
+        if (data.success) {
+            const fb = data.feedback;
+            document.getElementById('pres-answer-feedback').innerHTML = `
+                <h4 style="color: #3b82f6; margin-bottom: 0.5rem;">AI Feedback (Score: ${fb.overall}/100)</h4>
+                <p><strong>Clarity:</strong> ${fb.clarity} | <strong>Completeness:</strong> ${fb.completeness}</p>
+                <p style="margin-top: 0.5rem;">${fb.feedback}</p>
+            `;
+            document.getElementById('pres-answer-feedback').style.display = 'block';
+        }
+    } catch (e) {
+        console.error('Error submitting answer:', e);
+        alert('Failed to submit answer.');
+    }
+}

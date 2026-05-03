@@ -2,99 +2,195 @@
         <div class="panel-header">
             <div>
                 <h2 class="panel-title">🧬 Communication DNA Sequencer</h2>
-                <p style="color: var(--gray);">Discover your unique communication profile</p>
+                <p style="color: var(--gray);">AI-powered analysis of your unique communication profile</p>
             </div>
             <button class="close-panel" onclick="closePanel()">×</button>
         </div>
         <div class="panel-content">
-            <div class="dna-visualization">
-                <div class="dna-section">
-                    <h4>Verbal</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.2s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.4s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.6s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.8s;"></div>
-                    </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">88%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Vocabulary & Clarity</p>
-                    </div>
+
+            <!-- QUIZ SECTION -->
+            <div id="dna-quiz-section" style="display:none;">
+                <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <h4 style="color: var(--primary); margin-bottom: 0.5rem;">🧠 Quick Communication Style Quiz</h4>
+                    <p style="color: var(--gray); font-size: 0.9rem;">Answer 5 quick questions so we can calibrate your DNA profile. Takes about 60 seconds.</p>
                 </div>
-                <div class="dna-section">
-                    <h4>Non-Verbal</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.1s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.3s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.5s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.7s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.9s;"></div>
+
+                <div id="dna-quiz-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <!-- Q1 -->
+                    <div class="dna-q">
+                        <p style="font-weight: 600; margin-bottom: 0.75rem;">1. When explaining a complex idea, you prefer to:</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label class="dna-radio-label"><input type="radio" name="q1" value="story"> Tell a story or use an analogy</label>
+                            <label class="dna-radio-label"><input type="radio" name="q1" value="data"> Present data and facts first</label>
+                            <label class="dna-radio-label"><input type="radio" name="q1" value="visual"> Draw it out or use visuals</label>
+                            <label class="dna-radio-label"><input type="radio" name="q1" value="direct"> Get straight to the point</label>
+                        </div>
                     </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">82%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Body Language</p>
+                    <!-- Q2 -->
+                    <div class="dna-q">
+                        <p style="font-weight: 600; margin-bottom: 0.75rem;">2. In a conflict situation, you tend to:</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label class="dna-radio-label"><input type="radio" name="q2" value="empathize"> Listen and empathize first</label>
+                            <label class="dna-radio-label"><input type="radio" name="q2" value="solve"> Focus on finding the solution</label>
+                            <label class="dna-radio-label"><input type="radio" name="q2" value="withdraw"> Step back and reflect alone</label>
+                            <label class="dna-radio-label"><input type="radio" name="q2" value="debate"> Debate and defend your position</label>
+                        </div>
                     </div>
-                </div>
-                <div class="dna-section">
-                    <h4>Paraverbal</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.15s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.35s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.55s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.75s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.95s;"></div>
+                    <!-- Q3 -->
+                    <div class="dna-q">
+                        <p style="font-weight: 600; margin-bottom: 0.75rem;">3. Your best communication channel is:</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label class="dna-radio-label"><input type="radio" name="q3" value="video"> Video calls (face-to-face feel)</label>
+                            <label class="dna-radio-label"><input type="radio" name="q3" value="email"> Email (time to craft thoughts)</label>
+                            <label class="dna-radio-label"><input type="radio" name="q3" value="inperson"> In-person meetings</label>
+                            <label class="dna-radio-label"><input type="radio" name="q3" value="message"> Chat / Messaging apps</label>
+                        </div>
                     </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">85%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Tone & Pace</p>
+                    <!-- Q4 -->
+                    <div class="dna-q">
+                        <p style="font-weight: 600; margin-bottom: 0.75rem;">4. Under stress, your communication style becomes:</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label class="dna-radio-label"><input type="radio" name="q4" value="analytical"> More analytical and detail-oriented</label>
+                            <label class="dna-radio-label"><input type="radio" name="q4" value="quiet"> More quiet and withdrawn</label>
+                            <label class="dna-radio-label"><input type="radio" name="q4" value="verbose"> More verbose and expressive</label>
+                            <label class="dna-radio-label"><input type="radio" name="q4" value="direct"> More blunt and direct</label>
+                        </div>
                     </div>
-                </div>
-                <div class="dna-section">
-                    <h4>Emotional</h4>
-                    <div class="dna-helix">
-                        <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.05s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.25s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.45s;"></div>
-                        <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.65s;"></div>
-                        <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.85s;"></div>
+                    <!-- Q5 -->
+                    <div class="dna-q">
+                        <p style="font-weight: 600; margin-bottom: 0.75rem;">5. What motivates your best communication?</p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <label class="dna-radio-label"><input type="radio" name="q5" value="achievement"> Achieving results and goals</label>
+                            <label class="dna-radio-label"><input type="radio" name="q5" value="collaboration"> Building relationships and teamwork</label>
+                            <label class="dna-radio-label"><input type="radio" name="q5" value="recognition"> Being understood and recognized</label>
+                            <label class="dna-radio-label"><input type="radio" name="q5" value="mastery"> Mastering and perfecting the craft</label>
+                        </div>
                     </div>
-                    <div style="margin-top: 1rem;">
-                        <div style="font-size: 1.5rem; font-weight: 700;">90%</div>
-                        <p style="color: var(--gray); font-size: 0.85rem;">Empathy & EQ</p>
-                    </div>
-                </div>
-            </div>
-            <div class="dna-profile">
-                <h4 style="margin-bottom: 1rem;">Your Communication Profile</h4>
-                <div class="profile-type">Intuitive Communicator</div>
-                <p style="color: var(--gray);">You excel at reading between the lines and adapting your message to your audience. Your natural empathy makes you excellent at building rapport.</p>
-                <div class="profile-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Primary Style</div>
-                        <div class="detail-value">Intuitive</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Secondary Style</div>
-                        <div class="detail-value">Direct</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Best Channel</div>
-                        <div class="detail-value">Video Call</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Peak Time</div>
-                        <div class="detail-value">Morning</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Stress Response</div>
-                        <div class="detail-value">More Analytical</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Motivation</div>
-                        <div class="detail-value">Achievement</div>
-                    </div>
+
+                    <button class="btn btn-primary" onclick="submitDNAQuiz()" style="margin-top: 0.5rem;">
+                        🧬 Generate My DNA Profile
+                    </button>
                 </div>
             </div>
+
+            <!-- LOADING SECTION -->
+            <div id="dna-loading-section" style="display:none; text-align: center; padding: 3rem;">
+                <div style="font-size: 3rem; animation: spin 1.5s linear infinite; display: inline-block;">🧬</div>
+                <p style="margin-top: 1rem; color: var(--gray);">AI is sequencing your communication DNA...</p>
+                <p style="color: var(--gray); font-size: 0.85rem;">This combines your quiz, voice data, and presentation history.</p>
+            </div>
+
+            <!-- RESULTS SECTION -->
+            <div id="dna-results-section" style="display:none;">
+                <div class="dna-visualization">
+                    <div class="dna-section">
+                        <h4>Verbal</h4>
+                        <div class="dna-helix">
+                            <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.2s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.4s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.6s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.8s;"></div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <div id="dna-verbal" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">-</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Vocabulary &amp; Clarity</p>
+                        </div>
+                    </div>
+                    <div class="dna-section">
+                        <h4>Non-Verbal</h4>
+                        <div class="dna-helix">
+                            <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.1s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.3s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.5s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.7s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.9s;"></div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <div id="dna-nonverbal" style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">-</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Body Language</p>
+                        </div>
+                    </div>
+                    <div class="dna-section">
+                        <h4>Paraverbal</h4>
+                        <div class="dna-helix">
+                            <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.15s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.35s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.55s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.75s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.95s;"></div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <div id="dna-paraverbal" style="font-size: 1.5rem; font-weight: 700; color: var(--accent);">-</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Tone &amp; Pace</p>
+                        </div>
+                    </div>
+                    <div class="dna-section">
+                        <h4>Emotional</h4>
+                        <div class="dna-helix">
+                            <div class="dna-strand" style="left: 20px; top: 10px; animation-delay: 0.05s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 30px; animation-delay: 0.25s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 50px; animation-delay: 0.45s;"></div>
+                            <div class="dna-strand" style="left: 35px; top: 70px; animation-delay: 0.65s;"></div>
+                            <div class="dna-strand" style="left: 20px; top: 90px; animation-delay: 0.85s;"></div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <div id="dna-emotional" style="font-size: 1.5rem; font-weight: 700; color: var(--success);">-</div>
+                            <p style="color: var(--gray); font-size: 0.85rem;">Empathy &amp; EQ</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="dna-profile">
+                    <h4 style="margin-bottom: 1rem;">Your Communication Profile</h4>
+                    <div id="dna-profile-type" class="profile-type">—</div>
+                    <p id="dna-profile-desc" style="color: var(--gray);">—</p>
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Primary Style</div>
+                            <div id="dna-primary-style" class="detail-value">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Secondary Style</div>
+                            <div id="dna-secondary-style" class="detail-value">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Best Channel</div>
+                            <div id="dna-best-channel" class="detail-value">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Peak Time</div>
+                            <div id="dna-peak-time" class="detail-value">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Stress Response</div>
+                            <div id="dna-stress-response" class="detail-value">—</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Motivation</div>
+                            <div id="dna-motivation" class="detail-value">—</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="retakeDNAQuiz()" style="margin-top: 1.5rem; font-size: 0.85rem;">🔄 Retake Quiz &amp; Re-Analyze</button>
+                </div>
+            </div>
+
         </div>
-    </div>
+    </div>
+
+    <style>
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .dna-radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .dna-radio-label:hover { background: rgba(99,102,241,0.15); border-color: var(--primary); }
+        .dna-radio-label input[type="radio"] { accent-color: var(--primary); }
+        .dna-q { background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.07); }
+    </style>
