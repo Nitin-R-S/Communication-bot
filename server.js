@@ -1257,75 +1257,73 @@ app.post('/api/email-tone/analyze', async (req, res) => {
 
 // Gemma-powered email analysis
 async function analyzeEmailWithGemma(emailContent, recipient, purpose) {
-    const prompt = `You are an expert email editor and communication coach. Analyze the following email and return a JSON object with these exact fields:
+    const prompt = `You are a professional writing assistant. Fix all errors in the email.
 
-EMAIL:
-"""
-${emailContent}
-"""
-${recipient ? `RECIPIENT: ${recipient}` : ''}
-${purpose ? `PURPOSE: ${purpose}` : ''}
-
-Return ONLY a valid JSON object (no markdown, no explanation) with these fields:
+EXAMPLE:
+Input: "helloo i am write this to tell u that i recieve the package"
+JSON:
 {
-  "spellingIssues": ["list of strings describing each spelling mistake and its correction, e.g. 'Change \"recieve\" to \"receive\"'"],
-  "grammarIssues": ["list of strings describing each grammar issue and fix, e.g. 'Capitalize \"i\" to \"I\" when referring to yourself'"],
-  "toneAnalysis": {
-    "formality": "formal or casual or semi-formal",
-    "friendliness": "warm or neutral or cold",
-    "urgency": "high or normal or low",
-    "confidence": "confident or tentative or assertive",
-    "empathy": "empathetic or neutral or detached"
-  },
-  "score": 75,
-  "changesToMake": ["list of specific actionable improvements"],
-  "suggestions": ["list of general tips to improve the email"],
-  "correctedDraft": "the email with all spelling and grammar errors fixed, keeping the original style",
-  "rewrittenDraft": "a professionally rewritten version of the email that is clear, concise, and well-structured"
+  "spellingIssues": ["Change 'helloo' to 'Hello'", "Change 'recieve' to 'receive'"],
+  "grammarIssues": ["Change 'i am write' to 'I am writing'", "Change 'u' to 'you'"],
+  "toneAnalysis": {"formality": "casual", "friendliness": "warm", "urgency": "normal", "confidence": "neutral", "empathy": "neutral"},
+  "score": 60,
+  "changesToMake": ["Fixed spelling of hello and receive", "Corrected verb tense and capitalization"],
+  "suggestions": ["Use formal greetings for professional emails"],
+  "correctedDraft": "Hello, I am writing this to tell you that I received the package.",
+  "rewrittenDraft": "Hello, I am writing to confirm that I have received the package."
 }
 
-Important rules:
-- Find ALL spelling mistakes, even subtle ones
-- Find ALL grammar issues including punctuation, capitalization, subject-verb agreement
-- The score should be 0-100 based on overall quality (spelling, grammar, tone, clarity, structure)
-- The correctedDraft should fix errors but keep the author's voice
-- The rewrittenDraft should be a polished, professional version
-- Return ONLY the JSON, no other text`;
+YOUR TURN:
+Input: "${emailContent}"
+${recipient ? `Recipient: ${recipient}` : ''}
+${purpose ? `Purpose: ${purpose}` : ''}
+
+JSON:`;
 
     const rawResponse = await aiService.callOllamaPrompt(prompt);
+    
+    // Attempt to extract and repair JSON
+    let parsed = null;
+    let jsonString = rawResponse;
 
-    // Try to parse the JSON from the response
-    let parsed = aiService.parseJSONSafe(rawResponse);
-
-    if (!parsed) {
-        // Sometimes Gemma wraps in markdown code fences
-        const jsonMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-            parsed = aiService.parseJSONSafe(jsonMatch[1].trim());
+    // 1. Try to find JSON block in markdown
+    const jsonMatch = rawResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) jsonString = jsonMatch[1].trim();
+    else {
+        // 2. Try to find the first '{' and last '}'
+        const firstBrace = rawResponse.indexOf('{');
+        const lastBrace = rawResponse.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            jsonString = rawResponse.substring(firstBrace, lastBrace + 1);
         }
     }
 
+    parsed = aiService.parseJSONSafe(jsonString);
+
     if (!parsed) {
-        // Try to find a JSON object in the response
-        const braceMatch = rawResponse.match(/\{[\s\S]*\}/);
-        if (braceMatch) {
-            parsed = aiService.parseJSONSafe(braceMatch[0]);
-        }
+        // 3. Try to repair common JSON errors (unescaped quotes)
+        try {
+            const repaired = jsonString.replace(/":\s*"([\s\S]*?)"\s*([,}])/g, (match, p1, p2) => {
+                const escaped = p1.replace(/(?<!\\)"/g, '\\"');
+                return `": "${escaped}"${p2}`;
+            });
+            parsed = aiService.parseJSONSafe(repaired);
+        } catch (e) {}
     }
 
     if (!parsed) {
-        console.warn('Could not parse Gemma response for email analysis');
+        console.warn('Gemma Response:', rawResponse);
+        console.warn('Could not parse Gemma response for email analysis after repair attempts');
         return null;
     }
 
-    // Normalize arrays to be arrays of strings
     const normalizeArray = (arr) => {
         if (!Array.isArray(arr)) return [];
         return arr.map(item => typeof item === 'string' ? item : (item.message || JSON.stringify(item)));
     };
 
     return {
-        spellingIssues: normalizeArray(parsed.spellingIssues),
+        spellingIssues: normalizeArray(parsed.spellingIssues).filter(s => !s.toLowerCase().includes('recieve')), // Filter common hallucination
         grammarIssues: normalizeArray(parsed.grammarIssues),
         toneAnalysis: parsed.toneAnalysis || {},
         score: Number(parsed.score) || 70,
