@@ -109,15 +109,15 @@
         }
 
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-1);
-            border-radius: 10px;
+            height: 36px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.2rem;
+        }
+
+        .logo-icon img {
+            height: 100%;
+            width: auto;
+            filter: brightness(0) invert(1);
         }
 
         .logo-text {
@@ -1312,8 +1312,7 @@
 
     <header>
         <div class="logo">
-            <div class="logo-icon">V</div>
-            <span class="logo-text">VDart CommHub</span>
+            <div class="logo-icon"><img src="logo.svg" alt="VDart Logo"></div>
         </div>
         <nav class="nav-links">
             <a href="#" class="active" data-feature="dashboard">Dashboard</a>
