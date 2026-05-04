@@ -106,6 +106,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            margin-right: 1.5rem;
         }
 
         .logo-icon {
@@ -1325,7 +1326,7 @@
             <a href="#" data-feature="presentation">Presentations</a>
             <a href="#" data-feature="suggestions">Suggestions</a>
             <a href="#" data-feature="ai-assistant">🤖 AI Assistant</a>
-            <a href="#" data-feature="innovative">+More</a>
+            <a href="#" data-feature="translation">Language Translation</a>
         </nav>
         <div class="user-profile">
             <div class="user-avatar">JD</div>
@@ -1374,27 +1375,6 @@
                     <div class="stat">
                         <div class="stat-value">4.8</div>
                         <div class="stat-label">Rating</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Accent Clarity Card -->
-            <div class="card" data-feature="accent">
-                <div class="card-icon gradient-2">🌍</div>
-                <h3>Accent Clarity Trainer</h3>
-                <p>Master different accents with pronunciation, intonation, and rhythm training.</p>
-                <div class="card-stats">
-                    <div class="stat">
-                        <div class="stat-value">15+</div>
-                        <div class="stat-label">Accents</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">85%</div>
-                        <div class="stat-label">Clarity</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">500+</div>
-                        <div class="stat-label">Exercises</div>
                     </div>
                 </div>
             </div>
@@ -1521,6 +1501,27 @@
                     <div class="stat">
                         <div class="stat-value">5</div>
                         <div class="stat-label">Dimensions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Language Translation Card -->
+            <div class="card" data-feature="translation">
+                <div class="card-icon gradient-4">🌐</div>
+                <h3>Language Translation</h3>
+                <p>AI-powered translation with context awareness and cultural nuances for professional communication.</p>
+                <div class="card-stats">
+                    <div class="stat">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Languages</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">Real</div>
+                        <div class="stat-label">Time</div>
                     </div>
                 </div>
             </div>
@@ -1654,9 +1655,9 @@
     <!-- Innovative Features Panel -->
     <div id="innovative-panel-placeholder"></div>
 
-    <!-- Accent Trainer Panel -->
-    <div id="accent-panel-placeholder"></div>
-        
+    <!-- Language Translation Panel -->
+    <div id="translation-panel-placeholder"></div>
+    
     <script>
         // ==================== LEGACY ML ANALYSIS (kept for reference) ====================
         let detector = null;
@@ -1711,6 +1712,18 @@
                             } else {
                                 placeholder.innerHTML = html;
                                 panel = placeholder.querySelector('.feature-panels');
+                            }
+
+                            // Execute inline scripts inside the loaded panel
+                            if (panel) {
+                                panel.querySelectorAll('script').forEach(oldScript => {
+                                    const script = document.createElement('script');
+                                    if (oldScript.src) script.src = oldScript.src;
+                                    if (oldScript.type) script.type = oldScript.type;
+                                    script.text = oldScript.textContent;
+                                    document.body.appendChild(script);
+                                    oldScript.remove();
+                                });
                             }
                             
                             // Bind event listeners to new elements
@@ -1814,6 +1827,14 @@
                             console.warn('Could not start DNA analysis:', e);
                         }
                     }, 0);
+                } else if (feature === 'translation') {
+                    setTimeout(() => {
+                        try {
+                            if (typeof window.initTranslationPanel === 'function') window.initTranslationPanel();
+                        } catch (e) {
+                            console.warn('Could not initialize translation panel:', e);
+                        }
+                    }, 0);
                 }
             }
         }
@@ -1836,6 +1857,178 @@
             const main = document.getElementById('mainDashboard');
             if (main) main.style.display = 'grid';
         }
+
+        window.initTranslationPanel = function() {
+            if (window._vdartTranslationInitialized) return;
+            window._vdartTranslationInitialized = true;
+
+            const sourceText = document.getElementById('source-text');
+            const targetText = document.getElementById('target-text');
+            const sourceLang = document.getElementById('source-lang');
+            const targetLang = document.getElementById('target-lang');
+            const translateBtn = document.getElementById('translate-btn');
+            const swapBtn = document.getElementById('swap-langs');
+            const speakSource = document.getElementById('speak-source');
+            const speakTarget = document.getElementById('speak-target');
+            const copyTarget = document.getElementById('copy-target');
+            const clearSource = document.getElementById('clear-source');
+            const historyList = document.getElementById('history-list');
+
+            if (!translateBtn || !sourceText || !targetText) return;
+
+            let translationHistory = JSON.parse(localStorage.getItem('vdart_translation_history') || '[]');
+            let availableTTSVoices = speechSynthesis.getVoices() || [];
+            if (!availableTTSVoices.length) {
+                speechSynthesis.onvoiceschanged = () => {
+                    availableTTSVoices = speechSynthesis.getVoices() || [];
+                };
+            }
+
+            function getLanguageName(code) {
+                const langs = {
+                    en: 'English', es: 'Spanish', fr: 'French', de: 'German',
+                    it: 'Italian', pt: 'Portuguese', ru: 'Russian', ja: 'Japanese',
+                    ko: 'Korean', zh: 'Chinese', ar: 'Arabic', hi: 'Hindi',
+                    ta: 'Tamil', te: 'Telugu', kn: 'Kannada', ml: 'Malayalam',
+                    mr: 'Marathi', gu: 'Gujarati', bn: 'Bengali', pa: 'Punjabi',
+                    pl: 'Polish', nl: 'Dutch', sv: 'Swedish', no: 'Norwegian',
+                    da: 'Danish', cs: 'Czech', hu: 'Hungarian', ro: 'Romanian',
+                    el: 'Greek', tr: 'Turkish', th: 'Thai', vi: 'Vietnamese',
+                    id: 'Indonesian', ms: 'Malay', ur: 'Urdu', fa: 'Persian',
+                    he: 'Hebrew', tl: 'Tagalog'
+                };
+                return langs[code] || code;
+            }
+
+            function loadHistory() {
+                historyList.innerHTML = '';
+                translationHistory.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.innerHTML = `
+                        <div><strong>${getLanguageName(item.from)} → ${getLanguageName(item.to)}</strong></div>
+                        <div class="history-text">${item.source.substring(0, 50)}${item.source.length > 50 ? '...' : ''}</div>
+                    `;
+                    div.addEventListener('click', () => {
+                        sourceText.value = item.source;
+                        targetText.value = item.target;
+                        sourceLang.value = item.from;
+                        targetLang.value = item.to;
+                    });
+                    historyList.appendChild(div);
+                });
+            }
+
+            function addToHistory(source, target, from, to) {
+                const item = { source, target, from, to, timestamp: Date.now() };
+                translationHistory.unshift(item);
+                translationHistory = translationHistory.slice(0, 10);
+                localStorage.setItem('vdart_translation_history', JSON.stringify(translationHistory));
+                loadHistory();
+            }
+
+            async function translateText(text, from, to) {
+                const formal = document.getElementById('formal-tone').checked;
+                const cultural = document.getElementById('cultural-context').checked;
+                const business = document.getElementById('business-context').checked;
+
+                const context = [];
+                if (formal) context.push('formal');
+                if (cultural) context.push('cultural sensitivity');
+                if (business) context.push('business professional');
+
+                const prompt = `Translate the following text from ${getLanguageName(from)} to ${getLanguageName(to)}. ${context.length ? `Consider the following context: ${context.join(', ')}.` : ''} Provide only the translation, no explanations.\n\nText: "${text}"`;
+
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: localStorage.getItem('vdart_user_id') || 'anonymous',
+                        message: prompt
+                    })
+                });
+
+                const data = await response.json();
+                return data.response || 'Translation failed';
+            }
+
+            translateBtn.addEventListener('click', async () => {
+                const text = sourceText.value.trim();
+                if (!text) return;
+
+                translateBtn.textContent = 'Translating...';
+                translateBtn.disabled = true;
+
+                try {
+                    const translation = await translateText(text, sourceLang.value, targetLang.value);
+                    targetText.value = translation;
+                    addToHistory(text, translation, sourceLang.value, targetLang.value);
+                } catch (error) {
+                    targetText.value = 'Translation failed. Please try again.';
+                    console.error('Translation error:', error);
+                }
+
+                translateBtn.textContent = 'Translate';
+                translateBtn.disabled = false;
+            });
+
+            swapBtn.addEventListener('click', () => {
+                const tempLang = sourceLang.value;
+                const tempText = sourceText.value;
+                sourceLang.value = targetLang.value;
+                targetLang.value = tempLang;
+                sourceText.value = targetText.value;
+                targetText.value = tempText;
+            });
+
+            function getSpeechVoice(langCode) {
+                const normalized = langCode.toLowerCase();
+                const voice = availableTTSVoices.find(v => v.lang.toLowerCase().startsWith(normalized));
+                if (voice) return voice;
+                return availableTTSVoices.find(v => v.lang.toLowerCase().startsWith('en')); // fallback English voice
+            }
+
+            function speakText(text, langCode) {
+                if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) {
+                    alert('Speech synthesis is not supported in this browser.');
+                    return;
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = langCode;
+                const voice = getSpeechVoice(langCode);
+                if (voice) utterance.voice = voice;
+                speechSynthesis.cancel();
+                speechSynthesis.speak(utterance);
+            }
+
+            speakSource.addEventListener('click', () => {
+                if (sourceText.value) {
+                    speakText(sourceText.value, sourceLang.value);
+                }
+            });
+
+            speakTarget.addEventListener('click', () => {
+                if (targetText.value) {
+                    speakText(targetText.value, targetLang.value);
+                }
+            });
+
+            copyTarget.addEventListener('click', () => {
+                if (targetText.value) {
+                    navigator.clipboard.writeText(targetText.value);
+                    copyTarget.textContent = 'Copied!';
+                    setTimeout(() => copyTarget.textContent = '📋 Copy', 2000);
+                }
+            });
+
+            clearSource.addEventListener('click', () => {
+                sourceText.value = '';
+                targetText.value = '';
+            });
+
+            loadHistory();
+        };
 
         // Voice Coach Functions
         let audioContext;

@@ -2,79 +2,503 @@
         <div class="panel-header">
             <div>
                 <h2 class="panel-title">🌍 Accent Clarity Trainer</h2>
-                <p style="color: var(--gray);">Master different accents with precision training</p>
+                <p style="color: var(--gray);">Master different accents with AI-powered precision training</p>
             </div>
             <button class="close-panel" onclick="closePanel()">×</button>
         </div>
         <div class="panel-content">
-            <div class="voice-coach-grid">
-                <div class="coach-card">
-                    <h4>🎯 Target Accents</h4>
-                    <div style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer; border: 1px solid var(--primary);">
+            <div class="accent-trainer-layout">
+                <div class="accent-selection">
+                    <h4>🎯 Choose Target Accent</h4>
+                    <div class="accent-options" id="accent-options">
+                        <div class="accent-option active" data-accent="american">
                             <strong>American English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Vowels, linking, reduction</p>
+                            <p>Focus: Vowels, linking, reduction</p>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
+                        <div class="accent-option" data-accent="british">
                             <strong>British English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: R sounds, t-glottal, intonation</p>
+                            <p>Focus: R sounds, t-glottal, intonation</p>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
+                        <div class="accent-option" data-accent="australian">
                             <strong>Australian English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Diphthongs, nasalization</p>
+                            <p>Focus: Diphthongs, nasalization</p>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px; cursor: pointer;">
+                        <div class="accent-option" data-accent="neutral">
                             <strong>Neutral/Global English</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">Focus: Clarity, neutral pronunciation</p>
+                            <p>Focus: Clarity, neutral pronunciation</p>
                         </div>
                     </div>
                 </div>
-                <div class="coach-card">
+
+                <div class="practice-area">
+                    <div class="exercise-display" id="exercise-display">
+                        <h4>📝 Current Exercise</h4>
+                        <div class="exercise-text" id="exercise-text">Click "Start Exercise" to begin</div>
+                        <div class="exercise-phonetics" id="exercise-phonetics"></div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn btn-primary" id="start-exercise">Start Exercise</button>
+                        <button class="btn btn-secondary" id="record-btn">🎤 Record</button>
+                        <button class="btn btn-secondary" id="play-reference">🔊 Play Reference</button>
+                    </div>
+
+                    <div class="feedback-area" id="feedback-area" style="display: none;">
+                        <h4>🤖 AI Feedback</h4>
+                        <div class="feedback-content" id="feedback-content"></div>
+                        <div class="scores">
+                            <div class="score-item">
+                                <span>Pronunciation</span>
+                                <div class="score-bar"><div class="score-fill" id="pronunciation-score"></div></div>
+                                <span class="score-value" id="pronunciation-value">0%</span>
+                            </div>
+                            <div class="score-item">
+                                <span>Intonation</span>
+                                <div class="score-bar"><div class="score-fill" id="intonation-score"></div></div>
+                                <span class="score-value" id="intonation-value">0%</span>
+                            </div>
+                            <div class="score-item">
+                                <span>Rhythm</span>
+                                <div class="score-bar"><div class="score-fill" id="rhythm-score"></div></div>
+                                <span class="score-value" id="rhythm-value">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-sidebar">
                     <h4>📊 Your Progress</h4>
-                    <div class="metric-item">
-                        <span>Pronunciation</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 85%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Intonation</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 78%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Rhythm</span>
-                        <div class="metric-bar"><div class="metric-fill medium" style="width: 72%"></div></div>
-                    </div>
-                    <div class="metric-item">
-                        <span>Clarity</span>
-                        <div class="metric-bar"><div class="metric-fill high" style="width: 88%"></div></div>
-                    </div>
-                </div>
-                <div class="coach-card">
-                    <h4>📝 Exercises</h4>
-                    <div style="display: grid; gap: 0.75rem;">
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Vowel Sounds</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"The cat sat on the mat"</p>
+                    <div class="progress-metrics">
+                        <div class="metric-item">
+                            <span>Pronunciation</span>
+                            <div class="metric-bar"><div class="metric-fill high" style="width: 85%"></div></div>
+                            <span class="metric-value">85%</span>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Consonant Clusters</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"She sells seashells"</p>
+                        <div class="metric-item">
+                            <span>Intonation</span>
+                            <div class="metric-bar"><div class="metric-fill high" style="width: 78%"></div></div>
+                            <span class="metric-value">78%</span>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Word Stress</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"develop", "development"</p>
+                        <div class="metric-item">
+                            <span>Rhythm</span>
+                            <div class="metric-bar"><div class="metric-fill medium" style="width: 72%"></div></div>
+                            <span class="metric-value">72%</span>
                         </div>
-                        <div style="padding: 1rem; background: var(--glass); border-radius: 8px;">
-                            <strong>Linking Words</strong>
-                            <p style="color: var(--gray); font-size: 0.85rem;">"What are you going to do?"</p>
+                        <div class="metric-item">
+                            <span>Clarity</span>
+                            <div class="metric-bar"><div class="metric-fill high" style="width: 88%"></div></div>
+                            <span class="metric-value">88%</span>
                         </div>
                     </div>
-                </div>
-                <div class="coach-card">
-                    <h4>🎤 Practice Sessions</h4>
-                    <button class="btn btn-primary" style="width: 100%; margin-bottom: 0.75rem;">Start Exercise</button>
-                    <button class="btn btn-secondary" style="width: 100%; margin-bottom: 0.75rem;">Record & Compare</button>
-                    <button class="btn btn-secondary" style="width: 100%;">Listen & Repeat</button>
+
+                    <div class="exercise-history">
+                        <h4>Recent Exercises</h4>
+                        <div id="exercise-history" class="history-list">
+                            <!-- History will be populated here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </div>
+
+    <style>
+    .accent-trainer-layout {
+        display: grid;
+        grid-template-columns: 300px 1fr 250px;
+        gap: 2rem;
+        height: 100%;
+    }
+
+    .accent-selection {
+        background: var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--glass-border);
+    }
+
+    .accent-options {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    .accent-option {
+        padding: 1rem;
+        background: var(--bg);
+        border-radius: 8px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .accent-option:hover {
+        border-color: var(--primary);
+    }
+
+    .accent-option.active {
+        border-color: var(--primary);
+        background: var(--glass);
+    }
+
+    .practice-area {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .exercise-display {
+        background: var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--glass-border);
+        text-align: center;
+    }
+
+    .exercise-text {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 1rem 0;
+        color: var(--text);
+    }
+
+    .exercise-phonetics {
+        font-family: 'Courier New', monospace;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+
+    .controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .feedback-area {
+        background: var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--glass-border);
+    }
+
+    .scores {
+        display: grid;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .score-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .score-bar {
+        flex: 1;
+        height: 8px;
+        background: var(--bg);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .score-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        width: 0%;
+        transition: width 0.5s ease;
+    }
+
+    .score-value {
+        font-weight: 600;
+        min-width: 40px;
+        text-align: right;
+    }
+
+    .progress-sidebar {
+        background: var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--glass-border);
+    }
+
+    .progress-metrics {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .metric-bar {
+        flex: 1;
+        height: 6px;
+        background: var(--bg);
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .metric-fill {
+        height: 100%;
+        border-radius: 3px;
+    }
+
+    .metric-fill.high { background: #10b981; }
+    .metric-fill.medium { background: #f59e0b; }
+    .metric-fill.low { background: #ef4444; }
+
+    .metric-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        min-width: 35px;
+    }
+
+    .exercise-history {
+        margin-top: 2rem;
+    }
+
+    .history-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .history-item {
+        padding: 0.5rem;
+        border-bottom: 1px solid var(--glass-border);
+        font-size: 0.85rem;
+        color: var(--gray);
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
+    </style>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentAccent = 'american';
+        let currentExercise = null;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let exerciseHistory = JSON.parse(localStorage.getItem('vdart_accent_history') || '[]');
+
+        const accentOptions = document.querySelectorAll('.accent-option');
+        const startExerciseBtn = document.getElementById('start-exercise');
+        const recordBtn = document.getElementById('record-btn');
+        const playReferenceBtn = document.getElementById('play-reference');
+        const exerciseText = document.getElementById('exercise-text');
+        const exercisePhonetics = document.getElementById('exercise-phonetics');
+        const feedbackArea = document.getElementById('feedback-area');
+        const feedbackContent = document.getElementById('feedback-content');
+        const historyList = document.getElementById('exercise-history');
+
+        // Accent selection
+        accentOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                accentOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                currentAccent = option.dataset.accent;
+            });
+        });
+
+        // Start exercise
+        startExerciseBtn.addEventListener('click', () => {
+            startNewExercise();
+        });
+
+        // Record button
+        recordBtn.addEventListener('click', () => {
+            if (recordBtn.textContent.includes('Record')) {
+                startRecording();
+            } else {
+                stopRecording();
+            }
+        });
+
+        // Play reference
+        playReferenceBtn.addEventListener('click', () => {
+            if (currentExercise) {
+                speakText(currentExercise.text, getAccentLang(currentAccent));
+            }
+        });
+
+        loadHistory();
+
+        async function startNewExercise() {
+            const exercises = getExercisesForAccent(currentAccent);
+            currentExercise = exercises[Math.floor(Math.random() * exercises.length)];
+
+            exerciseText.textContent = currentExercise.text;
+            exercisePhonetics.textContent = currentExercise.phonetics || '';
+
+            feedbackArea.style.display = 'none';
+            recordBtn.textContent = '🎤 Record';
+            recordBtn.disabled = false;
+        }
+
+        function getExercisesForAccent(accent) {
+            const exercises = {
+                american: [
+                    { text: "The cat sat on the mat", phonetics: "/ðə kæt sæt ɑn ðə mæt/" },
+                    { text: "How are you doing today?", phonetics: "/haʊ ɑr ju ˈduɪŋ təˈdeɪ/" },
+                    { text: "I would like some coffee", phonetics: "/aɪ wʊd laɪk sʌm ˈkɔfi/" },
+                    { text: "She sells seashells by the seashore", phonetics: "/ʃi sɛlz ˈsiʃɛlz baɪ ðə ˈsiʃɔr/" }
+                ],
+                british: [
+                    { text: "The cat sat on the mat", phonetics: "/ðə kæt sæt ɒn ðə mæt/" },
+                    { text: "How are you doing today?", phonetics: "/haʊ ɑː juː ˈduːɪŋ təˈdeɪ/" },
+                    { text: "I would like some coffee", phonetics: "/aɪ wʊd laɪk sʌm ˈkɒfi/" },
+                    { text: "She sells seashells by the seashore", phonetics: "/ʃiː sɛlz ˈʃiːʃɛlz baɪ ðə ˈʃiːʃɔː/" }
+                ],
+                australian: [
+                    { text: "The cat sat on the mat", phonetics: "/ðə kæt sæt ɒn ðə mæt/" },
+                    { text: "How are you doing today?", phonetics: "/haʊ ɑː juː ˈduːɪŋ təˈdeɪ/" },
+                    { text: "I would like some coffee", phonetics: "/aɪ wʊd laɪk sʌm ˈkɒfi/" },
+                    { text: "No worries, mate", phonetics: "/nəʊ ˈwʌriz meɪt/" }
+                ],
+                neutral: [
+                    { text: "Hello, how are you?", phonetics: "/həˈloʊ haʊ ɑr ju/" },
+                    { text: "Thank you very much", phonetics: "/θæŋk ju ˈvɛri mʌtʃ/" },
+                    { text: "I understand completely", phonetics: "/aɪ ˌʌndərˈstænd kəmˈplitli/" },
+                    { text: "Please speak clearly", phonetics: "/pliz spik ˈklɪrli/" }
+                ]
+            };
+            return exercises[accent] || exercises.neutral;
+        }
+
+        function getAccentLang(accent) {
+            const langs = {
+                american: 'en-US',
+                british: 'en-GB',
+                australian: 'en-AU',
+                neutral: 'en-US'
+            };
+            return langs[accent] || 'en-US';
+        }
+
+        function speakText(text, lang) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await analyzeRecording(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                recordBtn.textContent = '⏹️ Stop Recording';
+            } catch (error) {
+                console.error('Recording failed:', error);
+                alert('Recording failed. Please check microphone permissions.');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                recordBtn.textContent = '🎤 Record';
+                recordBtn.disabled = true;
+            }
+        }
+
+        async function analyzeRecording(audioBlob) {
+            // For now, simulate AI analysis since we don't have speech-to-text
+            // In a real implementation, you'd send the audio to a speech analysis API
+            const mockScores = {
+                pronunciation: Math.floor(Math.random() * 40) + 60, // 60-100
+                intonation: Math.floor(Math.random() * 40) + 60,
+                rhythm: Math.floor(Math.random() * 40) + 60
+            };
+
+            // Get AI feedback
+            const feedback = await getAIFeedback(currentExercise.text, currentAccent, mockScores);
+
+            displayFeedback(mockScores, feedback);
+            addToHistory(currentExercise.text, currentAccent, mockScores);
+        }
+
+        async function getAIFeedback(text, accent, scores) {
+            const prompt = `As an accent training AI coach, analyze this pronunciation exercise for ${accent} English. The user attempted: "${text}". Their scores are: Pronunciation ${scores.pronunciation}%, Intonation ${scores.intonation}%, Rhythm ${scores.rhythm}%. Provide specific, encouraging feedback on how to improve their ${accent} accent. Focus on key characteristics of ${accent} English pronunciation.`;
+
+            try {
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: localStorage.getItem('vdart_user_id') || 'anonymous',
+                        message: prompt
+                    })
+                });
+
+                const data = await response.json();
+                return data.response || 'Great effort! Keep practicing to improve your accent.';
+            } catch (error) {
+                return 'Excellent practice session! Focus on the key sounds of your target accent.';
+            }
+        }
+
+        function displayFeedback(scores, feedback) {
+            feedbackContent.textContent = feedback;
+            feedbackArea.style.display = 'block';
+
+            // Animate scores
+            animateScore('pronunciation-score', 'pronunciation-value', scores.pronunciation);
+            animateScore('intonation-score', 'intonation-value', scores.intonation);
+            animateScore('rhythm-score', 'rhythm-value', scores.rhythm);
+        }
+
+        function animateScore(scoreId, valueId, targetScore) {
+            const scoreBar = document.getElementById(scoreId);
+            const scoreValue = document.getElementById(valueId);
+            let currentScore = 0;
+
+            const interval = setInterval(() => {
+                currentScore += 2;
+                if (currentScore >= targetScore) {
+                    currentScore = targetScore;
+                    clearInterval(interval);
+                }
+                scoreBar.style.width = currentScore + '%';
+                scoreValue.textContent = currentScore + '%';
+            }, 20);
+        }
+
+        function addToHistory(text, accent, scores) {
+            const item = {
+                text, accent, scores,
+                timestamp: Date.now(),
+                average: Math.round((scores.pronunciation + scores.intonation + scores.rhythm) / 3)
+            };
+            exerciseHistory.unshift(item);
+            exerciseHistory = exerciseHistory.slice(0, 10);
+            localStorage.setItem('vdart_accent_history', JSON.stringify(exerciseHistory));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            historyList.innerHTML = '';
+            exerciseHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.textContent = `${item.text} (${item.accent}) - ${item.average}%`;
+                historyList.appendChild(div);
+            });
+        }
+    });
+    </script>

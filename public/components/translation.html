@@ -1,0 +1,475 @@
+    <div class="feature-panels" id="translation-panel">
+        <div class="panel-header">
+            <div>
+                <h2 class="panel-title">🌐 Language Translation</h2>
+                <p style="color: var(--gray);">Professional translation with AI-powered accuracy and cultural context</p>
+            </div>
+            <button class="close-panel" onclick="closePanel()">×</button>
+        </div>
+        <div class="panel-content">
+            <div class="translation-grid">
+                <div class="translation-input">
+                    <h4>Source Language</h4>
+                    <select id="source-lang" class="lang-select">
+                        <optgroup label="English">
+                            <option value="en">English</option>
+                        </optgroup>
+                        <optgroup label="European">
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="pl">Polish</option>
+                            <option value="nl">Dutch</option>
+                            <option value="sv">Swedish</option>
+                            <option value="no">Norwegian</option>
+                            <option value="da">Danish</option>
+                            <option value="cs">Czech</option>
+                            <option value="hu">Hungarian</option>
+                            <option value="ro">Romanian</option>
+                            <option value="el">Greek</option>
+                            <option value="tr">Turkish</option>
+                        </optgroup>
+                        <optgroup label="Asian">
+                            <option value="ru">Russian</option>
+                            <option value="zh">Chinese (Simplified)</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="th">Thai</option>
+                            <option value="vi">Vietnamese</option>
+                            <option value="id">Indonesian</option>
+                            <option value="ms">Malay</option>
+                        </optgroup>
+                        <optgroup label="Indian Languages">
+                            <option value="hi">Hindi</option>
+                            <option value="ta">Tamil</option>
+                            <option value="te">Telugu</option>
+                            <option value="kn">Kannada</option>
+                            <option value="ml">Malayalam</option>
+                            <option value="mr">Marathi</option>
+                            <option value="gu">Gujarati</option>
+                            <option value="bn">Bengali</option>
+                            <option value="pa">Punjabi</option>
+                        </optgroup>
+                        <optgroup label="Middle Eastern & Others">
+                            <option value="ar">Arabic</option>
+                            <option value="ur">Urdu</option>
+                            <option value="fa">Persian (Farsi)</option>
+                            <option value="he">Hebrew</option>
+                            <option value="tl">Tagalog/Filipino</option>
+                        </optgroup>
+                    </select>
+                    <textarea id="source-text" placeholder="Enter text to translate..." rows="6"></textarea>
+                    <div class="input-actions">
+                        <button id="speak-source" class="btn btn-secondary">🔊 Speak</button>
+                        <button id="clear-source" class="btn btn-secondary">Clear</button>
+                    </div>
+                </div>
+
+                <div class="translation-controls">
+                    <button id="swap-langs" class="swap-btn">⇄</button>
+                    <div class="translation-options">
+                        <label><input type="checkbox" id="formal-tone"> Formal</label>
+                        <label><input type="checkbox" id="cultural-context"> Cultural Context</label>
+                        <label><input type="checkbox" id="business-context"> Business</label>
+                    </div>
+                </div>
+
+                <div class="translation-output">
+                    <h4>Target Language</h4>
+                    <select id="target-lang" class="lang-select">
+                        <optgroup label="English">
+                            <option value="en">English</option>
+                        </optgroup>
+                        <optgroup label="European">
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                            <option value="de">German</option>
+                            <option value="it">Italian</option>
+                            <option value="pt">Portuguese</option>
+                            <option value="pl">Polish</option>
+                            <option value="nl">Dutch</option>
+                            <option value="sv">Swedish</option>
+                            <option value="no">Norwegian</option>
+                            <option value="da">Danish</option>
+                            <option value="cs">Czech</option>
+                            <option value="hu">Hungarian</option>
+                            <option value="ro">Romanian</option>
+                            <option value="el">Greek</option>
+                            <option value="tr">Turkish</option>
+                        </optgroup>
+                        <optgroup label="Asian">
+                            <option value="ru">Russian</option>
+                            <option value="zh">Chinese (Simplified)</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="th">Thai</option>
+                            <option value="vi">Vietnamese</option>
+                            <option value="id">Indonesian</option>
+                            <option value="ms">Malay</option>
+                        </optgroup>
+                        <optgroup label="Indian Languages">
+                            <option value="hi">Hindi</option>
+                            <option value="ta">Tamil</option>
+                            <option value="te">Telugu</option>
+                            <option value="kn">Kannada</option>
+                            <option value="ml">Malayalam</option>
+                            <option value="mr">Marathi</option>
+                            <option value="gu">Gujarati</option>
+                            <option value="bn">Bengali</option>
+                            <option value="pa">Punjabi</option>
+                        </optgroup>
+                        <optgroup label="Middle Eastern & Others">
+                            <option value="ar">Arabic</option>
+                            <option value="ur">Urdu</option>
+                            <option value="fa">Persian (Farsi)</option>
+                            <option value="he">Hebrew</option>
+                            <option value="tl">Tagalog/Filipino</option>
+                        </optgroup>
+                    </select>
+                    <textarea id="target-text" placeholder="Translation will appear here..." rows="6" readonly></textarea>
+                    <div class="output-actions">
+                        <button id="speak-target" class="btn btn-secondary">🔊 Speak</button>
+                        <button id="copy-target" class="btn btn-secondary">📋 Copy</button>
+                        <button id="translate-btn" class="btn btn-primary">Translate</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="translation-history">
+                <h4>Recent Translations</h4>
+                <div id="history-list" class="history-list">
+                    <!-- History items will be populated here -->
+                </div>
+            </div>
+
+            <style>
+            .translation-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                align-items: stretch;
+                width: 100%;
+                max-width: 1100px;
+                margin: 0 auto;
+            }
+
+    @media (min-width: 1100px) {
+        .translation-grid {
+            grid-template-columns: 1.1fr 0.6fr 1.1fr;
+            align-items: start;
+            gap: 2rem;
+        }
+    }
+
+    .translation-input, .translation-output {
+        background: var(--glass);
+        border-radius: 16px;
+        padding: 1.75rem;
+        border: 1px solid var(--glass-border);
+        width: 100%;
+        min-height: 380px;
+        box-shadow: 0 40px 80px rgba(15, 23, 42, 0.08);
+    }
+
+    .translation-input h4,
+    .translation-output h4,
+    .translation-history h4 {
+        margin-bottom: 0.75rem;
+    }
+
+    .lang-select {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 1rem;
+        background: var(--bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: #e0e0e0;
+        font-size: 0.95rem;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.5;
+    }
+
+    .input-actions, .output-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+        justify-content: flex-start;
+    }
+
+    .output-actions {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .input-actions button,
+    .output-actions button {
+        min-width: 120px;
+        flex: 1;
+    }
+
+    .output-actions button {
+        min-width: 120px;
+    }
+
+    .translation-controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .translation-controls .translation-options {
+        flex: 1;
+        min-width: 240px;
+    }
+
+    .translation-controls .swap-btn {
+        margin-right: 0.5rem;
+    }
+
+    .swap-btn {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15);
+    }
+
+    .swap-btn:hover {
+        transform: scale(1.05);
+    }
+
+    .translation-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .translation-options label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+
+    .translation-history {
+        margin-top: 2rem;
+        background: var(--glass);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 30px 60px rgba(15, 23, 42, 0.08);
+    }
+
+    .history-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .history-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--glass-border);
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .history-item:hover {
+        background: var(--bg);
+    }
+
+    .history-item:last-child {
+        border-bottom: none;
+    }
+
+    .history-text {
+        font-size: 0.9rem;
+        color: var(--gray);
+        margin-top: 0.25rem;
+    }
+    </style>
+
+    <script>
+    (function() {
+        if (window._vdartTranslationInitialized) return;
+        const sourceText = document.getElementById('source-text');
+        const targetText = document.getElementById('target-text');
+        const sourceLang = document.getElementById('source-lang');
+        const targetLang = document.getElementById('target-lang');
+        const translateBtn = document.getElementById('translate-btn');
+        const swapBtn = document.getElementById('swap-langs');
+        const speakSource = document.getElementById('speak-source');
+        const speakTarget = document.getElementById('speak-target');
+        const copyTarget = document.getElementById('copy-target');
+        const clearSource = document.getElementById('clear-source');
+        const historyList = document.getElementById('history-list');
+
+        let translationHistory = JSON.parse(localStorage.getItem('vdart_translation_history') || '[]');
+
+        // Load history
+        loadHistory();
+
+        // Translate button
+        translateBtn.addEventListener('click', async () => {
+            const text = sourceText.value.trim();
+            if (!text) return;
+
+            translateBtn.textContent = 'Translating...';
+            translateBtn.disabled = true;
+
+            try {
+                const result = await translateText(text, sourceLang.value, targetLang.value);
+                targetText.value = result.translation;
+
+                // Add to history
+                addToHistory(text, result.translation, sourceLang.value, targetLang.value);
+            } catch (error) {
+                targetText.value = 'Translation failed. Please try again.';
+                console.error('Translation error:', error);
+            }
+
+            translateBtn.textContent = 'Translate';
+            translateBtn.disabled = false;
+        });
+
+        // Swap languages
+        swapBtn.addEventListener('click', () => {
+            const tempLang = sourceLang.value;
+            const tempText = sourceText.value;
+
+            sourceLang.value = targetLang.value;
+            targetLang.value = tempLang;
+            sourceText.value = targetText.value;
+            targetText.value = tempText;
+        });
+
+        // Speak source
+        speakSource.addEventListener('click', () => {
+            if (sourceText.value) {
+                speakText(sourceText.value, sourceLang.value);
+            }
+        });
+
+        // Speak target
+        speakTarget.addEventListener('click', () => {
+            if (targetText.value) {
+                speakText(targetText.value, targetLang.value);
+            }
+        });
+
+        // Copy target
+        copyTarget.addEventListener('click', () => {
+            if (targetText.value) {
+                navigator.clipboard.writeText(targetText.value);
+                copyTarget.textContent = 'Copied!';
+                setTimeout(() => copyTarget.textContent = '📋 Copy', 2000);
+            }
+        });
+
+        // Clear source
+        clearSource.addEventListener('click', () => {
+            sourceText.value = '';
+            targetText.value = '';
+        });
+
+        async function translateText(text, from, to) {
+            const formal = document.getElementById('formal-tone').checked;
+            const cultural = document.getElementById('cultural-context').checked;
+            const business = document.getElementById('business-context').checked;
+
+            const context = [];
+            if (formal) context.push('formal');
+            if (cultural) context.push('cultural sensitivity');
+            if (business) context.push('business professional');
+
+            const prompt = `Translate the following text from ${getLanguageName(from)} to ${getLanguageName(to)}. ${context.length ? `Consider the following context: ${context.join(', ')}.` : ''} Provide only the translation, no explanations.
+
+Text: "${text}"`;
+
+            const response = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: localStorage.getItem('vdart_user_id') || 'anonymous',
+                    message: prompt
+                })
+            });
+
+            const data = await response.json();
+            return { translation: data.response || 'Translation failed' };
+        }
+
+        function speakText(text, lang) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            speechSynthesis.speak(utterance);
+        }
+
+        function getLanguageName(code) {
+            const langs = {
+                en: 'English', es: 'Spanish', fr: 'French', de: 'German',
+                it: 'Italian', pt: 'Portuguese', ru: 'Russian', ja: 'Japanese',
+                ko: 'Korean', zh: 'Chinese', ar: 'Arabic', hi: 'Hindi'
+            };
+            return langs[code] || code;
+        }
+
+        function addToHistory(source, target, from, to) {
+            const item = {
+                source, target, from, to, timestamp: Date.now()
+            };
+            translationHistory.unshift(item);
+            translationHistory = translationHistory.slice(0, 10); // Keep last 10
+            localStorage.setItem('vdart_translation_history', JSON.stringify(translationHistory));
+            loadHistory();
+        }
+
+        function loadHistory() {
+            historyList.innerHTML = '';
+            translationHistory.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div><strong>${getLanguageName(item.from)} → ${getLanguageName(item.to)}</strong></div>
+                    <div class="history-text">${item.source.substring(0, 50)}${item.source.length > 50 ? '...' : ''}</div>
+                `;
+                div.addEventListener('click', () => {
+                    sourceText.value = item.source;
+                    targetText.value = item.target;
+                    sourceLang.value = item.from;
+                    targetLang.value = item.to;
+                });
+                historyList.appendChild(div);
+            });
+        }
+    })();
+    </script>
